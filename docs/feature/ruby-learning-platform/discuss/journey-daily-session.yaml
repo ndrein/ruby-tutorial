@@ -1,0 +1,361 @@
+journey:
+  name: "Daily Session"
+  goal: "Ana completes her full daily session — SM-2 review queue plus one new lesson — within 15 minutes without making any decisions about what to study"
+  persona: "Ana Folau — 2 weeks into daily practice, Lessons 1-4 complete, 6 SM-2 reviews due"
+  job_story_ref: "JS-01, JS-03, JS-04"
+
+  emotional_arc:
+    start: "Trusting and ready — expects the tool to have prepared today's work"
+    middle: "Focused and flowing — fast feedback loop, no decisions to make"
+    end: "Accomplished and complete — done in time, retention growing visibly"
+
+steps:
+  - id: 1
+    name: "Session Dashboard — Today's Overview"
+    action: "User opens platform; session summary pre-computed and displayed"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Good morning. Today's session:                             |
+      |                                                            |
+      |  Review queue:  6 exercises  (~3 min)                     |
+      |  New lesson:    Lesson 5: Array Methods  (~4 min)         |
+      |                                                            |
+      |  Total: ~7 minutes                                         |
+      |                                                            |
+      | [Enter] Start session  [t] Select different topic          |
+      | [p] Progress dashboard  [?] Help                          |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "review_queue_count"
+        source: "sm2_engine (due today, computed at session start)"
+        displayed_as: "N exercises (~M min)"
+        consumers: ["step 1 overview", "step 6 review complete", "step 9 summary"]
+      - name: "review_queue_time_estimate"
+        source: "sm2_engine (review_count * 30s + transitions)"
+        displayed_as: "~N min"
+        consumers: ["step 1 overview"]
+      - name: "next_lesson_title"
+        source: "db/curriculum/prerequisites.yml (resolver: next available after latest complete)"
+        displayed_as: "Lesson N: ${next_lesson_title}"
+        consumers: ["step 1 overview", "step 7 lesson start", "step 9 summary"]
+      - name: "session_time_estimate"
+        source: "session/estimator (review_estimate + lesson_estimate)"
+        displayed_as: "Total: ~N minutes"
+        consumers: ["step 1 overview"]
+
+    emotional_state:
+      entry: "Trusting — expects system to have prepared the session"
+      exit: "Ready — time estimate confirms session fits schedule"
+
+    integration_checkpoint: |
+      SM-2 engine must compute today's due reviews before this screen renders.
+      Session start must NOT require user to select what to study.
+      next_lesson_title must be resolved from prerequisite graph.
+      If review_queue_count is 0, screen must still render correctly (no queue case).
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Start session (review queue first, then new lesson)"
+      - key: "t"
+        action: "Open topic selection overlay to override next lesson"
+      - key: "p"
+        action: "Navigate to progress dashboard"
+      - key: "?"
+        action: "Show keyboard shortcut reference overlay"
+
+    gherkin: |
+      Scenario: Session dashboard pre-computes today's work
+        Given Ana opens the platform
+        And SM-2 has 6 exercises due today
+        And the next available lesson is Lesson 5
+        When the session dashboard loads
+        Then she sees the review count and time estimate
+        And she sees the next lesson title
+        And she sees a total session time estimate
+        And no selection is required to begin
+
+      Scenario: Session dashboard handles empty review queue
+        Given Ana opens the platform
+        And SM-2 has 0 exercises due today
+        When the session dashboard loads
+        Then she sees "Review queue: 0 exercises (all caught up)"
+        And she sees only the new lesson in the session plan
+
+  - id: 2
+    name: "Review Queue — Exercise"
+    action: "User presses Enter; first SM-2 review exercise loads"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Review  1/6  |  [========                    ] 12s         |
+      |                                                            |
+      | Lesson 2 — String Interpolation                           |
+      |                                                            |
+      | What symbol is used for string interpolation in Ruby?      |
+      |                                                            |
+      | > _                                                        |
+      |                                                            |
+      | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "review_exercise_source"
+        source: "sm2_engine (exercise selected by due date and ease factor)"
+        displayed_as: "Review N/M header"
+        consumers: ["step 2 review exercise", "step 3 review feedback"]
+      - name: "exercise_lesson_label"
+        source: "db/curriculum/lessons.yml (via exercise FK)"
+        displayed_as: "Lesson N — ${lesson_title}"
+        consumers: ["step 2 review exercise", "step 3 review feedback"]
+      - name: "timer_remaining"
+        source: "session/exercise_timer (30s per exercise)"
+        displayed_as: "progress bar + seconds"
+        consumers: ["step 2 review exercise", "step 5 lesson exercise"]
+
+    emotional_state:
+      entry: "Ready — entering flow state"
+      exit: "Focused — actively recalling"
+
+    integration_checkpoint: |
+      SM-2 must order exercises by urgency (most overdue first).
+      Exercise question must be retrieved from curriculum DB.
+      Timer must start on render, not on first keypress.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Submit typed answer"
+      - key: "Tab"
+        action: "Show hint (one per exercise)"
+      - key: "Esc"
+        action: "Skip (marks skipped in SM-2, re-queues for next session)"
+
+    gherkin: |
+      Scenario: Review exercises presented in SM-2 urgency order
+        Given Ana starts a session with 6 reviews due
+        When exercises are presented
+        Then exercises are ordered by how overdue they are (most overdue first)
+        And each exercise shows which lesson it came from
+        And the 30-second timer starts automatically
+
+  - id: 3
+    name: "Review Feedback"
+    action: "User submits answer; SM-2 updates interval and shows feedback"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Correct.  #{expression}                                    |
+      |                                                            |
+      | Next review in: 4 days                                     |
+      |                                                            |
+      | [Enter] Next                                               |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "sm2_next_interval"
+        source: "sm2_engine (computed from ease factor * interval after answer)"
+        displayed_as: "Next review in: N days"
+        consumers: ["step 3 review feedback", "step 5 lesson feedback (post-session)"]
+
+    emotional_state:
+      entry: "Focused — submitted answer"
+      exit: "Informed — knows when this concept will reappear"
+
+    integration_checkpoint: |
+      SM-2 must update interval immediately on answer submission.
+      'Correct' / 'Incorrect' / 'Partial' affects ease factor update formula.
+      Next review date must be stored durably before advancing.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Advance to next review exercise (or review complete screen if last)"
+
+    gherkin: |
+      Scenario: Correct review answer extends SM-2 interval
+        Given Ana submits a correct answer on a review exercise
+        When the feedback screen loads
+        Then she sees "Correct." prominently
+        And she sees the next review interval in days
+        And the interval is longer than the previous interval for this exercise
+
+      Scenario: Incorrect review answer resets SM-2 interval
+        Given Ana submits an incorrect answer on a review exercise
+        When the feedback screen loads
+        Then she sees the correct answer with explanation
+        And the next review interval is 1 day (SM-2 reset)
+
+  - id: 4
+    name: "Review Queue Complete — Transition"
+    action: "All review exercises done; transition screen before new lesson"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Review complete.  6 exercises done.                        |
+      |                                                            |
+      |  Correct:  5/6   (83%)                                    |
+      |  Next review session: tomorrow (~5 exercises scheduled)    |
+      |                                                            |
+      | [Enter] Continue to Lesson 5                              |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "session_correct_count"
+        source: "session/runtime"
+        displayed_as: "Correct: N/M (P%)"
+        consumers: ["step 4 review complete", "step 9 session summary"]
+      - name: "sm2_tomorrow_estimate"
+        source: "sm2_engine (count of exercises with next_due = tomorrow)"
+        displayed_as: "~N exercises scheduled"
+        consumers: ["step 4 review complete"]
+
+    emotional_state:
+      entry: "Transitioning — review phase finished"
+      exit: "Refreshed — ready for new content"
+
+    integration_checkpoint: |
+      Transition screen must reference the correct next_lesson_title
+      (same value as Step 1 overview, sourced from same prerequisite resolver).
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Continue to new lesson"
+
+    gherkin: |
+      Scenario: Review complete screen shows accurate performance summary
+        Given Ana has completed 6 review exercises with 5 correct
+        When the review complete screen renders
+        Then she sees "5/6 (83%)" accuracy
+        And she sees tomorrow's estimated review count
+        And pressing Enter advances to the new lesson
+
+  - id: 5
+    name: "New Lesson"
+    action: "User presses Enter; new lesson content loads"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Lesson 5: Array Methods            Module 1/5  |  3 left   |
+      |                                                            |
+      | In Python, you iterate with list comprehensions:           |
+      |   [x * 2 for x in items]                                  |
+      |                                                            |
+      | In Ruby, you chain Enumerable methods:                     |
+      |   items.map { |x| x * 2 }                                 |
+      |                                                            |
+      | Ruby's approach: object-oriented, chainable, block-based.  |
+      |                                                            |
+      | [Enter] Try it  [Esc] Back                                 |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "lesson_content"
+        source: "db/curriculum/lessons.yml (python_equivalent, ruby_form, explanation)"
+        displayed_as: "side-by-side Python/Ruby comparison"
+        consumers: ["step 5 lesson content"]
+      - name: "module_progress_label"
+        source: "db/curriculum/lessons.yml + progress tracker"
+        displayed_as: "Module N/5 | N lessons left"
+        consumers: ["step 5 lesson header"]
+
+    emotional_state:
+      entry: "Transitioning — moving to new material"
+      exit: "Learning — actively connecting new Ruby syntax to Python knowledge"
+
+    integration_checkpoint: |
+      Lesson content must use Python/Java comparison format — not beginner explanations.
+      Content structure: python_example | ruby_equivalent | explanation_of_difference.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Advance to lesson exercises"
+      - key: "Esc"
+        action: "Return to session overview (saves lesson position)"
+
+    gherkin: |
+      Scenario: New lesson content uses expert-calibrated format
+        Given Ana has completed the review queue
+        When the new lesson content loads
+        Then the lesson shows a Python/Java equivalent before the Ruby form
+        And there is no explanation of what a variable, loop, or OOP is
+        And the focus is on Ruby-specific syntax differences
+
+  - id: 6
+    name: "Session Complete"
+    action: "All lesson exercises complete; session summary renders"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Session complete.                                          |
+      |                                                            |
+      |  Today:   6 reviews + 3 new exercises  |  ~7 min          |
+      |  Streak:  14 days                                          |
+      |                                                            |
+      |  Module 1 progress:  5/5 lessons complete                  |
+      |  Next session:       Module 2, Lesson 6: Method Definition |
+      |  Review queue:       ~5 exercises tomorrow                 |
+      |                                                            |
+      | [Enter] Done  [p] Full progress  [n] Start Lesson 6 now   |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "streak_days"
+        source: "progress_tracker (consecutive days with completed sessions)"
+        displayed_as: "Streak: N days"
+        consumers: ["step 6 session complete"]
+      - name: "module_progress"
+        source: "progress_tracker (lessons_complete / total_lessons per module)"
+        displayed_as: "Module N progress: X/5 lessons complete"
+        consumers: ["step 6 session complete", "progress dashboard"]
+      - name: "next_session_lesson"
+        source: "db/curriculum/prerequisites.yml (resolver: post-current-lesson)"
+        displayed_as: "Next session: ${module_name}, Lesson N: ${lesson_title}"
+        consumers: ["step 6 session complete"]
+
+    emotional_state:
+      entry: "Accomplished — session finished"
+      exit: "Committed — knows tomorrow's session already"
+
+    integration_checkpoint: |
+      All SM-2 updates must be persisted before this screen renders.
+      next_session_lesson must use same resolver as Step 1 (same source).
+      Streak must be incremented after session persists successfully.
+      If [n] is pressed, start Lesson 6 immediately (not a new session).
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Exit to dashboard"
+      - key: "p"
+        action: "Navigate to full progress dashboard"
+      - key: "n"
+        action: "Start next lesson immediately (continues same session context)"
+
+    gherkin: |
+      Scenario: Session summary shows accurate totals
+        Given Ana has completed 6 reviews and 3 lesson exercises
+        When the session complete screen renders
+        Then she sees total exercise count (9) and session duration
+        And she sees streak count in days
+        And she sees the next lesson title ready for tomorrow
+
+      Scenario: Session persists SM-2 state durably
+        Given Ana has completed her session
+        When she presses Enter to exit
+        Then all SM-2 intervals are written to storage
+        And the streak counter increments
+        And the next session dashboard will show updated review queue
+
+integration_validation:
+  shared_artifact_consistency:
+    - artifact: "review_queue_count"
+      must_match_across: [1, 4, 6]
+      failure_message: "Review count shown at session start must match count displayed at review complete"
+    - artifact: "next_lesson_title"
+      must_match_across: [1, 5, 6]
+      failure_message: "Lesson title at session start must match lesson rendered in step 5 and referenced in step 6"
+    - artifact: "session_correct_count"
+      must_match_across: [4, 6]
+      failure_message: "Review accuracy shown in transition must match totals shown in session summary"
+    - artifact: "next_session_lesson"
+      must_match_across: [6, "daily_session_step_1_next_day"]
+      failure_message: "Next lesson shown in session summary must match next session's pre-computed recommendation"

@@ -1,0 +1,377 @@
+journey:
+  name: "Topic Selection"
+  goal: "Ana locates a specific lesson in the curriculum tree, understands its prerequisites, completes any needed prerequisites, and starts the target lesson — driven by an immediate work need"
+  persona: "Ana Folau — 3 weeks in, Module 1 complete, needs blocks knowledge for an active PR review"
+  job_story_ref: "JS-01, JS-02, JS-05"
+
+  emotional_arc:
+    start: "Goal-oriented and impatient — specific work need, wants to get there fast"
+    middle: "Informed and in-control — sees exactly what stands between her and the target"
+    end: "Satisfied and capable — reached the topic on her own terms"
+
+steps:
+  - id: 1
+    name: "Curriculum Tree — Full View"
+    action: "User presses [t] from session dashboard or [c] from any screen"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Curriculum  [/] Search  [j/k] Navigate  [Enter] Select    |
+      |                                                            |
+      | MODULE 1: Ruby Fundamentals                  [COMPLETE]   |
+      |  [x] L1  Syntax Differences                              |
+      |  [x] L2  String Interpolation                            |
+      |  [x] L3  Symbols                                         |
+      |  [x] L4  Ranges                                          |
+      |  [x] L5  Array Methods                                   |
+      |                                                            |
+      | MODULE 2: Methods and Blocks                 [IN PROGRESS] |
+      |  [ ] L6  Method Definition       <- NEXT (unlocked)       |
+      |  [~] L7  Blocks and Yield        <- LOCKED (needs L6)    |
+      |  [~] L8  Procs and Lambdas       <- LOCKED (needs L7)    |
+      |  [~] L9  Method Objects          <- LOCKED (needs L7)    |
+      |  [~] L10 Enumerable              <- LOCKED (needs L8,L9) |
+      |                                                            |
+      | MODULE 3: Ruby Object Model                  [LOCKED]      |
+      | MODULE 4: Ruby Idioms                        [LOCKED]      |
+      | MODULE 5: Standard Library Essentials        [LOCKED]      |
+      |                                                            |
+      | [Esc] Back to session                                      |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "curriculum_structure"
+        source: "db/curriculum/lessons.yml"
+        displayed_as: "module hierarchy with lesson titles"
+        consumers: ["step 1 curriculum tree", "onboarding step 2", "lesson tree navigation journey"]
+      - name: "lesson_status"
+        source: "progress_tracker (complete/available/locked per lesson)"
+        displayed_as: "[x] complete, [ ] available, [~] locked"
+        consumers: ["step 1 curriculum tree", "step 5 unlock notification", "progress dashboard"]
+      - name: "prerequisite_graph"
+        source: "db/curriculum/prerequisites.yml"
+        displayed_as: "(needs L6), (needs L8,L9)"
+        consumers: ["step 1 curriculum tree inline", "step 2 lock screen detail"]
+      - name: "module_status"
+        source: "progress_tracker (derived: module complete if all lessons complete)"
+        displayed_as: "[COMPLETE], [IN PROGRESS], [LOCKED]"
+        consumers: ["step 1 curriculum tree module headers"]
+
+    emotional_state:
+      entry: "Impatient — wants to get to a specific lesson fast"
+      exit: "Oriented — full curriculum visible, can locate target"
+
+    integration_checkpoint: |
+      Curriculum tree must render the real-time lock state from progress_tracker.
+      prerequisite_graph inline labels (needs L6) must match lock screen detail.
+      Module status must be derived consistently with lesson-level status.
+
+    keyboard_navigation:
+      - key: "j"
+        action: "Move cursor down one lesson"
+      - key: "k"
+        action: "Move cursor up one lesson"
+      - key: "J"
+        action: "Jump to next module"
+      - key: "K"
+        action: "Jump to previous module"
+      - key: "/"
+        action: "Open inline search to filter lessons by name/keyword"
+      - key: "Enter"
+        action: "Select highlighted lesson (start if available, lock screen if locked)"
+      - key: "Esc"
+        action: "Return to session dashboard (or previous screen)"
+
+    gherkin: |
+      Scenario: Curriculum tree shows accurate lock states for active user
+        Given Ana has completed Module 1 (Lessons 1-5)
+        And Lesson 6 is available and Lessons 7-25 are locked
+        When she opens the curriculum tree
+        Then Module 1 shows [COMPLETE] status
+        And Module 2 shows [IN PROGRESS] status
+        And Lessons 7-10 show [~] locked with prerequisite labels
+        And all modules 3-5 show [LOCKED]
+
+      Scenario: User can search curriculum by keyword
+        Given Ana has the curriculum tree open
+        When she types [/] and enters "block"
+        Then the tree filters to show only lessons with "block" in title
+        And Lesson 7 "Blocks and Yield" and Lesson 8 "Procs and Lambdas" are visible
+        And other lessons are hidden (not removed, just not shown)
+
+  - id: 2
+    name: "Lock Screen — Prerequisite Detail"
+    action: "User presses Enter on a locked lesson; lock screen with prerequisites shown"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | L7: Blocks and Yield                          [LOCKED]     |
+      |                                                            |
+      | Why locked:                                                |
+      |   Requires: L6 Method Definition (not yet complete)       |
+      |                                                            |
+      | What L7 covers:                                            |
+      |   - Block syntax: do...end vs { }                         |
+      |   - yield keyword                                         |
+      |   - Implicit vs explicit blocks                            |
+      |   - block_given? guard pattern                            |
+      |                                                            |
+      | What L6 covers (prerequisite):                             |
+      |   - def/end syntax                                        |
+      |   - Default argument values                               |
+      |   - Keyword arguments                                     |
+      |   - Return values (implicit)                              |
+      |                                                            |
+      | [Enter] Go to L6 first  [Esc] Back to curriculum           |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "locked_lesson_topics"
+        source: "db/curriculum/lessons.yml (topic_list per lesson)"
+        displayed_as: "What L7 covers: bullet list"
+        consumers: ["step 2 lock screen"]
+      - name: "prerequisite_lesson_topics"
+        source: "db/curriculum/lessons.yml (topic_list for each prerequisite)"
+        displayed_as: "What L6 covers: bullet list"
+        consumers: ["step 2 lock screen"]
+      - name: "prerequisite_completion_status"
+        source: "progress_tracker x prerequisite_graph"
+        displayed_as: "(not yet complete) vs (complete)"
+        consumers: ["step 2 lock screen", "step 5 unlock screen"]
+
+    emotional_state:
+      entry: "Curious — wants to understand the gate"
+      exit: "Informed — understands exactly what is required and why it matters"
+
+    integration_checkpoint: |
+      Lock screen must show ALL prerequisites, with completion status per-prerequisite.
+      Lock screen must show target lesson's topics AND prerequisite lesson's topics.
+      [Enter] must navigate directly to the first incomplete prerequisite.
+      If multiple prerequisites: navigate to first incomplete one.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Navigate to first incomplete prerequisite lesson"
+      - key: "Esc"
+        action: "Return to curriculum tree"
+
+    gherkin: |
+      Scenario: Lock screen explains prerequisite with content preview
+        Given Ana selects Lesson 7 which is locked
+        And Lesson 6 is the prerequisite and has not been completed
+        When the lock screen renders
+        Then she sees why L7 is locked (L6 not complete)
+        And she sees what topics L7 covers
+        And she sees what topics L6 covers (the prerequisite)
+        And pressing Enter navigates her to L6
+
+      Scenario: Lock screen handles multiple prerequisites
+        Given Ana selects Lesson 10 which requires L8 and L9
+        And L8 is complete but L9 is not complete
+        When the lock screen renders
+        Then she sees both L8 (complete) and L9 (not complete)
+        And pressing Enter navigates to L9 (the incomplete prerequisite)
+
+  - id: 3
+    name: "Prerequisite Lesson — Content"
+    action: "User presses Enter from lock screen; navigated to prerequisite lesson"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Lesson 6: Method Definition         Module 2/5  |  ~4 min  |
+      |                                                            |
+      | In Python, you define functions with def and colons.       |
+      | Ruby methods use def...end (like a block, not indentation) |
+      |                                                            |
+      | def greet(name, greeting: "Hello")                        |
+      |   "#{greeting}, #{name}!"                                 |
+      | end                                                        |
+      |                                                            |
+      | Key differences: keyword arguments, implicit return,       |
+      | no type annotations, no self-parameter.                    |
+      |                                                            |
+      | [Enter] Start exercises  [Esc] Back                        |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "lesson_content"
+        source: "db/curriculum/lessons.yml (python_equivalent, ruby_form, explanation)"
+        displayed_as: "Python comparison + Ruby syntax block + key differences"
+        consumers: ["step 3 prerequisite lesson", "daily session step 5 lesson"]
+
+    emotional_state:
+      entry: "Purposeful — doing this to unlock a specific target"
+      exit: "Focused — content is new enough to be worth learning"
+
+    integration_checkpoint: |
+      Lesson content format must match daily session lesson format exactly.
+      This lesson is being approached via topic selection override, not SM-2.
+      SM-2 must still record exercises from this lesson with normal weight.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Start lesson exercises"
+      - key: "Esc"
+        action: "Return to curriculum tree (save position, do not lose progress)"
+
+    gherkin: |
+      Scenario: Prerequisite lesson uses expert-calibrated content
+        Given Ana has been routed to L6 from the L7 lock screen
+        When Lesson 6 content loads
+        Then the lesson shows Python function syntax before Ruby method syntax
+        And the lesson does not explain what a function/method is conceptually
+        And the lesson focuses only on Ruby-specific differences
+
+  - id: 4
+    name: "Prerequisite Lesson — Exercises"
+    action: "User completes exercises; same flow as daily session exercises"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Exercise  1/3  |  Lesson 6  |  [=======              ] 22s |
+      |                                                            |
+      | Translate to Ruby:                                         |
+      |   def calculate(x, y=10):  # Python                       |
+      |       return x + y                                        |
+      |                                                            |
+      | > _                                                        |
+      |                                                            |
+      | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "timer_remaining"
+        source: "session/exercise_timer (30s per exercise)"
+        displayed_as: "progress bar + seconds"
+        consumers: ["step 4 exercises", "daily session step 2 review", "onboarding step 4 exercise"]
+
+    emotional_state:
+      entry: "Focused — one lesson away from the target"
+      exit: "Accomplished — prerequisite done"
+
+    integration_checkpoint: |
+      SM-2 must record these exercises at normal weight.
+      Exercises in topic-selection-driven sessions are not lower quality for SM-2 purposes.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Submit answer"
+      - key: "Tab"
+        action: "Show hint"
+      - key: "Esc"
+        action: "Skip exercise"
+
+    gherkin: |
+      Scenario: SM-2 records exercises from topic-selection sessions
+        Given Ana completes exercises in L6 via topic selection path
+        When she submits answers
+        Then SM-2 records performance with the same weight as daily session exercises
+        And L6 exercises appear in future review queues normally
+
+  - id: 5
+    name: "Lesson Complete — Target Unlocked"
+    action: "All prerequisite exercises done; unlock notification shown"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Lesson 6 complete.                                         |
+      |                                                            |
+      | Unlocked:                                                  |
+      |   [*] L7  Blocks and Yield     <- NOW AVAILABLE           |
+      |                                                            |
+      | [Enter] Start Lesson 7 now  [Esc] Save for next session   |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "unlocked_lessons"
+        source: "prerequisite_resolver (run after lesson completes, returns newly available)"
+        displayed_as: "newly unlocked lesson list"
+        consumers: ["step 5 unlock screen", "curriculum tree step 1 (updated state)"]
+
+    emotional_state:
+      entry: "Accomplished — prerequisite cleared"
+      exit: "Motivated — target lesson is now reachable"
+
+    integration_checkpoint: |
+      prerequisite_resolver must run atomically after lesson completion.
+      Unlock state must persist before this screen renders (race-condition safe).
+      If multiple lessons unlock (e.g. prerequisite for 2 lessons), show all.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Start Lesson 7 immediately"
+      - key: "Esc"
+        action: "Return to session dashboard; save L7 as next lesson for tomorrow"
+
+    gherkin: |
+      Scenario: Completing prerequisite unlocks target lesson
+        Given Ana has completed all L6 exercises
+        When the lesson complete screen renders
+        Then L7 is shown as newly unlocked
+        And pressing Enter starts L7 immediately
+
+      Scenario: Unlock state persists after pressing Esc
+        Given L7 has been unlocked by completing L6
+        When Ana presses Esc to save for next session
+        And she opens the platform tomorrow
+        Then L7 is shown as available (not locked again)
+
+  - id: 6
+    name: "Target Lesson — Blocks and Yield"
+    action: "User presses Enter; target lesson loads"
+
+    tui_mockup: |
+      +------------------------------------------------------------+
+      | Lesson 7: Blocks and Yield           Module 2/5  |  ~5 min |
+      |                                                            |
+      | In Python, you pass callables (lambdas, functions).        |
+      | In Ruby, you pass blocks — anonymous code chunks.          |
+      |                                                            |
+      | def run_twice                                              |
+      |   yield                                                    |
+      |   yield                                                    |
+      | end                                                        |
+      |                                                            |
+      | run_twice { puts "hello" }  #=> hello\nhello               |
+      |                                                            |
+      | [Enter] Start exercises  [Esc] Back                        |
+      +------------------------------------------------------------+
+
+    shared_artifacts:
+      - name: "lesson_content"
+        source: "db/curriculum/lessons.yml"
+        displayed_as: "Python callable comparison + Ruby block syntax"
+        consumers: ["step 6 target lesson"]
+
+    emotional_state:
+      entry: "Motivated — reached the target"
+      exit: "Capable — has the knowledge needed for the PR review"
+
+    integration_checkpoint: |
+      This lesson's exercises feed into SM-2 with normal weight.
+      Session summary must show both L6 and L7 as completed today if both were done in one sitting.
+
+    keyboard_navigation:
+      - key: "Enter"
+        action: "Start exercises"
+      - key: "Esc"
+        action: "Return to curriculum tree"
+
+    gherkin: |
+      Scenario: Target lesson available after prerequisite completed
+        Given Ana has completed L6 and seen the unlock screen
+        When she starts Lesson 7
+        Then the lesson loads with full exercises (not preview-only)
+        And the lesson content focuses on block syntax differences from Python callables
+
+integration_validation:
+  shared_artifact_consistency:
+    - artifact: "lesson_status"
+      must_match_across: [1, 5, "daily_session_step_1", "onboarding_step_2"]
+      failure_message: "Lesson lock status must be consistent across all views that display it"
+    - artifact: "prerequisite_graph"
+      must_match_across: [1, 2]
+      failure_message: "Inline prerequisite labels in tree must match detail shown on lock screen"
+    - artifact: "unlocked_lessons"
+      must_match_across: [5, "curriculum_tree_after_lesson_complete"]
+      failure_message: "Unlock state shown on step 5 must be reflected in curriculum tree immediately"

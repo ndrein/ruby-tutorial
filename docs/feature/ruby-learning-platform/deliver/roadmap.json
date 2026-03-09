@@ -1,0 +1,150 @@
+{
+  "roadmap": {
+    "project_id": "ruby-learning-platform",
+    "created_at": "2026-03-09T20:51:04Z",
+    "total_steps": 9,
+    "phases": 3
+  },
+  "phases": [
+    {
+      "id": "01",
+      "name": "Foundation",
+      "steps": [
+        {
+          "id": "01-01",
+          "name": "Rails app scaffolding and Docker Compose setup",
+          "criteria": [
+            "Rails 8 app boots with no errors in Docker Compose dev environment",
+            "PostgreSQL 17 and Redis 7 containers reachable from the app container",
+            "GitHub Actions CI pipeline runs and passes on a green commit",
+            "OpenTelemetry + Jaeger all-in-one reachable at 127.0.0.1:16686 in dev"
+          ]
+        },
+        {
+          "id": "01-02",
+          "name": "Database schema and migrations",
+          "criteria": [
+            "All tables (modules, lessons, prerequisite_edges, exercises, review_states, review_logs, lesson_progress, sessions, user_config) created by running migrations on a fresh database",
+            "Exercises table enforces type enum: fill_in_the_blank, multiple_choice, spot_the_bug, translate, true_false",
+            "lesson_progress locked/available/complete state column rejects values outside the defined set",
+            "review_logs is append-only (no update path present in migration constraints)"
+          ]
+        },
+        {
+          "id": "01-03",
+          "name": "Port interfaces and in-memory test adapters",
+          "criteria": [
+            "ReviewRepository, LessonRepository, SessionRepository ports defined with documented method contracts",
+            "In-memory adapter for each port usable in unit tests without a database connection",
+            "Unit tests exercising all four ports pass using in-memory adapters only",
+            "Swapping in-memory adapter for ActiveRecord adapter requires no change to domain callers"
+          ]
+        },
+        {
+          "id": "01-04",
+          "name": "Curriculum content seed",
+          "criteria": [
+            "lessons.yml and prerequisites.yml present under db/curriculum/ with 5 sample lessons and their prerequisite edges",
+            "Each sample lesson has exactly 3 exercises covering at least 2 distinct exercise types",
+            "Seed task populates the database from YAML without error on a fresh schema",
+            "Lesson 1 has no prerequisites; lessons 2-5 each declare at least one prerequisite in prerequisites.yml"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Core Domain",
+      "steps": [
+        {
+          "id": "02-01",
+          "name": "SM-2 engine and ReviewRepository ActiveRecord adapter",
+          "criteria": [
+            "SM2Algorithm produces correct next interval and updated ease_factor for quality scores 0-5, with ease_factor floored at 1.3 and interval floored at 1 day",
+            "ReviewQueue returns exercises due today, capped at 12 per day",
+            "ReviewScheduler persists updated SM-2 state and appends to review_logs via ReviewRepository",
+            "SessionPlanner produces a session plan from due exercises and new-lesson exercises",
+            "ActiveRecord ReviewRepository satisfies all ReviewRepository port contracts verified by the shared port contract test suite"
+          ]
+        },
+        {
+          "id": "02-02",
+          "name": "Curriculum domain and LessonRepository ActiveRecord adapter",
+          "criteria": [
+            "PrerequisiteGraph correctly identifies direct and transitive prerequisites for any lesson",
+            "CurriculumMap returns available lessons (those whose prerequisites are all complete) and locked lessons",
+            "LessonUnlocker atomically marks a lesson complete and unlocks all directly dependent lessons in a single transaction",
+            "LockScreenPolicy returns the correct policy (locked reason and prerequisite list) for a locked lesson",
+            "Lesson 1 is always available regardless of lesson_progress state",
+            "ActiveRecord LessonRepository satisfies all LessonRepository port contracts verified by the shared port contract test suite"
+          ]
+        },
+        {
+          "id": "02-03",
+          "name": "Exercise domain, Session domain, and SessionRepository adapter",
+          "criteria": [
+            "AnswerEvaluator returns correct/incorrect result for all five exercise types",
+            "HintPolicy returns the next hint without revealing the answer; returns no-more-hints signal when hints exhausted",
+            "SessionPlan is a value object: identical inputs produce equal plans; plan does not mutate after creation",
+            "SessionState tracks current exercise position and emits session-complete when all exercises answered",
+            "SessionClock does not cut off a session mid-exercise when the 15-minute cap is reached",
+            "Session plan is cached in Redis on first computation and retrieved on subsequent calls within the same session",
+            "ActiveRecord SessionRepository satisfies all SessionRepository port contracts verified by the shared port contract test suite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Web Layer",
+      "steps": [
+        {
+          "id": "03-01",
+          "name": "Rails controllers and Turbo views for Walking Skeleton 1",
+          "criteria": [
+            "Ana opens the platform, sees the curriculum tree with Lesson 1 available and lessons 2-25 locked",
+            "Ana starts a session, is presented the first exercise, submits an answer, and sees immediate feedback without a full page reload",
+            "Correct answer result is persisted to review_logs and review_states after submission",
+            "OnboardingController renders the initial state from CurriculumMap and SessionPlanner",
+            "ExercisesController delegates evaluation to AnswerEvaluator and scheduling to ReviewScheduler; controller contains no domain logic"
+          ]
+        },
+        {
+          "id": "03-02",
+          "name": "Keyboard navigation, Progress dashboard, and ProgressController",
+          "criteria": [
+            "j/k keys move focus between exercises or items; / opens search; Esc closes overlays; Tab advances focus; n goes to next exercise; t toggles hint; c checks answer; ? opens help; p goes to previous",
+            "KeyboardController, TimerController, FocusController, and SearchController active on their respective pages",
+            "ProgressDashboard displays total exercises reviewed, retention rate, and current streak",
+            "RetentionCalculator computes retention from review_logs without querying domain objects directly",
+            "StreakTracker returns current consecutive-day streak based on review_logs dates"
+          ]
+        }
+      ]
+    }
+  ],
+  "implementation_scope": {
+    "source_directories": [
+      "app/domain/",
+      "app/ports/",
+      "app/adapters/",
+      "app/controllers/",
+      "app/javascript/controllers/"
+    ],
+    "test_directories": [
+      "tests/unit/",
+      "tests/integration/",
+      "tests/features/"
+    ],
+    "excluded_patterns": [
+      "*.log",
+      "tmp/**",
+      "db/schema.rb"
+    ]
+  },
+  "validation": {
+    "status": "approved",
+    "reviewer": "nw-software-crafter-reviewer",
+    "approved_at": "2026-03-09T21:00:00Z"
+  }
+}
