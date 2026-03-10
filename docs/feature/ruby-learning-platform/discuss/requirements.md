@@ -1,169 +1,335 @@
 # Requirements — Ruby Learning Platform
 
-## Product Context
-
-A single-user web application for experienced developers (Python/Java background) learning Ruby syntax and idioms. Not a beginner tool. Daily 15-minute sessions. SM-2 spaced repetition drives review scheduling. Keyboard-native UI.
-
-## Persona
-
-**Ana Folau** — senior Python/Java developer, joining a Ruby team. Values efficiency, precision, and being treated as an expert. Practices daily, 15 minutes, before standup.
-
-## Design Principles (Non-Negotiable)
-
-1. **No beginner scaffolding** — assume OOP, variables, loops are known
-2. **SM-2 automation first** — user never manually selects what to review
-3. **Daily session = review queue + 1 new lesson** — fixed structure
-4. **30-second hard cap per exercise** — no exceptions
-5. **Keyboard-first navigation** — no action requires a mouse
-6. **Progress visible but not gamified** — no XP, badges, streaks shown prominently
+**Feature ID**: ruby-learning-platform
+**Phase**: DISCUSS — Phase 3
+**Date**: 2026-03-09
+**Completeness Target**: >= 0.95
+**Source**: JTBD artifacts + three journey maps + DISCOVER artifacts (all four phases)
 
 ---
 
-## Epics
+## Functional Requirements
 
-### Epic 1: Curriculum (Lesson Tree + Prerequisites)
+### FR-1: Expert-Calibrated Curriculum
 
-Manage the 25-lesson curriculum as a directed acyclic graph. Lessons are nodes; prerequisites are directed edges. User cannot access a lesson until all its prerequisites are complete.
+**FR-1.1** The platform shall provide exactly 25 lessons organized into 5 modules of 5 lessons each.
 
-**Business rules:**
-- Module 1 (L1-L5) has no module-level prerequisite; L1 is unlocked at first launch
-- Each lesson within a module has per-lesson prerequisites (see curriculum schema)
-- Completing a lesson triggers prerequisite_resolver to unlock newly available lessons
-- Unlock is atomic with lesson completion (no partial states)
-- A user can VIEW locked lesson topics but cannot DO exercises until unlocked
+**FR-1.2** Module 1 shall start with Ruby-specific syntax concepts (blocks, symbols, ranges) — not with variables, data types, loops, conditionals, or OOP fundamentals.
 
-### Epic 2: SM-2 Spaced Repetition Engine
+**FR-1.3** Every lesson shall include a side-by-side comparison showing the equivalent concept in Python and Java.
 
-Implement the SM-2 algorithm to schedule exercise reviews. SM-2 is the primary driver of daily sessions; manual review selection is not exposed.
+**FR-1.4** Lesson content shall be completable in 5 minutes or less by an experienced developer (Python or Java background).
 
-**Business rules:**
-- Each exercise has: ease_factor (start 2.5), interval (start 1 day), next_review_date
-- After correct answer: new_interval = max(1, prev_interval * ease_factor)
-- After incorrect answer: new_interval = 1 day; ease_factor decreases by 0.2 (min 1.3)
-- Partial/skipped: ease_factor unchanged; interval remains or resets to 1 day
-- Daily review queue = exercises where next_review_date <= today
-- Daily cap: max 12 exercises or 6 minutes of review, whichever comes first
-- Deferred exercises carry to next session as high-priority (appear first)
+**FR-1.5** The platform shall ask users one question at registration: whether they have experience in another programming language. Users who select "Yes" are placed in expert mode.
 
-### Epic 3: Daily Session Flow
+**FR-1.6** Expert mode shall filter the curriculum to start at Lesson 1 (Ruby Blocks) and shall never present modules labeled "Introduction to Programming" or similar beginner scaffolding.
 
-Structure each session as: (1) SM-2 review queue, (2) one new lesson. Session must complete within 15 minutes. System plans session; user executes.
+**FR-1.7** Lesson content shall teach Ruby-specific idioms (blocks, procs, symbols, Enumerable, pattern matching) — not generic programming concepts.
 
-**Business rules:**
-- Session starts with pre-computed plan; no decisions required from user
-- Review queue runs before new lesson (always)
-- New lesson = next available lesson per prerequisite graph
-- Session time cap: 15 minutes total
-- If time cap reached mid-exercise: complete current exercise, defer rest
-- Session persists to storage atomically when complete
+---
 
-### Epic 4: Onboarding
+### FR-2: SM-2 Spaced Repetition Engine
 
-First-time user experience that immediately signals expert calibration and gets Ana to her first exercise within 5 minutes.
+**FR-2.1** The platform shall implement the SM-2 spaced repetition algorithm to schedule review exercises for each concept.
 
-**Business rules:**
-- No account creation or login (single-user tool)
-- Welcome screen must show assumed-knowledge list before showing curriculum
-- Lesson 1 must be the first and only available lesson at launch
-- SM-2 initializes on completion of first exercise
+**FR-2.2** SM-2 parameters shall use standard initial values: ease factor = 2.5, first interval = 1 day, second interval = 6 days.
 
-### Epic 5: Topic Selection / Lesson Tree Navigation
+**FR-2.3** The platform shall compute a quality of response (score 0-5) for each exercise submission based on:
+- Score 5: correct answer, response time < 10 seconds
+- Score 4: correct answer, response time 10-25 seconds
+- Score 3: correct answer, response time 25-30 seconds or user marks "hard" (`h` key)
+- Score 2: correct answer after first viewing explanation (skipped then re-reviewed)
+- Score 1: incorrect answer
+- Score 0: timeout (30 seconds elapsed without answer) or user skips
 
-User-facing curriculum tree with visual lock/unlock states and an explicit lock screen that explains prerequisites educationally.
+**FR-2.4** The SM-2 ease factor (EF) shall be updated after each review using the formula: `EF' = EF + (0.1 - (5-score) * (0.08 + (5-score) * 0.02))`, clamped to a minimum of 1.3.
 
-**Business rules:**
-- Curriculum tree shows all 25 lessons with status icons ([x] complete, [ ] available, [~] locked)
-- Locked lesson lock screen shows: why locked, target lesson topics, prerequisite lesson topics
-- Lock screen always has a path forward ([Enter] = go to prerequisite)
-- No force-skip mechanism — prerequisite gates are absolute
-- Keyword search filters the tree inline
-- [t] shortcut from session dashboard opens topic selection
+**FR-2.5** A score of 0, 1, or 2 shall reset the interval to 1 day (concept reviewed tomorrow).
 
-### Epic 6: Progress Dashboard
+**FR-2.6** A score of 3, 4, or 5 shall extend the interval: `I(n) = I(n-1) * EF` rounded to the nearest integer day.
 
-Non-gamified progress view showing real retention data from SM-2.
+**FR-2.7** After each exercise, the platform shall show the user the next scheduled review date in plain language (e.g., "This concept will be reviewed in 3 days — March 12").
 
-**Business rules:**
-- No XP, badges, levels, or achievement notifications
-- Show: lessons complete / total, SM-2 retention score per completed lesson, streak (days with completed session), next review forecast
-- Retention score = % of last 10 SM-2 answers that were correct for that lesson's exercises
-- Dashboard accessible from any screen via [p] shortcut
+**FR-2.8** The platform shall show a plain-language reason for the scheduled interval (e.g., "First exposure — short interval to confirm retention" or "Strong recall — extended to 14 days").
 
-### Epic 7: Keyboard Navigation
+**FR-2.9** SM-2 parameters (ease factor, repetition count) shall NOT be exposed in the user interface — only the next review date and a plain-language explanation.
 
-Every interactive element in the application is reachable and operable without a mouse.
+---
 
-**Business rules:**
-- j/k for up/down navigation within lists
-- J/K (shift) for jumping between sections/modules
-- Enter to select/submit/advance
-- Esc to go back / cancel
-- / to open search
-- ? to show keyboard shortcut reference
-- p to open progress dashboard from any screen
-- t to open topic selection from session dashboard
-- n to start next lesson from session complete screen
-- Tab to show hint in exercise view
-- All focus states visible (not just browser default)
+### FR-3: Daily Review Queue
+
+**FR-3.1** The platform shall automatically build a daily review queue for each user containing all exercises where `next_review_date <= today`.
+
+**FR-3.2** The daily review queue shall be built nightly (no later than 2:00 AM in the user's timezone) and shall be identical in the email and the app.
+
+**FR-3.3** The daily review queue shall be immutable once the session starts — new exercises due today shall not be added mid-session.
+
+**FR-3.4** If a user's review queue is empty and no new lesson is available, the platform shall not send a daily email and shall show a "Nothing due today" message in the app.
+
+**FR-3.5** The platform shall not allow the review queue to exceed the 15-minute session cap. If more exercises are due than can fit in 15 minutes, the queue shall be capped at the exercises closest to their scheduled date (oldest due first).
+
+**FR-3.6** When a user misses a session, overdue exercises shall remain in the queue (not discarded) and shall be prioritized in the next session's queue.
+
+---
+
+### FR-4: Daily Email Notification
+
+**FR-4.1** The platform shall send a daily digest email to each opted-in user showing today's review queue.
+
+**FR-4.2** The email subject line shall include the queue count and estimated time (e.g., "Today's Queue — 4 reviews + 1 lesson option (est. 10 min)").
+
+**FR-4.3** The email body shall list each exercise by concept name and the optional new lesson if one is available.
+
+**FR-4.4** The email shall include a single call-to-action link that opens the app directly to today's session start screen.
+
+**FR-4.5** The email shall show the user's current streak count.
+
+**FR-4.6** The email delivery time shall be configurable by the user (default: 8:00 AM in the user's local timezone).
+
+**FR-4.7** The email shall not contain promotional content, newsletter language, or marketing copy.
+
+**FR-4.8** Users shall be able to opt out of daily emails; opting out shall not affect their ability to use the app.
+
+---
+
+### FR-5: Exercise System
+
+**FR-5.1** Every lesson shall have at least one review exercise.
+
+**FR-5.2** Each exercise shall be completable by an experienced developer in 25-40 seconds.
+
+**FR-5.3** The platform shall support the following exercise types: fill-in-the-blank, multiple choice, spot-the-bug, translation (Python/Java to Ruby).
+
+**FR-5.4** Each exercise shall have a 30-second countdown timer visible to the user.
+
+**FR-5.5** When the timer reaches 0, the exercise shall auto-advance and record the result as `timeout` (SM-2 score 0).
+
+**FR-5.6** Every exercise shall show an explanation after submission regardless of whether the answer was correct or incorrect.
+
+**FR-5.7** Explanations shall connect the correct answer to the Python/Java equivalent where applicable.
+
+**FR-5.8** Fill-in-the-blank exercises shall accept an exact match or any pre-defined accepted synonyms for the correct answer.
+
+**FR-5.9** Multiple-choice exercises shall present exactly 4 options in a consistent layout.
+
+---
+
+### FR-6: Keyboard Navigation
+
+**FR-6.1** All platform interactions shall be completable without a mouse.
+
+**FR-6.2** The platform shall implement the following keyboard map:
+
+| Action | Key |
+|--------|-----|
+| Submit answer / advance | Enter |
+| Skip exercise | Esc |
+| Navigate down / next | j or Tab |
+| Navigate up / previous | k or Shift+Tab |
+| Mark exercise as hard | h |
+| Mark exercise as easy | e |
+| Go to dashboard | g d (sequence) |
+| Go to curriculum | c |
+| Start today's session | s |
+| Queue lesson for next session | q |
+
+**FR-6.3** Every interactive element (buttons, inputs, links, selectable options) shall show a visible focus state: a 2px solid ring in a color with at minimum 3:1 contrast ratio against the page background.
+
+**FR-6.4** Keyboard shortcuts shall be consistent across all application pages — a shortcut that works on the exercise page shall have the same behavior on the dashboard and curriculum pages where applicable.
+
+**FR-6.5** The platform shall show a keyboard shortcut reference visible on all primary screens (not hidden behind a help modal).
+
+**FR-6.6** The platform shall not use modal keyboard shortcuts that could conflict with typing in input fields (exercise answer inputs shall capture all keystrokes when focused).
+
+---
+
+### FR-7: Progress Dashboard
+
+**FR-7.1** The platform shall provide a progress dashboard showing:
+- Total concepts mastered (SM-2 interval >= 30 days)
+- Total concepts in review (SM-2 interval 3-29 days)
+- Total new concepts (first pass complete, not yet in first review)
+- Lessons completed (count and percentage of 25)
+- Current streak (consecutive days with at least one exercise completed)
+- Retention rate (% correct on SM-2 reviews, rolling 14 days)
+
+**FR-7.2** The retention rate shall include a plain-language explanation of its calculation beneath the metric.
+
+**FR-7.3** All dashboard metrics shall reflect the state after the most recently completed session (no stale data older than the last completed session).
+
+**FR-7.4** The dashboard shall provide navigation to the curriculum overview and to today's session.
+
+---
+
+### FR-8: Curriculum Navigation and Prerequisite Gates
+
+**FR-8.1** The curriculum view shall display all 25 lessons grouped into 5 modules with per-lesson status indicators.
+
+**FR-8.2** Lesson status indicators shall be: Mastered [x], In Review [~], Available [ ], Locked [L], and Next [>].
+
+**FR-8.3** Lesson status shall be derived from SM-2 state and prerequisite completion in real time — not from an independent status field.
+
+**FR-8.4** A locked lesson shall show the list of prerequisite lessons and their completion status when opened.
+
+**FR-8.5** A locked lesson detail view shall show an estimated number of daily sessions required to unlock it.
+
+**FR-8.6** Lesson titles and module titles shall be visible even for locked lessons — only lesson content is hidden.
+
+**FR-8.7** An available (unlocked) lesson shall provide two actions: "Start now" and "Queue for next session."
+
+**FR-8.8** Each lesson detail card shall show: title, module, estimated time, Python/Java concept mapped, exercise type, and a brief content description.
+
+---
+
+### FR-9: Session Management and Hard Cap
+
+**FR-9.1** Each daily session shall be bounded by a 15-minute hard cap.
+
+**FR-9.2** The session start screen shall show the user's remaining time budget before any exercises begin.
+
+**FR-9.3** The platform shall display time remaining as exercises are completed within a session.
+
+**FR-9.4** When 1 minute or less of session budget remains, the platform shall not start a new exercise or lesson if its estimated time exceeds the remaining budget.
+
+**FR-9.5** On session completion, the platform shall show a summary screen with: exercises completed, lessons completed, total session time, time vs. 15-minute target, and current streak.
+
+**FR-9.6** A session is "completed" for streak purposes when at least one exercise has been submitted (not just the app opened).
+
+**FR-9.7** The streak counter shall increment exactly once per calendar day regardless of how many sessions the user completes that day.
+
+---
+
+### FR-10: Onboarding
+
+**FR-10.1** First-time registration shall require only an email address — no profile fields, name, or phone number.
+
+**FR-10.2** After email submission, the user shall be shown exactly one question: their experience level.
+
+**FR-10.3** Onboarding shall complete within a single session (no multi-day onboarding flow).
+
+**FR-10.4** The first lesson shall be accessible within 3 clicks or 3 key presses from the landing page.
+
+**FR-10.5** Onboarding shall end with the SM-2 scheduling confirmation for the first exercise, a session summary, and an email opt-in prompt.
 
 ---
 
 ## Non-Functional Requirements
 
-### Performance
-- Session dashboard must render within 500ms of opening
-- SM-2 queue computation must complete within 200ms
-- Exercise feedback must render within 100ms of submission
-- Curriculum tree with 25 lessons must render within 300ms
+### NFR-1: Performance
 
-### Reliability
-- SM-2 state must survive browser refresh / tab close mid-session
-- Lesson completion is atomic: either all exercises commit or none do
-- No data loss on navigation (pressing Esc mid-lesson saves position)
+**NFR-1.1** The session start screen shall load within 2 seconds on a standard broadband connection.
 
-### Usability
-- All keyboard shortcuts discoverable via [?] overlay
-- Focus indicators visible on all interactive elements (WCAG 2.2 AA)
-- No action requires more than 3 keypresses from any screen
+**NFR-1.2** Lesson content shall render within 2 seconds of navigation.
 
-### Constraints
-- Single-user: no authentication, no multi-user state
-- No gamification elements (no XP, badges, leaderboards, streaks as primary metric)
-- No beginner content (exercises must reference Python/Java equivalents)
-- Rails extensibility deferred to post-MVP (OPP-6, score 7)
+**NFR-1.3** Exercise submission shall produce feedback within 500ms of pressing Enter.
+
+**NFR-1.4** SM-2 interval calculation shall complete within 100ms of answer submission.
+
+**NFR-1.5** The daily queue builder shall complete for a single user within 5 seconds.
 
 ---
 
-## Business Rules Glossary
+### NFR-2: Reliability
 
-| Rule | Definition |
-|------|-----------|
-| BR-01 | Lesson 1 is always available at first launch |
-| BR-02 | A lesson is available iff all its prerequisite lessons are complete |
-| BR-03 | SM-2 review queue = exercises with next_review_date <= today |
-| BR-04 | Daily review cap = min(12 exercises, 6 minutes) |
-| BR-05 | Exercise time cap = 30 seconds (timer auto-reveals answer at expiry) |
-| BR-06 | Session time cap = 15 minutes (current exercise completes; rest deferred) |
-| BR-07 | SM-2 correct: new_interval = max(1, prev_interval * ease_factor) |
-| BR-08 | SM-2 incorrect: new_interval = 1, ease_factor -= 0.2 (min 1.3) |
-| BR-09 | SM-2 skipped: re-queue for next session, ease_factor unchanged |
-| BR-10 | Unlock is atomic with lesson completion (no partial unlock states) |
-| BR-11 | Progress metrics derive from SM-2 data, not manual input |
-| BR-12 | Session plan (review count + next lesson) computed on session open, cached for session |
+**NFR-2.1** SM-2 state shall be persisted transactionally — no review entry shall be lost on page refresh or network interruption.
+
+**NFR-2.2** If a session is interrupted mid-exercise, the current exercise shall be preserved and restartable from the interrupted point.
+
+**NFR-2.3** Daily email delivery shall have a target success rate of >= 99% for opted-in users.
+
+**NFR-2.4** The daily queue shall be idempotent — running the queue builder twice for the same day and user shall produce the same result.
 
 ---
 
-## Dependency Map
+### NFR-3: Usability
 
-| Story | Depends On |
-|-------|-----------|
-| US-02 Daily Session | US-05 SM-2 Engine, US-08 Lesson Tree |
-| US-03 Topic Selection | US-08 Lesson Tree |
-| US-04 Exercise Timer | (standalone) |
-| US-05 SM-2 Engine | US-04 Exercise Timer |
-| US-06 Lesson Content | US-08 Lesson Tree |
-| US-07 Keyboard Navigation | All UI stories |
-| US-08 Lesson Tree | US-06 Lesson Content |
-| US-09 Progress Dashboard | US-05 SM-2 Engine, US-08 Lesson Tree |
-| US-01 Onboarding | US-08 Lesson Tree, US-04 Exercise Timer, US-05 SM-2 Engine |
-| US-10 Email/Notification | US-05 SM-2 Engine (post-MVP) |
+**NFR-3.1** A new user with Python or Java background shall be able to complete onboarding without reading any documentation.
+
+**NFR-3.2** All keyboard shortcuts shall be discoverable from the UI without opening a help section.
+
+**NFR-3.3** The SM-2 scheduling explanation shall use plain language accessible to a developer who has never heard of SM-2.
+
+**NFR-3.4** No error message shall contain technical identifiers (user IDs, database error codes, stack traces).
+
+---
+
+### NFR-4: Accessibility
+
+**NFR-4.1** All interactive elements shall have a minimum 3:1 contrast ratio between focus indicator and background (WCAG 2.1 AA for UI components).
+
+**NFR-4.2** All informational text shall have a minimum 4.5:1 contrast ratio (WCAG 2.1 AA).
+
+**NFR-4.3** All images and code examples shall have descriptive alt text.
+
+**NFR-4.4** The platform shall be navigable using keyboard only, meeting WCAG 2.1 Level AA Success Criterion 2.1.1.
+
+---
+
+### NFR-5: SM-2 Algorithm Fidelity
+
+**NFR-5.1** The SM-2 implementation shall conform to the published SuperMemo SM-2 algorithm specification.
+
+**NFR-5.2** The ease factor minimum shall be clamped at 1.3.
+
+**NFR-5.3** The ease factor maximum shall be clamped at 2.5 (upper bound).
+
+**NFR-5.4** The initial ease factor for new concepts shall be 2.5.
+
+**NFR-5.5** The SM-2 algorithm shall be tested with unit tests covering: first scheduling, correct-answer interval growth, incorrect-answer interval reset, ease factor bounds, and edge cases (all correct, all incorrect, alternating correct/incorrect).
+
+---
+
+### NFR-6: Content Integrity
+
+**NFR-6.1** All 25 lessons shall include at least one exercise with a correct answer defined.
+
+**NFR-6.2** All 25 lessons shall include Python and Java equivalent comparisons.
+
+**NFR-6.3** No lesson shall contain content explaining basic programming concepts (variables, loops, conditionals, OOP fundamentals) to a developer audience.
+
+**NFR-6.4** All code examples in lessons and exercises shall be syntactically valid Ruby (verified by a Ruby interpreter).
+
+---
+
+### NFR-7: Data Constraints
+
+**NFR-7.1** The `sm2_interval` stored value shall always be a positive integer (days >= 1).
+
+**NFR-7.2** The `sm2_ease_factor` shall always be within range [1.3, 2.5].
+
+**NFR-7.3** The `streak_count` shall never be negative.
+
+**NFR-7.4** The `session_duration` shall never exceed 1800 seconds (30 minutes) — sessions beyond this indicate a timer bug.
+
+---
+
+## Constraints
+
+| Constraint | Source | Value |
+|-----------|--------|-------|
+| Daily session cap | Problem statement | <= 15 minutes |
+| Lesson length cap | Problem statement | <= 5 minutes |
+| Exercise duration | Problem statement | 30 seconds per exercise |
+| Curriculum size | Solution testing | Exactly 25 lessons, 5 modules |
+| Algorithm | Problem statement | SM-2 (published SuperMemo specification) |
+| Navigation | Problem statement | Keyboard-native; fully operable without mouse |
+| Focus states | Keyboard nav spec | 2px+ ring, 3:1+ contrast ratio |
+| Email opt-in | Privacy | User must explicitly opt in; no auto-subscribe |
+| Initial ease factor | SM-2 spec | 2.5 |
+| Ease factor minimum | SM-2 spec | 1.3 |
+| Review score range | SM-2 spec | 0-5 |
+
+---
+
+## Out of Scope (MVP)
+
+The following are explicitly out of scope for the MVP and should not be designed for:
+
+- Rails extension track (OPP-6; score 7; post-MVP)
+- Push notifications (OPP-2 Idea 2C; post-MVP)
+- Adaptive difficulty gating on demonstrated knowledge (OPP-1 Idea 1C; post-MVP)
+- Weekly summary email (OPP-7 Idea 7C; post-MVP)
+- Multi-user accounts or social features
+- Vim-mode optional shortcut layer (OPP-4 Idea 4C; aspirational)
+- Streak grace days (single missed day without streak break; post-MVP)
+- Revenue model, subscriptions, or payment processing

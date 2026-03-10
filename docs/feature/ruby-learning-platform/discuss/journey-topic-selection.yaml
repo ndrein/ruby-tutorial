@@ -1,377 +1,222 @@
 journey:
-  name: "Topic Selection"
-  goal: "Ana locates a specific lesson in the curriculum tree, understands its prerequisites, completes any needed prerequisites, and starts the target lesson — driven by an immediate work need"
-  persona: "Ana Folau — 3 weeks in, Module 1 complete, needs blocks knowledge for an active PR review"
-  job_story_ref: "JS-01, JS-02, JS-05"
-
+  id: topic-selection
+  name: "Topic Selection — Curriculum Navigation and Progress Orientation"
+  feature_id: ruby-learning-platform
+  date: "2026-03-09"
+  persona: marcus-chen
+  scenario: "Week 2 — 14-day streak, 8 lessons complete, wants to understand full arc"
+  primary_jobs:
+    - js-1-syntax-transfer
+    - js-5-progress-visibility
+  opportunities:
+    - opp-1-expert-content
+    - opp-7-progress-visibility
   emotional_arc:
-    start: "Goal-oriented and impatient — specific work need, wants to get there fast"
-    middle: "Informed and in-control — sees exactly what stands between her and the target"
-    end: "Satisfied and capable — reached the topic on her own terms"
+    start: curiosity
+    midpoints:
+      - orientation
+      - agency
+    end: anticipation
+
+persona:
+  id: marcus-chen
+  name: "Marcus Chen"
+  context: "Week 2; 14-day streak; 12 concepts mastered; 8 in review; 4 new; 8 of 25 lessons done"
+  motivation: "Understand the full curriculum arc and select a focus for the next week"
+  state:
+    streak_count: 14
+    mastered_count: 12
+    in_review_count: 8
+    new_count: 4
+    lessons_completed: 8
+    current_module: 2
+    next_available_lesson: 9
+    retention_rate: 0.73
 
 steps:
-  - id: 1
-    name: "Curriculum Tree — Full View"
-    action: "User presses [t] from session dashboard or [c] from any screen"
+  - id: step-1
+    name: "Dashboard Entry"
+    action: "Marcus presses 'g d' to navigate to the progress dashboard"
+    touchpoint: "Dashboard view with key metrics summary"
+    marcus_thought: "I want the full picture. How am I actually doing after two weeks?"
+    emotion: curious
+    emotional_intensity: 7
+    pain_points:
+      - "Dashboard as dead end (no call to action) reduces utility"
+    shared_artifacts_read:
+      - streak_count
+      - mastered_count
+      - retention_rate
+    shared_artifacts_written: []
 
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Curriculum  [/] Search  [j/k] Navigate  [Enter] Select    |
-      |                                                            |
-      | MODULE 1: Ruby Fundamentals                  [COMPLETE]   |
-      |  [x] L1  Syntax Differences                              |
-      |  [x] L2  String Interpolation                            |
-      |  [x] L3  Symbols                                         |
-      |  [x] L4  Ranges                                          |
-      |  [x] L5  Array Methods                                   |
-      |                                                            |
-      | MODULE 2: Methods and Blocks                 [IN PROGRESS] |
-      |  [ ] L6  Method Definition       <- NEXT (unlocked)       |
-      |  [~] L7  Blocks and Yield        <- LOCKED (needs L6)    |
-      |  [~] L8  Procs and Lambdas       <- LOCKED (needs L7)    |
-      |  [~] L9  Method Objects          <- LOCKED (needs L7)    |
-      |  [~] L10 Enumerable              <- LOCKED (needs L8,L9) |
-      |                                                            |
-      | MODULE 3: Ruby Object Model                  [LOCKED]      |
-      | MODULE 4: Ruby Idioms                        [LOCKED]      |
-      | MODULE 5: Standard Library Essentials        [LOCKED]      |
-      |                                                            |
-      | [Esc] Back to session                                      |
-      +------------------------------------------------------------+
+  - id: step-2
+    name: "Mastery Overview"
+    action: "Marcus reads concept status counts on dashboard"
+    touchpoint: "Dashboard metrics panel — Mastered / In Review / New / Remaining"
+    marcus_thought: "12 mastered, 8 in review, 4 new. That's 24 of 25 concepts engaged. Real progress."
+    emotion: oriented
+    emotional_intensity: 7
+    pain_points:
+      - "Abstract numbers without visual context feel hollow"
+    shared_artifacts_read:
+      - mastered_count
+      - in_review_count
+      - new_count
+    shared_artifacts_written: []
 
-    shared_artifacts:
-      - name: "curriculum_structure"
-        source: "db/curriculum/lessons.yml"
-        displayed_as: "module hierarchy with lesson titles"
-        consumers: ["step 1 curriculum tree", "onboarding step 2", "lesson tree navigation journey"]
-      - name: "lesson_status"
-        source: "progress_tracker (complete/available/locked per lesson)"
-        displayed_as: "[x] complete, [ ] available, [~] locked"
-        consumers: ["step 1 curriculum tree", "step 5 unlock notification", "progress dashboard"]
-      - name: "prerequisite_graph"
-        source: "db/curriculum/prerequisites.yml"
-        displayed_as: "(needs L6), (needs L8,L9)"
-        consumers: ["step 1 curriculum tree inline", "step 2 lock screen detail"]
-      - name: "module_status"
-        source: "progress_tracker (derived: module complete if all lessons complete)"
-        displayed_as: "[COMPLETE], [IN PROGRESS], [LOCKED]"
-        consumers: ["step 1 curriculum tree module headers"]
+  - id: step-3
+    name: "Retention Rate"
+    action: "Marcus reads his retention rate metric"
+    touchpoint: "Dashboard metrics panel — retention_rate with calculation description"
+    marcus_thought: "73% retention rate with a plain explanation of the formula. I trust this."
+    emotion: trusting
+    emotional_intensity: 7
+    pain_points:
+      - "Opaque metric without explanation creates distrust"
+    shared_artifacts_read:
+      - retention_rate
+    shared_artifacts_written: []
 
-    emotional_state:
-      entry: "Impatient — wants to get to a specific lesson fast"
-      exit: "Oriented — full curriculum visible, can locate target"
+  - id: step-4
+    name: "Curriculum Map Navigation"
+    action: "Marcus navigates to curriculum overview using 'c' keyboard shortcut"
+    touchpoint: "Curriculum overview — 5 modules, 25 lessons, status per lesson"
+    marcus_thought: "I can see all 5 modules. 8 lessons done. Lesson 9 is next. Lesson 10 is locked."
+    emotion: oriented-positioned
+    emotional_intensity: 8
+    pain_points:
+      - "Module walls that hide lesson contents create disorientation"
+    shared_artifacts_read:
+      - curriculum_list
+      - lesson_id
+      - lesson_status
+    shared_artifacts_written: []
 
-    integration_checkpoint: |
-      Curriculum tree must render the real-time lock state from progress_tracker.
-      prerequisite_graph inline labels (needs L6) must match lock screen detail.
-      Module status must be derived consistently with lesson-level status.
+  - id: step-5
+    name: "Prerequisite Gate Encounter"
+    action: "Marcus tries to open Lesson 15 — sees it is locked with prerequisites shown"
+    touchpoint: "Lesson 15 detail view with prerequisite list and estimated sessions to unlock"
+    marcus_thought: "Makes sense. I need Lessons 11-14 first. About 3 more sessions. Not far."
+    emotion: accepting-motivated
+    emotional_intensity: 6
+    pain_points:
+      - "Opaque gating without rationale feels arbitrary and punitive"
+    shared_artifacts_read:
+      - lesson_id
+      - prerequisite_ids
+      - lesson_status
+    shared_artifacts_written: []
 
-    keyboard_navigation:
-      - key: "j"
-        action: "Move cursor down one lesson"
-      - key: "k"
-        action: "Move cursor up one lesson"
-      - key: "J"
-        action: "Jump to next module"
-      - key: "K"
-        action: "Jump to previous module"
-      - key: "/"
-        action: "Open inline search to filter lessons by name/keyword"
-      - key: "Enter"
-        action: "Select highlighted lesson (start if available, lock screen if locked)"
-      - key: "Esc"
-        action: "Return to session dashboard (or previous screen)"
+  - id: step-6
+    name: "Lesson 9 Detail Card"
+    action: "Marcus opens Lesson 9: Method Objects detail view"
+    touchpoint: "Lesson detail card — topic, time estimate, Python/Java comparison, exercise type"
+    marcus_thought: "Method objects. `&method(:name)`. This is the Ruby-specific thing I've been missing."
+    emotion: recognition-relevance
+    emotional_intensity: 9
+    pain_points:
+      - "Thin lesson card (title only) gives no basis for evaluating whether this is the right next lesson"
+    shared_artifacts_read:
+      - lesson_id
+      - lesson_content
+      - prerequisite_ids
+    shared_artifacts_written: []
 
-    gherkin: |
-      Scenario: Curriculum tree shows accurate lock states for active user
-        Given Ana has completed Module 1 (Lessons 1-5)
-        And Lesson 6 is available and Lessons 7-25 are locked
-        When she opens the curriculum tree
-        Then Module 1 shows [COMPLETE] status
-        And Module 2 shows [IN PROGRESS] status
-        And Lessons 7-10 show [~] locked with prerequisite labels
-        And all modules 3-5 show [LOCKED]
+  - id: step-7
+    name: "Lesson Selection"
+    action: "Marcus presses Enter to select Lesson 9 for his next session"
+    touchpoint: "Lesson detail card — 'Study Next Session' action"
+    marcus_thought: "That's the one. It's queued for tomorrow."
+    emotion: agency
+    emotional_intensity: 8
+    pain_points:
+      - "Forced sequential order removes agency; must preserve choice within unlocked lessons"
+    shared_artifacts_read:
+      - lesson_id
+    shared_artifacts_written:
+      - review_queue
 
-      Scenario: User can search curriculum by keyword
-        Given Ana has the curriculum tree open
-        When she types [/] and enters "block"
-        Then the tree filters to show only lessons with "block" in title
-        And Lesson 7 "Blocks and Yield" and Lesson 8 "Procs and Lambdas" are visible
-        And other lessons are hidden (not removed, just not shown)
+  - id: step-8
+    name: "Module Progress View"
+    action: "Marcus views Module 2 progress: 3 of 5 lessons complete"
+    touchpoint: "Module progress view with lesson-by-lesson status and unlock path"
+    marcus_thought: "3 of 5 in Module 2. Lesson 9 gets me to 4/5. Lesson 10 (Enumerable) unlocks Module 3."
+    emotion: motivated-proximate
+    emotional_intensity: 8
+    pain_points:
+      - "No module-level progress makes the 25-lesson arc feel undifferentiated"
+    shared_artifacts_read:
+      - module_id
+      - module_progress
+      - lesson_status
+    shared_artifacts_written: []
 
-  - id: 2
-    name: "Lock Screen — Prerequisite Detail"
-    action: "User presses Enter on a locked lesson; lock screen with prerequisites shown"
+  - id: step-9
+    name: "Full Arc Anticipation"
+    action: "Marcus scrolls forward to see Module 4 and 5 content"
+    touchpoint: "Curriculum map — modules 4 and 5 visible (locked, titles visible)"
+    marcus_thought: "Pattern matching in Module 4. Struct and Data in Module 5. That's modern Ruby. Worth the journey."
+    emotion: anticipation
+    emotional_intensity: 8
+    pain_points:
+      - "25 lessons shown flat (no grouping) creates overwhelm rather than motivation"
+    shared_artifacts_read:
+      - curriculum_list
+    shared_artifacts_written: []
 
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | L7: Blocks and Yield                          [LOCKED]     |
-      |                                                            |
-      | Why locked:                                                |
-      |   Requires: L6 Method Definition (not yet complete)       |
-      |                                                            |
-      | What L7 covers:                                            |
-      |   - Block syntax: do...end vs { }                         |
-      |   - yield keyword                                         |
-      |   - Implicit vs explicit blocks                            |
-      |   - block_given? guard pattern                            |
-      |                                                            |
-      | What L6 covers (prerequisite):                             |
-      |   - def/end syntax                                        |
-      |   - Default argument values                               |
-      |   - Keyword arguments                                     |
-      |   - Return values (implicit)                              |
-      |                                                            |
-      | [Enter] Go to L6 first  [Esc] Back to curriculum           |
-      +------------------------------------------------------------+
+  - id: step-10
+    name: "Return to Dashboard"
+    action: "Marcus presses Esc to return to dashboard"
+    touchpoint: "Dashboard view"
+    marcus_thought: "I know where I am. I know what's next. Two more sessions to finish Module 2."
+    emotion: satisfied-grounded
+    emotional_intensity: 8
+    pain_points: []
+    shared_artifacts_read:
+      - streak_count
+      - mastered_count
+    shared_artifacts_written: []
 
-    shared_artifacts:
-      - name: "locked_lesson_topics"
-        source: "db/curriculum/lessons.yml (topic_list per lesson)"
-        displayed_as: "What L7 covers: bullet list"
-        consumers: ["step 2 lock screen"]
-      - name: "prerequisite_lesson_topics"
-        source: "db/curriculum/lessons.yml (topic_list for each prerequisite)"
-        displayed_as: "What L6 covers: bullet list"
-        consumers: ["step 2 lock screen"]
-      - name: "prerequisite_completion_status"
-        source: "progress_tracker x prerequisite_graph"
-        displayed_as: "(not yet complete) vs (complete)"
-        consumers: ["step 2 lock screen", "step 5 unlock screen"]
+integration_checkpoints:
+  - id: ic-1
+    step: step-4
+    check: "lesson_status (Mastered/In Review/New/Locked) must derive from SM-2 state, not independent DB flag"
+    failure_risk: "Curriculum shows Mastered for concept that SM-2 has scheduled for re-review"
 
-    emotional_state:
-      entry: "Curious — wants to understand the gate"
-      exit: "Informed — understands exactly what is required and why it matters"
+  - id: ic-2
+    step: step-5
+    check: "prerequisite_ids gate must check lesson_status of each prerequisite in real time"
+    failure_risk: "Locked lesson shows as available after prerequisite is completed in a concurrent session"
 
-    integration_checkpoint: |
-      Lock screen must show ALL prerequisites, with completion status per-prerequisite.
-      Lock screen must show target lesson's topics AND prerequisite lesson's topics.
-      [Enter] must navigate directly to the first incomplete prerequisite.
-      If multiple prerequisites: navigate to first incomplete one.
+  - id: ic-3
+    step: step-8
+    check: "module_progress percentage recalculates immediately when lesson_status changes"
+    failure_risk: "Module shows stale progress % after Marcus completes a lesson"
 
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Navigate to first incomplete prerequisite lesson"
-      - key: "Esc"
-        action: "Return to curriculum tree"
+  - id: ic-4
+    step: step-7
+    check: "Selecting lesson updates review_queue for next session; visible on session start screen"
+    failure_risk: "Lesson does not appear in tomorrow's session start screen"
 
-    gherkin: |
-      Scenario: Lock screen explains prerequisite with content preview
-        Given Ana selects Lesson 7 which is locked
-        And Lesson 6 is the prerequisite and has not been completed
-        When the lock screen renders
-        Then she sees why L7 is locked (L6 not complete)
-        And she sees what topics L7 covers
-        And she sees what topics L6 covers (the prerequisite)
-        And pressing Enter navigates her to L6
+  - id: ic-5
+    step: step-3
+    check: "retention_rate calculation is documented (% correct on SM-2 reviews, rolling 14 days)"
+    failure_risk: "Marcus sees metric he cannot interpret or trust"
 
-      Scenario: Lock screen handles multiple prerequisites
-        Given Ana selects Lesson 10 which requires L8 and L9
-        And L8 is complete but L9 is not complete
-        When the lock screen renders
-        Then she sees both L8 (complete) and L9 (not complete)
-        And pressing Enter navigates to L9 (the incomplete prerequisite)
-
-  - id: 3
-    name: "Prerequisite Lesson — Content"
-    action: "User presses Enter from lock screen; navigated to prerequisite lesson"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Lesson 6: Method Definition         Module 2/5  |  ~4 min  |
-      |                                                            |
-      | In Python, you define functions with def and colons.       |
-      | Ruby methods use def...end (like a block, not indentation) |
-      |                                                            |
-      | def greet(name, greeting: "Hello")                        |
-      |   "#{greeting}, #{name}!"                                 |
-      | end                                                        |
-      |                                                            |
-      | Key differences: keyword arguments, implicit return,       |
-      | no type annotations, no self-parameter.                    |
-      |                                                            |
-      | [Enter] Start exercises  [Esc] Back                        |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "lesson_content"
-        source: "db/curriculum/lessons.yml (python_equivalent, ruby_form, explanation)"
-        displayed_as: "Python comparison + Ruby syntax block + key differences"
-        consumers: ["step 3 prerequisite lesson", "daily session step 5 lesson"]
-
-    emotional_state:
-      entry: "Purposeful — doing this to unlock a specific target"
-      exit: "Focused — content is new enough to be worth learning"
-
-    integration_checkpoint: |
-      Lesson content format must match daily session lesson format exactly.
-      This lesson is being approached via topic selection override, not SM-2.
-      SM-2 must still record exercises from this lesson with normal weight.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Start lesson exercises"
-      - key: "Esc"
-        action: "Return to curriculum tree (save position, do not lose progress)"
-
-    gherkin: |
-      Scenario: Prerequisite lesson uses expert-calibrated content
-        Given Ana has been routed to L6 from the L7 lock screen
-        When Lesson 6 content loads
-        Then the lesson shows Python function syntax before Ruby method syntax
-        And the lesson does not explain what a function/method is conceptually
-        And the lesson focuses only on Ruby-specific differences
-
-  - id: 4
-    name: "Prerequisite Lesson — Exercises"
-    action: "User completes exercises; same flow as daily session exercises"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Exercise  1/3  |  Lesson 6  |  [=======              ] 22s |
-      |                                                            |
-      | Translate to Ruby:                                         |
-      |   def calculate(x, y=10):  # Python                       |
-      |       return x + y                                        |
-      |                                                            |
-      | > _                                                        |
-      |                                                            |
-      | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "timer_remaining"
-        source: "session/exercise_timer (30s per exercise)"
-        displayed_as: "progress bar + seconds"
-        consumers: ["step 4 exercises", "daily session step 2 review", "onboarding step 4 exercise"]
-
-    emotional_state:
-      entry: "Focused — one lesson away from the target"
-      exit: "Accomplished — prerequisite done"
-
-    integration_checkpoint: |
-      SM-2 must record these exercises at normal weight.
-      Exercises in topic-selection-driven sessions are not lower quality for SM-2 purposes.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Submit answer"
-      - key: "Tab"
-        action: "Show hint"
-      - key: "Esc"
-        action: "Skip exercise"
-
-    gherkin: |
-      Scenario: SM-2 records exercises from topic-selection sessions
-        Given Ana completes exercises in L6 via topic selection path
-        When she submits answers
-        Then SM-2 records performance with the same weight as daily session exercises
-        And L6 exercises appear in future review queues normally
-
-  - id: 5
-    name: "Lesson Complete — Target Unlocked"
-    action: "All prerequisite exercises done; unlock notification shown"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Lesson 6 complete.                                         |
-      |                                                            |
-      | Unlocked:                                                  |
-      |   [*] L7  Blocks and Yield     <- NOW AVAILABLE           |
-      |                                                            |
-      | [Enter] Start Lesson 7 now  [Esc] Save for next session   |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "unlocked_lessons"
-        source: "prerequisite_resolver (run after lesson completes, returns newly available)"
-        displayed_as: "newly unlocked lesson list"
-        consumers: ["step 5 unlock screen", "curriculum tree step 1 (updated state)"]
-
-    emotional_state:
-      entry: "Accomplished — prerequisite cleared"
-      exit: "Motivated — target lesson is now reachable"
-
-    integration_checkpoint: |
-      prerequisite_resolver must run atomically after lesson completion.
-      Unlock state must persist before this screen renders (race-condition safe).
-      If multiple lessons unlock (e.g. prerequisite for 2 lessons), show all.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Start Lesson 7 immediately"
-      - key: "Esc"
-        action: "Return to session dashboard; save L7 as next lesson for tomorrow"
-
-    gherkin: |
-      Scenario: Completing prerequisite unlocks target lesson
-        Given Ana has completed all L6 exercises
-        When the lesson complete screen renders
-        Then L7 is shown as newly unlocked
-        And pressing Enter starts L7 immediately
-
-      Scenario: Unlock state persists after pressing Esc
-        Given L7 has been unlocked by completing L6
-        When Ana presses Esc to save for next session
-        And she opens the platform tomorrow
-        Then L7 is shown as available (not locked again)
-
-  - id: 6
-    name: "Target Lesson — Blocks and Yield"
-    action: "User presses Enter; target lesson loads"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Lesson 7: Blocks and Yield           Module 2/5  |  ~5 min |
-      |                                                            |
-      | In Python, you pass callables (lambdas, functions).        |
-      | In Ruby, you pass blocks — anonymous code chunks.          |
-      |                                                            |
-      | def run_twice                                              |
-      |   yield                                                    |
-      |   yield                                                    |
-      | end                                                        |
-      |                                                            |
-      | run_twice { puts "hello" }  #=> hello\nhello               |
-      |                                                            |
-      | [Enter] Start exercises  [Esc] Back                        |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "lesson_content"
-        source: "db/curriculum/lessons.yml"
-        displayed_as: "Python callable comparison + Ruby block syntax"
-        consumers: ["step 6 target lesson"]
-
-    emotional_state:
-      entry: "Motivated — reached the target"
-      exit: "Capable — has the knowledge needed for the PR review"
-
-    integration_checkpoint: |
-      This lesson's exercises feed into SM-2 with normal weight.
-      Session summary must show both L6 and L7 as completed today if both were done in one sitting.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Start exercises"
-      - key: "Esc"
-        action: "Return to curriculum tree"
-
-    gherkin: |
-      Scenario: Target lesson available after prerequisite completed
-        Given Ana has completed L6 and seen the unlock screen
-        When she starts Lesson 7
-        Then the lesson loads with full exercises (not preview-only)
-        And the lesson content focuses on block syntax differences from Python callables
-
-integration_validation:
-  shared_artifact_consistency:
-    - artifact: "lesson_status"
-      must_match_across: [1, 5, "daily_session_step_1", "onboarding_step_2"]
-      failure_message: "Lesson lock status must be consistent across all views that display it"
-    - artifact: "prerequisite_graph"
-      must_match_across: [1, 2]
-      failure_message: "Inline prerequisite labels in tree must match detail shown on lock screen"
-    - artifact: "unlocked_lessons"
-      must_match_across: [5, "curriculum_tree_after_lesson_complete"]
-      failure_message: "Unlock state shown on step 5 must be reflected in curriculum tree immediately"
+shared_artifacts:
+  read:
+    - streak_count
+    - mastered_count
+    - in_review_count
+    - new_count
+    - retention_rate
+    - curriculum_list
+    - lesson_id
+    - lesson_status
+    - lesson_content
+    - prerequisite_ids
+    - module_id
+    - module_progress
+    - review_queue
+  written:
+    - review_queue

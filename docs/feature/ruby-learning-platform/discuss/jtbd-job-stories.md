@@ -1,178 +1,193 @@
 # JTBD Job Stories — Ruby Learning Platform
 
-## Overview
-
-This document expands the validated jobs-to-be-done discovered in the DISCOVER wave into full job story format. Each job story captures situation, motivation, expected outcome, and all three job dimensions (functional, emotional, social).
-
----
-
-## Primary Job Story
-
-### JS-01: Daily Syntax Fluency Practice
-
-**When** I sit down for my morning development routine and want to move closer to Ruby fluency as an experienced developer already proficient in Python and Java,
-**I want to** complete a short, precisely-calibrated daily practice session that tests exactly the Ruby concepts I am ready to absorb next,
-**so I can** internalize idiomatic Ruby syntax to the point where I write it without stopping to check documentation.
-
-#### Functional Job
-Progress through Ruby-specific syntax and idioms at the pace an experienced developer deserves — fast through the familiar, deep on the genuinely new.
-
-#### Emotional Job
-Feel competent and efficient, not talked down to. The tool should treat me as an expert learning a new dialect, not a beginner learning programming.
-
-#### Social Job
-Be seen by colleagues as someone who writes idiomatic Ruby rather than "Python with Ruby syntax." Demonstrate Ruby literacy in code reviews.
-
-#### Forces Analysis
-- **Push**: Existing learning resources (documentation, tutorials, online courses) are calibrated for beginners; wading through variables, OOP basics, and loop syntax wastes 70%+ of session time on concepts already mastered.
-- **Pull**: A tool that skips all known concepts and surfaces only the Ruby-specific differences would compress weeks of study into daily 15-minute focused practice.
-- **Anxiety**: Will the tool correctly identify what I already know? Will it skip too much and leave gaps? Will SM-2 scheduling feel arbitrary rather than intelligent?
-- **Habit**: Currently using ad-hoc approaches — reading Ruby docs on demand, skimming Rubyist blogs, searching Stack Overflow during coding — which works but does not build durable retention.
+**Feature ID**: ruby-learning-platform
+**Phase**: DISCUSS — Phase 1
+**Date**: 2026-03-09
+**Source**: Expanded from problem-validation.md JTBD map + interview-log.md signals
 
 ---
 
-## Supporting Job Stories
+## Grounding
 
-### JS-02: Transfer Syntax Knowledge from Python/Java to Ruby
+These job stories are derived directly from the 5 jobs identified in the DISCOVER phase
+(problem-validation.md, interview-log.md). Each job has been expanded with:
+- Full job story format: When [situation] / I want to [motivation] / So I can [outcome]
+- Three job dimensions: Functional, Emotional, Social
+- The primary persona: Marcus Chen, an experienced Python + Java developer
 
-**When** I encounter a Ruby idiom that looks unfamiliar but probably maps to something I already know from Python or Java,
-**I want to** quickly understand the Ruby-specific way of doing something I already understand conceptually,
-**so I can** translate my existing programming mental model into Ruby without having to re-learn the underlying concept from scratch.
-
-#### Functional Job
-Map known programming concepts to their Ruby equivalents — not learn programming, but learn Ruby's dialect.
-
-#### Emotional Job
-Feel recognized as an expert. The tool should acknowledge what I already know and only ask me to stretch into genuinely new territory.
-
-#### Social Job
-Reduce the embarrassment of writing non-idiomatic Ruby ("Java in Ruby") in a team context where idiomatic code is valued.
-
-#### Forces Analysis
-- **Push**: Beginner tutorials explain "what is a loop" before showing Ruby's `each`. For an experienced developer this is patronizing and wastes time.
-- **Pull**: Content structured as "you know X in Python, here is the Ruby equivalent" makes learning feel like translation not education.
-- **Anxiety**: What if I miss something foundational by skipping "beginner" content? Am I building on a shaky foundation?
-- **Habit**: Default to Python patterns when writing Ruby; relies on documentation rather than internalizing Ruby idioms.
+### Persona: Marcus Chen
+- Senior software engineer, 8 years experience in Python and Java
+- Joining a team that uses Ruby on Rails; needs to become productive quickly
+- Works in a terminal-first environment; vim user; mouse is a context switch
+- Has 15 minutes in the morning before standup — that is his learning window
+- Has tried executeprogram.com; found it useful but not calibrated for his level
+- Values information density; skims documentation rather than reading linearly
 
 ---
 
-### JS-03: Automated Daily Review Queue
+## Job Story 1 — Syntax Transfer
 
-**When** I open my learning tool at the start of a session and want to decide what to practice,
-**I want to** have the system calculate and present today's review queue automatically based on my past performance and spacing intervals,
-**so I can** eliminate the cognitive overhead of deciding what to study and trust that spaced repetition is handling retention optimization for me.
+**Job**: Transfer syntax knowledge from Python/Java to Ruby
 
-#### Functional Job
-SM-2 algorithm schedules reviews automatically; user never manually selects what to revisit.
+**When** I sit down to prepare for a Ruby codebase review and realize I keep mentally
+translating Python syntax into Ruby while writing,
+**I want to** systematically close the gap between what I know from Python and Java and
+what Ruby-specific syntax looks like,
+**So I can** write idiomatic Ruby on the first pass without stopping to look up whether
+it is `end` or `}` or how symbols differ from strings.
 
-#### Emotional Job
-Feel trust in the system. Every session should start with the quiet confidence that "the tool knows what I need today."
+**Importance (DISCOVER)**: 9/10
+**Current Satisfaction (DISCOVER)**: 4/10
+**Opportunity Score**: 15 (OPP-1)
 
-#### Social Job
-Not directly social — but consistent retention means fewer embarrassing moments of forgetting concepts in pairing sessions.
+### Functional Dimension
+Marcus needs to learn which Python/Java constructs have Ruby equivalents that look different
+(string interpolation, method definitions, blocks) and which have no direct equivalent at all
+(symbols, procs vs. lambdas, `method_missing`). He does not need to learn what a loop is.
 
-#### Forces Analysis
-- **Push**: Manual review selection requires meta-cognitive effort ("what did I struggle with last week?") and is chronically wrong — humans overweight recent memories and neglect older, fading ones.
-- **Pull**: Algorithmic review scheduling removes a decision entirely; opening the app means the work is already organized.
-- **Anxiety**: Will the algorithm feel intrusive? Will it schedule too many reviews on some days and none on others?
-- **Habit**: Currently either re-reads everything (inefficient) or skips reviews entirely (no retention).
+### Emotional Dimension
+Marcus feels frustrated when he opens a Ruby tutorial and the first three sections explain
+variables and conditionals. He feels respected when content assumes his prior knowledge.
+He feels confident when he can map a new concept directly onto something he already knows.
 
----
-
-### JS-04: Session Length Discipline
-
-**When** I have 15 minutes before standups or during a lunch break and want to fit in a practice session,
-**I want to** complete a full, meaningful learning session within a hard 15-minute time budget,
-**so I can** practice consistently every day without it competing with work commitments.
-
-#### Functional Job
-Session completes within 15 minutes: review queue (30 seconds per exercise) plus one new lesson (maximum 5 minutes).
-
-#### Emotional Job
-Feel that the time investment is respected. No session should run over; no exercise should drag past its natural limit.
-
-#### Social Job
-Being able to say "I practice Ruby every day for 15 minutes" is a credible habit; "I spend hours on it when I find time" is not.
-
-#### Forces Analysis
-- **Push**: Open-ended learning sessions balloon; starting a lesson and getting absorbed for 45 minutes creates guilt and schedule disruption.
-- **Pull**: Hard time caps turn practice into a reliable daily ritual that fits real developer schedules.
-- **Anxiety**: Will 15 minutes be enough? What if I am mid-lesson when the timer ends?
-- **Habit**: Either over-invests when motivated (unsustainable) or skips entirely when busy (no consistency).
+### Social Dimension
+Marcus wants to be able to hold his own in code review within his new team without
+prefacing every comment with "I'm still learning Ruby." Fluency is a professional signal.
 
 ---
 
-### JS-05: Keyboard-Native Navigation
+## Job Story 2 — Daily Practice Habit
 
-**When** I am using my learning tool and want to move between exercises, submit answers, navigate the lesson tree, and manage my session,
-**I want to** do everything without leaving the keyboard,
-**so I can** stay in the focused, flow-state mode that keyboard-native developers rely on for all tool interactions.
+**Job**: Maintain daily practice habit within attention budget
 
-#### Functional Job
-Every interactive element reachable and operable via keyboard; no mouse required for any primary workflow.
+**When** I want to improve at Ruby but my day is already packed with meetings and coding
+work and I only have a small window before standup,
+**I want to** complete a meaningful practice session in 15 minutes or less that still
+builds real retention,
+**So I can** maintain a consistent daily habit without feeling like I am sacrificing
+something else to do it.
 
-#### Emotional Job
-Feel at home in the tool. A developer who uses vim, tmux, and keyboard shortcuts everywhere should never feel the tool is fighting them.
+**Importance (DISCOVER)**: 9/10
+**Current Satisfaction (DISCOVER)**: 3/10
+**Opportunity Score**: 15 (OPP-3)
 
-#### Social Job
-The tool should match the professional identity of a developer who takes their craft seriously.
+### Functional Dimension
+Marcus needs a session structure that is predictably bounded. He needs to know before
+starting that he will finish in time. The session must have a clear end state — not an
+open-ended "keep going as long as you want" model.
 
-#### Forces Analysis
-- **Push**: Mouse-dependent learning tools break the keyboard-flow that developers maintain during work; context-switching to mouse creates friction that discourages daily use.
-- **Pull**: A keyboard-native tool feels like a professional instrument, not a toy.
-- **Anxiety**: Will all shortcuts be discoverable? What if I forget the keybinding?
-- **Habit**: Every other professional tool (editor, terminal, git) is keyboard-native; this should be too.
+### Emotional Dimension
+Marcus feels anxious starting a learning session if he does not know how long it will take.
+He feels in flow when the content is right at his level and advances without friction.
+He feels satisfaction — and pride — when he completes a streak without breaking it.
 
----
-
-### JS-06: Progress Visibility Without Gamification
-
-**When** I want to understand how my Ruby learning is progressing,
-**I want to** see a clear, honest view of completed lessons, SM-2 retention health, and what remains in the curriculum,
-**so I can** calibrate my expectations about when I will have solid Ruby fluency and decide whether to adjust my daily practice commitment.
-
-#### Functional Job
-Dashboard showing completed/locked/available lessons, SM-2 retention scores per concept, and a total progress metric.
-
-#### Emotional Job
-Feel informed and in control. Progress should feel real (based on retention data) not inflated (artificial streaks, badges, points).
-
-#### Social Job
-Being able to say "I am 60% through the curriculum with 85% retention on completed lessons" is a meaningful signal to oneself and others.
-
-#### Forces Analysis
-- **Push**: Gamified systems (streaks, XP, badges) feel manipulative and hollow to professional developers; they obscure actual learning progress.
-- **Pull**: Honest metrics based on SM-2 data reflect real retention, not engagement metrics.
-- **Anxiety**: What if honest metrics show slow progress? Will that be discouraging?
-- **Habit**: Developers are accustomed to metrics that reflect real system state (test coverage, build status); the same standard applies to learning tools.
+### Social Dimension
+Daily habit is a personal value signal for Marcus. He is the kind of developer who has
+dotfiles, maintains a personal knowledge base, and takes craftsmanship seriously. A
+consistent learning practice reinforces this identity.
 
 ---
 
-## JTBD-to-Story Bridge
+## Job Story 3 — Automated Review Queue
 
-| Job Story | Primary User Stories |
-|-----------|---------------------|
-| JS-01: Daily Syntax Fluency Practice | US-01 (Onboarding), US-02 (Daily Session Flow), US-05 (SM-2 Review Engine) |
-| JS-02: Transfer Syntax Knowledge | US-06 (Lesson Content Standards), US-08 (Lesson Tree Navigation) |
-| JS-03: Automated Daily Review Queue | US-05 (SM-2 Review Engine), US-02 (Daily Session Flow) |
-| JS-04: Session Length Discipline | US-02 (Daily Session Flow), US-04 (Exercise Timer) |
-| JS-05: Keyboard-Native Navigation | US-07 (Keyboard Navigation), US-03 (Topic Selection) |
-| JS-06: Progress Visibility | US-09 (Progress Dashboard), US-08 (Lesson Tree Navigation) |
+**Job**: Know what to review without manual decision-making
+
+**When** I finish a lesson and know I will need to remember this Ruby concept in two weeks
+but I am not sure when to review it to retain it optimally,
+**I want to** have the system decide what I should review today based on what I have
+already learned and how well I remembered it last time,
+**So I can** trust that the review queue contains exactly what I need without spending
+mental energy curating it myself.
+
+**Importance (DISCOVER)**: 8/10
+**Current Satisfaction (DISCOVER)**: 2/10
+**Opportunity Score**: 16 (OPP-2, highest priority)
+
+### Functional Dimension
+Marcus needs an algorithm (SM-2) that tracks his response quality for each concept and
+schedules reviews at expanding intervals. He needs a daily queue delivered to him —
+he opens the app, the queue is there, he works through it. No decisions required.
+
+### Emotional Dimension
+Marcus feels relieved when he opens the app and the question "what should I study today?"
+is already answered. He feels trust in a system that proves it knows when he is about to
+forget something. He feels anxious when he suspects he has forgotten something but does
+not know how to find it.
+
+### Social Dimension
+Lower social dimension than other jobs — this is an internal efficiency preference, not
+a signal to others. However, the resulting fluency (from better retention) is socially visible.
 
 ---
 
-## Domain Language Glossary
+## Job Story 4 — Keyboard-Native Navigation
 
-| Term | Definition |
-|------|-----------|
-| **Session** | A single daily practice event: review queue + one new lesson, completing within 15 minutes |
-| **Review queue** | SM-2-calculated set of exercises due for review today |
-| **Exercise** | A single practice item with a 30-second hard cap |
-| **Lesson** | A focused teaching unit covering one Ruby concept, maximum 5 minutes |
-| **Module** | A group of 5 thematically related lessons |
-| **Lesson tree** | The full curriculum visualized as a graph with prerequisite dependencies |
-| **SM-2** | Spaced repetition algorithm that schedules reviews based on recall success and interval |
-| **Prerequisite** | A lesson that must be completed before another lesson unlocks |
-| **Retention score** | SM-2-derived measure of how well a concept has been retained (0-100%) |
-| **Calibrated content** | Content designed for experienced developers, omitting foundational programming concepts |
-| **Idiomatic Ruby** | Ruby code written using Ruby-specific patterns, not translated from other languages |
+**Job**: Navigate learning UI without leaving keyboard
+
+**When** I am in the middle of a review session and need to submit my answer or move to
+the next exercise,
+**I want to** use keyboard shortcuts consistent with the tools I already use (vim, terminal)
+to navigate the learning interface without reaching for the mouse,
+**So I can** stay in a focused flow state without the context switch of switching input
+modes.
+
+**Importance (DISCOVER)**: 7/10
+**Current Satisfaction (DISCOVER)**: 2/10
+**Opportunity Score**: 12 (OPP-4)
+
+### Functional Dimension
+Marcus needs `Enter` to submit, `j`/`k` to navigate, `Esc` to skip or dismiss, and visible
+focus states on all interactive elements. The entire session must be completable without
+touching a mouse.
+
+### Emotional Dimension
+Marcus feels friction every time he reaches for the mouse in an interface that "should" be
+keyboard-navigable. He feels respected by an interface that acknowledges he is a developer.
+He feels invisible when an interface treats him like a casual web user.
+
+### Social Dimension
+Keyboard-native UX is a proxy for "built by developers for developers." This matters to
+Marcus as a signal of product quality and intent.
+
+---
+
+## Job Story 5 — Progress Visibility
+
+**Job**: Extend Ruby knowledge toward idiomatic fluency and track progress
+
+**When** I want to understand where I am in my Ruby learning journey and how well my
+retention is holding up over time,
+**I want to** see a clear view of how many concepts I have mastered, how many are in
+review, and what my retention rate looks like,
+**So I can** feel confident about my progress and know when I am ready to tackle more
+advanced Ruby idioms or the Rails track.
+
+**Importance (DISCOVER)**: 7/10
+**Current Satisfaction (DISCOVER)**: 3/10
+**Opportunity Score**: 11 (OPP-7)
+
+### Functional Dimension
+Marcus needs mastery counts (Mastered / In Review / New), a retention rate metric per
+concept, a streak counter, and a sense of how far through the curriculum he is. This is
+a dashboard view, not a per-session view.
+
+### Emotional Dimension
+Marcus feels uncertain about his progress when the only feedback is whether he got each
+exercise right or wrong. He feels proud when a dashboard shows a concrete retention rate
+improving over weeks. He feels motivated when a streak is visible and worth protecting.
+
+### Social Dimension
+Progress is not public in the MVP (personal tool). However, it supports Marcus's own
+professional identity narrative: "I am someone who builds skills systematically."
+
+---
+
+## Job Story Cross-Reference
+
+| Job Story | DISCOVER Job | OPP Mapping | Priority |
+|-----------|-------------|-------------|----------|
+| JS-1: Syntax Transfer | Transfer syntax knowledge from Python/Java | OPP-1 (score 15) | High |
+| JS-2: Daily Practice Habit | Maintain daily practice within attention budget | OPP-3 (score 15) | High |
+| JS-3: Automated Review Queue | Know what to review without manual decision | OPP-2 (score 16) | Highest |
+| JS-4: Keyboard Navigation | Navigate learning UI without leaving keyboard | OPP-4 (score 12) | Medium-High |
+| JS-5: Progress Visibility | Track progress and retention over time | OPP-7 (score 11) | Medium |

@@ -1,141 +1,216 @@
-Feature: Topic Selection and Lesson Tree Navigation
-  As an experienced developer with specific immediate learning needs
-  I want to navigate the curriculum tree and understand prerequisite dependencies
-  So that I can reach the topic I need for current work without bypassing important prerequisites
+# Journey: Topic Selection / Curriculum Navigation — Ruby Learning Platform
+# Persona: Marcus Chen (week 2; 14-day streak; 8 lessons complete)
+# Emotional Arc: Curiosity → Orientation → Agency → Anticipation
+# Job Stories: JS-1 (Syntax Transfer), JS-5 (Progress Visibility)
+
+Feature: Topic Selection — Curriculum Navigation and Progress Orientation
+
+  As Marcus Chen, a two-week platform user with 14 daily sessions complete,
+  I want to explore the curriculum, understand where I am in the full arc,
+  see prerequisite gates clearly, and select my next lesson with confidence,
+  So that I feel oriented within the 25-lesson curriculum and motivated to continue.
 
   Background:
-    Given Ana Folau has been practicing for 21 days
-    And she has completed Module 1 (Lessons 1-5)
-    And she has not yet started Module 2
-    And Lesson 6 is the only available (unlocked) lesson in Module 2
+    Given Marcus has a platform account with expert mode enabled
+    And Marcus has completed 8 lessons (Lessons 1-8)
+    And Marcus has 12 concepts mastered, 8 in review, 4 new in his SM-2 pool
+    And Marcus has a 14-day streak
+    And Marcus's retention rate is 73% (correct on SM-2 reviews, last 14 days)
+    And Lesson 9 (Method Objects) is available for Marcus to study
+    And Lesson 15 (method_missing) requires Lessons 11-14 as prerequisites
 
-  # ---- Curriculum Tree ----
+  # -----------------------------------------------------------------------
+  # Steps 1-3: Dashboard — Progress Overview
+  # -----------------------------------------------------------------------
 
-  Scenario: Curriculum tree shows accurate lock states for current user
-    When Ana opens the curriculum tree
-    Then Module 1 shows status [COMPLETE]
-    And Module 2 shows status [IN PROGRESS]
-    And Lesson 6 shows as available with no lock indicator
-    And Lessons 7-10 show as locked with their respective prerequisite labels
-    And Modules 3-5 show as [LOCKED] with no lesson details visible
+  Scenario: Dashboard shows mastery counts with visual progress context
+    Given Marcus navigates to the progress dashboard
+    When the dashboard view loads
+    Then Marcus sees:
+      | Metric               | Value              |
+      | Mastered concepts    | 12                 |
+      | In Review concepts   | 8                  |
+      | New concepts         | 4                  |
+      | Lessons completed    | 8 of 25            |
+      | Streak               | 14 days            |
+      | Retention rate       | 73%                |
+    And Marcus sees a visual progress bar for lessons: "8 of 25 (32%)"
+    And Marcus sees a visual breakdown for concept statuses
+    And the dashboard has a keyboard shortcut to navigate to curriculum: "c"
 
-  Scenario: Curriculum tree navigation is fully keyboard-driven
-    Given Ana is in the curriculum tree
-    When she presses "j" to move down
-    Then the cursor moves to the next lesson in order
-    When she presses "k" to move up
-    Then the cursor moves to the previous lesson
-    When she presses "J" (shift-j)
-    Then the cursor jumps to the first lesson of the next module
-    When she presses "K" (shift-k)
-    Then the cursor jumps to the first lesson of the previous module
+  Scenario: Retention rate is shown with a plain-language calculation explanation
+    Given Marcus is viewing the progress dashboard
+    When Marcus reads the retention rate metric
+    Then Marcus sees: "Retention Rate: 73%"
+    And Marcus sees beneath it: "Percentage of SM-2 review answers that were correct, last 14 days"
+    And Marcus can understand the metric without reading any documentation
 
-  Scenario: User can search lessons by keyword
-    Given Ana is in the curriculum tree
-    When she presses "/" and types "block"
-    Then the tree filters to show only lessons matching "block" in title or description
-    And Lesson 7 "Blocks and Yield" is visible in the filtered results
-    And Lesson 8 "Procs and Lambdas" is visible (contains block-related content)
-    And all other lessons are hidden from view
-    When she presses Esc
-    Then the full curriculum tree restores with no filter active
+  Scenario: Dashboard provides navigation shortcuts to key areas
+    Given Marcus is on the dashboard
+    When Marcus presses "c"
+    Then Marcus navigates to the curriculum overview
+    When Marcus presses "s"
+    Then Marcus navigates to today's session start screen
 
-  # ---- Lock Screen ----
+  # -----------------------------------------------------------------------
+  # Step 4: Curriculum Map
+  # -----------------------------------------------------------------------
 
-  Scenario: Locked lesson shows WHY it is locked with prerequisite content
-    Given Ana navigates to Lesson 7 (locked, requires Lesson 6)
-    When she presses Enter
-    Then a lock screen loads (not an error message)
-    And the screen shows "Requires: L6 Method Definition (not yet complete)"
-    And the screen shows what topics Lesson 7 covers
-    And the screen shows what topics Lesson 6 covers (so she can evaluate the prerequisite)
-    And pressing Enter navigates her to Lesson 6
+  Scenario: Curriculum overview shows all 5 modules with status per lesson
+    Given Marcus navigates to the curriculum overview
+    When the curriculum view loads
+    Then Marcus sees all 5 modules listed with progress counts
+    And Marcus sees each lesson within expanded modules with a status indicator:
+      | Status     | Icon | Meaning                              |
+      | Mastered   | [x]  | SM-2 interval >= 30 days             |
+      | In Review  | [~]  | SM-2 interval 3-29 days              |
+      | New        | [>]  | Completed once; not yet reviewed     |
+      | Available  | [ ]  | Prerequisites met; not started       |
+      | Locked     | [L]  | Prerequisites not met                |
+    And Marcus can navigate lessons with j/k keys
+    And Marcus can open a lesson detail with Enter
 
-  Scenario: Lock screen handles multiple prerequisites showing partial completion
-    Given Lesson 10 requires both Lesson 8 and Lesson 9
-    And Lesson 8 is complete but Lesson 9 is not
-    When Ana selects Lesson 10
-    Then the lock screen shows "L8 Method Objects (complete)" marked as done
-    And it shows "L9 Procs and Lambdas (not yet complete)" marked as needed
-    And pressing Enter navigates to Lesson 9 (the incomplete prerequisite)
+  Scenario: Curriculum overview shows Marcus's current position clearly
+    Given Marcus opens the curriculum overview
+    Then Lesson 9 (Method Objects) is marked as "NEXT" or "Available"
+    And Lesson 8 (Procs and Lambdas — `->` syntax) is marked as "In Review" or "Mastered"
+    And Lesson 10 (Enumerable) is marked as "Locked"
 
-  Scenario: No force-skip mechanism exists for locked lessons
-    Given Ana is on a lock screen for a locked lesson
-    Then there is no "skip prerequisite" or "unlock anyway" option
-    And the only actions available are [Enter] (go to prerequisite) and [Esc] (back)
-    And this is by design — prerequisite gates are absolute
+  Scenario: Curriculum is grouped into modules with module-level progress
+    Given Marcus is viewing the curriculum overview
+    Then Marcus sees Module 1 with a progress indicator: "5/5 complete"
+    And Marcus sees Module 2 with a progress indicator: "3/5 complete"
+    And Marcus sees Modules 3, 4, 5 as locked with 0/5 progress each
+    And Marcus can see module titles even when modules are locked
 
-  # ---- Prerequisite Lesson Flow ----
+  Scenario: Curriculum navigation is fully keyboard-accessible
+    Given Marcus is on the curriculum overview
+    Then Marcus can expand a module using Enter
+    And Marcus can navigate between lessons using j/k
+    And Marcus can open a lesson detail using Enter
+    And Marcus can return to the previous view using Esc
+    And no mouse interaction is required
 
-  Scenario: Completing prerequisite lesson updates lock states immediately
-    Given Ana has navigated to and completed all exercises in Lesson 6
-    When the Lesson 6 complete screen renders
-    Then Lesson 7 is shown as newly unlocked
-    And the curriculum tree (if reopened) shows Lesson 7 as available
-    And the change is persisted before the unlock notification renders
+  # -----------------------------------------------------------------------
+  # Step 5: Prerequisite Gate
+  # -----------------------------------------------------------------------
 
-  Scenario: SM-2 records exercises from topic-selection path with equal weight
-    Given Ana completes Lesson 6 exercises via the topic selection path
-    When she completes an exercise correctly
-    Then SM-2 records the result with the same weight as a daily session exercise
-    And Lesson 6 exercises appear in future review queues at normal intervals
+  Scenario: Locked lesson shows which prerequisites are needed with completion status
+    Given Marcus selects Lesson 15 (method_missing) from the curriculum
+    When the lesson detail view opens
+    Then Marcus sees the status: "LOCKED"
+    And Marcus sees a list of required prerequisites:
+      | Prerequisite     | Status               |
+      | Lesson 11        | Not completed        |
+      | Lesson 12        | Not completed        |
+      | Lesson 13        | Not completed        |
+      | Lesson 14        | Not completed        |
+    And Marcus sees an estimate: "Complete 4 prerequisite lessons — approximately 3 daily sessions"
+    And Marcus does not see a confusing generic "locked" message without context
 
-  # ---- Unlock Notification ----
+  Scenario: Partially completed prerequisites show remaining work
+    Given Marcus has completed Lesson 11 but not 12, 13, or 14
+    When Marcus opens the Lesson 15 detail view
+    Then Marcus sees Lesson 11 marked as completed in the prerequisite list
+    And Marcus sees Lessons 12, 13, 14 as not completed
+    And Marcus sees the updated estimate: "3 more prerequisite lessons needed"
 
-  Scenario: Unlock screen offers immediate start of target lesson
-    Given Ana has completed Lesson 6
-    When the lesson complete screen renders
-    Then she sees Lesson 7 listed as newly unlocked
-    And pressing Enter starts Lesson 7 immediately
-    And pressing Esc returns to the session dashboard with L7 saved as next session
+  Scenario: Completing the last prerequisite unlocks a lesson immediately
+    Given Marcus has completed Lessons 11, 12, and 13 and is completing Lesson 14
+    When Marcus completes Lesson 14's exercise and receives SM-2 scheduling
+    Then Lesson 15 becomes available (status changes from Locked to Available)
+    And Marcus sees Lesson 15 in his curriculum as unlocked on next page load
 
-  Scenario: Unlock persists across sessions
-    Given Ana has unlocked Lesson 7 by completing Lesson 6
-    And she pressed Esc to save for next session
-    When she opens the platform the following day
-    Then Lesson 7 is still shown as available (not locked again)
-    And the session dashboard recommends Lesson 7 as the next lesson
+  # -----------------------------------------------------------------------
+  # Step 6: Lesson Detail Card
+  # -----------------------------------------------------------------------
 
-  # ---- Target Lesson ----
+  Scenario: Lesson detail card shows topic, time estimate, and cross-language mapping
+    Given Marcus selects Lesson 9 (Method Objects) from the curriculum
+    When the lesson detail card opens
+    Then Marcus sees:
+      | Field             | Value                                          |
+      | Lesson number     | 9                                              |
+      | Title             | Method Objects and &method(:name)              |
+      | Module            | Module 2: Ruby Methods and Blocks              |
+      | Status            | Available (prerequisites met)                  |
+      | Estimated time    | ~4 minutes                                     |
+      | Python equivalent | functools, partial, direct reference           |
+      | Java equivalent   | Method references (::)                         |
+      | Exercise type     | Fill-in-the-blank (30 seconds)                 |
+    And Marcus sees a brief description of what the lesson teaches
+    And Marcus does not see any lesson content before selecting it
 
-  Scenario: Target lesson available for full study after prerequisite completed
-    Given Ana has completed Lesson 6 and Lesson 7 is now unlocked
-    When she starts Lesson 7
-    Then the full lesson with exercises is available (not preview-only)
-    And the lesson content shows Python callable patterns before Ruby block syntax
-    And there is no explanation of what a function or anonymous function is
+  Scenario: Available lesson can be started immediately or queued for next session
+    Given Marcus is viewing the Lesson 9 detail card
+    When Marcus reviews his options
+    Then Marcus sees two actions:
+      | Action                | Key   |
+      | Start now             | Enter |
+      | Queue for next session | q     |
+    And Marcus can press Esc to return to curriculum without selecting
 
-  # ---- Session Integration ----
+  # -----------------------------------------------------------------------
+  # Step 7: Lesson Selection and Queue
+  # -----------------------------------------------------------------------
 
-  Scenario: Topic selection via [t] override preserves SM-2 review queue
-    Given Ana is on the session dashboard
-    When she presses "t" to open topic selection
-    And she selects an available lesson different from the SM-2 recommendation
-    And she starts the session
-    Then the review queue runs first (unchanged from SM-2 plan)
-    And the manually selected lesson runs after the review queue
+  Scenario: Selecting "Queue for next session" adds lesson to tomorrow's session
+    Given Marcus presses "q" on the Lesson 9 detail card
+    When Marcus views tomorrow's session start screen
+    Then Lesson 9 appears in the optional lesson slot for tomorrow's session
+    And the session start screen shows: "Optional lesson: Lesson 9 — Method Objects (~4 min)"
 
-  Scenario: Session summary shows all completed lessons for topic-selection sessions
-    Given Ana completed both Lesson 6 (prerequisite) and Lesson 7 (target) in one sitting
-    When the session complete screen renders
-    Then it shows both Lesson 6 and Lesson 7 as completed today
-    And SM-2 records exercises from both lessons
+  Scenario: User can only queue one lesson per session slot
+    Given Marcus has already queued Lesson 9 for tomorrow
+    When Marcus tries to queue Lesson 10 (if available) for tomorrow
+    Then Marcus sees a message: "You already have Lesson 9 queued for tomorrow"
+    And Marcus can replace the queue with Lesson 10 or keep Lesson 9
 
-  # ---- Property Scenarios ----
+  # -----------------------------------------------------------------------
+  # Steps 8-9: Module Progress and Full Arc
+  # -----------------------------------------------------------------------
 
-  @property
-  Scenario: Lock state is consistent across all views
-    Given a lesson's completion status changes (lesson is marked complete)
-    Then within the same session, all views reflecting that lesson's status are consistent:
-      | View | Artifact |
-      | Curriculum tree | lesson_status icon |
-      | Session dashboard | next_lesson recommendation |
-      | Lock screen for dependent lessons | prerequisite_completion_status |
-      | Progress dashboard | lessons_complete count |
+  Scenario: Module progress view shows lesson-by-lesson path and unlock dependencies
+    Given Marcus opens the Module 2 progress view
+    When the module view loads
+    Then Marcus sees progress: "3 of 5 lessons complete"
+    And Marcus sees a visual progress bar for Module 2
+    And Marcus sees each lesson's status within the module
+    And Marcus sees which lesson completion unlocks the next lesson
+    And Marcus sees: "Completing Lesson 9 unlocks Lesson 10 (Enumerable)"
+    And Marcus sees: "Completing Lesson 10 unlocks Module 3"
 
-  @property
-  Scenario: Prerequisite graph is acyclic and correctly ordered
-    Given the full curriculum prerequisite graph
-    Then no lesson is a prerequisite of itself (no cycles)
-    And all prerequisite references point to lower-numbered lessons
-    And completing lessons in sequential order always satisfies all prerequisites
+  Scenario: Future locked modules show titles to maintain motivation
+    Given Marcus is viewing the curriculum overview
+    When Marcus scrolls to Modules 4 and 5 (locked)
+    Then Marcus sees the module titles: "Ruby Idioms" and "Ruby Standard Library Essentials"
+    And Marcus sees the lesson titles within locked modules (but not lesson content)
+    And Marcus sees that Module 4 contains "Pattern Matching (Ruby 3+)"
+    And Marcus does not see a blank or "coming soon" placeholder
+
+  # -----------------------------------------------------------------------
+  # Step 10: Return to Dashboard
+  # -----------------------------------------------------------------------
+
+  Scenario: Return to dashboard shows updated queue after lesson selection
+    Given Marcus has queued Lesson 9 for tomorrow
+    When Marcus presses Esc to return to the dashboard
+    Then Marcus sees his dashboard reflecting the same mastery counts and streak
+    And the dashboard shows a "Tomorrow's session" preview if a lesson has been queued
+
+  # -----------------------------------------------------------------------
+  # Full Topic Selection Happy Path
+  # -----------------------------------------------------------------------
+
+  Scenario: Marcus navigates curriculum, selects next lesson, without touching mouse
+    Given Marcus is on the progress dashboard
+    When Marcus completes the full topic selection flow
+    Then Marcus presses "c" to navigate to the curriculum overview
+    And Marcus uses j/k to navigate to Lesson 9
+    And Marcus presses Enter to open the Lesson 9 detail card
+    And Marcus presses "q" to queue it for the next session
+    And Marcus presses Esc to return to the curriculum
+    And Marcus scrolls through to see Modules 4 and 5 titles
+    And Marcus presses Esc to return to the dashboard
+    And Marcus has not touched the mouse at any point
+    And Lesson 9 appears in tomorrow's session queue

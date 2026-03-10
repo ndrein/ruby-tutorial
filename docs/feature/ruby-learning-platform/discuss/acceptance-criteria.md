@@ -1,163 +1,839 @@
 # Acceptance Criteria — Ruby Learning Platform
 
-All acceptance criteria are derived from UAT scenarios in user stories and journey feature files. Each criterion is testable (observable user outcome, not technical implementation).
+**Feature ID**: ruby-learning-platform
+**Phase**: DISCUSS — Phase 3
+**Date**: 2026-03-09
+**Format**: Given/When/Then (BDD) for all testable criteria; derived directly from user stories
 
 ---
 
-## AC-01: First-Time Onboarding
+## AC-000: Walking Skeleton
 
-Derived from: US-01, journey-onboarding.feature
+### AC-000-01: Landing page loads
+```gherkin
+Given the application is deployed and running
+When a user navigates to the root URL
+Then the landing page renders within 2 seconds
+And the page contains the headline or UVP text
+And no server error is returned
+```
 
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-01-01 | Welcome screen shows assumed-knowledge checklist on first launch, before any other content | Yes — visually verifiable | Scenario: Landing screen shows expert calibration |
-| AC-01-02 | No login form, account creation, or personal data is requested | Yes — element absence verifiable | Scenario: No login required |
-| AC-01-03 | Pressing Enter on welcome screen goes directly to curriculum tree (no intermediate screens) | Yes — navigation step count | Scenario: No navigation needed to reach first exercise |
-| AC-01-04 | Curriculum tree shows Lesson 1 as the only available lesson on first launch | Yes — status icon verifiable | Scenario: Curriculum tree shows L1 as only available |
-| AC-01-05 | Every locked lesson shows a prerequisite label (e.g., "needs L1") | Yes — label presence verifiable | Scenario: Curriculum tree shows correct lock states |
-| AC-01-06 | Selecting a locked lesson shows a lock screen, not an error message | Yes — screen type verifiable | Scenario: Selecting locked lesson shows lock screen |
-| AC-01-07 | Lesson preview screen shows a "What this does NOT cover" section with at least one item | Yes — section presence and content | Scenario: Lesson preview shows scope |
-| AC-01-08 | 30-second exercise timer starts on exercise render without any user interaction | Yes — observable timer behavior | Scenario: Exercise timer starts automatically |
-| AC-01-09 | When timer expires, correct answer shown; result recorded as "missed" | Yes — answer visibility + SM-2 state | Scenario: Timer expiry shows correct answer |
-| AC-01-10 | Pressing Esc on an exercise shows the answer and records result as "skipped" (not "failed") | Yes — result type verifiable in SM-2 | Scenario: User can skip without penalty |
-| AC-01-11 | Correct answer feedback shows "Correct." as first word; shows Ruby-specific explanation | Yes — text content verifiable | Scenario: Correct answer shows precise explanation |
-| AC-01-12 | No score, XP, badges, or points displayed on any feedback screen | Yes — element absence verifiable | Scenario: Correct answer feedback (anti-gamification) |
-| AC-01-13 | Session summary shows SM-2 schedule explanation and next lesson title | Yes — text content verifiable | Scenario: First session summary initializes SM-2 |
-| AC-01-14 | All actions on all onboarding screens are keyboard-accessible (no mouse required) | Yes — keyboard-only navigation test | @property: keyboard accessibility |
-| AC-01-15 | Pressing Esc mid-lesson saves position; returning resumes from last completed exercise | Yes — state persistence verifiable | @property: no session data lost |
+### AC-000-02: Lesson 1 renders with seeded content
+```gherkin
+Given the database has Lesson 1 (Ruby Blocks) seeded
+When a user navigates to the Lesson 1 URL
+Then the lesson title "Ruby Blocks" is displayed
+And the lesson body content is rendered
+And a Python/Java side-by-side comparison is visible
+And no error page is shown
+```
 
----
+### AC-000-03: Exercise accepts keyboard input
+```gherkin
+Given a user is on Exercise 1.1 (fill-in-the-blank)
+When the exercise page loads
+Then the answer input field is present
+And the input field is focused automatically
+And a user can type characters into the field using keyboard
+```
 
-## AC-02: Daily Session Flow
+### AC-000-04: Correct answer persists SM-2 entry with 3-day interval
+```gherkin
+Given a user is on Exercise 1.1
+When the user types "select" and presses Enter
+Then a review record is created in the database
+And the record has next_review_date = today + 3 days
+And the record has sm2_interval = 3
+And the user sees "Correct" feedback on screen
+```
 
-Derived from: US-02, journey-daily-session.feature
+### AC-000-05: Incorrect answer persists SM-2 entry with 1-day interval
+```gherkin
+Given a user is on Exercise 1.1
+When the user types an incorrect answer and presses Enter
+Then a review record is created in the database
+And the record has next_review_date = today + 1 day
+And the record has sm2_interval = 1
+And the user sees the correct answer and explanation
+```
 
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-02-01 | Session dashboard renders complete plan (review count, time estimate, lesson title) within 500ms | Yes — timing measurable | Scenario: Session dashboard pre-computes plan |
-| AC-02-02 | No user selection is required to start the session | Yes — zero required actions before Enter | Scenario: No selection required to begin |
-| AC-02-03 | When review queue has 0 exercises, dashboard shows "all caught up" and goes directly to lesson | Yes — conditional screen content | Scenario: Empty review queue handled gracefully |
-| AC-02-04 | When 18 exercises are due, only 12 are scheduled today; 6 carry to tomorrow | Yes — queue size verifiable, deferred visible | Scenario: Oversized queue is capped |
-| AC-02-05 | Review exercises are presented in urgency order (most overdue first) | Yes — order verifiable by next_review_date | Scenario: Review exercises in urgency order |
-| AC-02-06 | Correct answer on review extends SM-2 interval beyond current interval | Yes — interval increase verifiable | Scenario: Correct answer extends interval |
-| AC-02-07 | Incorrect answer on review resets SM-2 interval to 1 day | Yes — interval = 1 verifiable | Scenario: Incorrect answer resets interval |
-| AC-02-08 | Review complete screen shows "N/M (P%)" accuracy format | Yes — text format verifiable | Scenario: Review complete shows performance |
-| AC-02-09 | New lesson content shows Python/Java equivalent before Ruby syntax | Yes — content order verifiable | Scenario: New lesson uses comparison format |
-| AC-02-10 | Session summary shows: total exercises, duration, streak, next lesson, tomorrow's review count | Yes — all elements verifiable | Scenario: Session summary shows accurate totals |
-| AC-02-11 | All SM-2 updates persisted atomically after session complete | Yes — refresh after session = state preserved | Scenario: Session persists SM-2 state |
-| AC-02-12 | Session does not cut off mid-exercise at 15-minute cap | Yes — exercise completes before cap stops session | @property: session respects 15-minute cap |
-| AC-02-13 | [t] from session dashboard opens topic selection without discarding session plan | Yes — topic selection opens, review count unchanged | Scenario: User can override topic |
-
----
-
-## AC-03: Topic Selection
-
-Derived from: US-03, journey-topic-selection.feature
-
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-03-01 | Curriculum tree accessible via [t] from session dashboard and [c] from any screen | Yes — keyboard shortcut triggers navigation | Scenario: Curriculum tree accessible |
-| AC-03-02 | Tree shows all 25 lessons with [x]/[ ]/[~] status icons reflecting current progress | Yes — icon states verifiable per lesson | Scenario: Curriculum tree shows accurate lock states |
-| AC-03-03 | Modules show [COMPLETE] / [IN PROGRESS] / [LOCKED] status | Yes — module header status verifiable | Scenario: Module status derived from lesson status |
-| AC-03-04 | Selecting a locked lesson shows a lock screen (not an error) | Yes — screen type verifiable | Scenario: Lock screen for locked lesson |
-| AC-03-05 | Lock screen shows: why locked, target lesson topics, each prerequisite lesson's topics and completion status | Yes — all three content sections verifiable | Scenario: Lock screen shows WHY with content |
-| AC-03-06 | Lock screen [Enter] navigates to first incomplete prerequisite | Yes — navigation target verifiable | Scenario: Lock screen routes to prerequisite |
-| AC-03-07 | No "skip prerequisite" option exists anywhere in the UI | Yes — element absence verifiable | Scenario: No force-skip mechanism |
-| AC-03-08 | [/] opens inline keyword search; tree filters to matching lessons | Yes — search functionality verifiable | Scenario: User can search by keyword |
-| AC-03-09 | Completing prerequisite lesson unlocks target lesson before completion screen renders | Yes — unlock state on completion screen verifiable | Scenario: Completing prerequisite unlocks target |
-| AC-03-10 | Unlock state persists after pressing Esc to save for next session | Yes — reopen platform shows lesson as available | Scenario: Unlock persists across sessions |
-| AC-03-11 | SM-2 records exercises from topic-selection path with same weight as daily session | Yes — SM-2 intervals from both paths are equivalent | Scenario: SM-2 records topic-selection exercises |
+### AC-000-06: Timer expiry triggers auto-advance and records timeout
+```gherkin
+Given a user is on Exercise 1.1 with the timer running
+When 30 seconds elapse without the user submitting an answer
+Then the exercise auto-advances immediately
+And a review record is created with result = "timeout"
+And the record has sm2_interval = 1
+And the user sees the correct answer and explanation
+```
 
 ---
 
-## AC-04: Exercise Timer
+## AC-001: Expert Onboarding
 
-Derived from: US-04
+### AC-001-01: Registration requires email only
+```gherkin
+Given a new user navigates to the registration page
+When the registration form renders
+Then exactly one required field is visible: email address
+And no fields are present for: name, phone, job title, company, or password
+```
 
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-04-01 | Timer starts on exercise render, not on first keypress | Yes — timer state observable before any input | Scenario: Timer starts automatically |
-| AC-04-02 | Timer is visible as a progress bar with seconds remaining | Yes — visual element presence | Scenario: Timer starts automatically |
-| AC-04-03 | At 0 seconds: correct answer shown, result = "missed" in SM-2 | Yes — answer display + SM-2 state | Scenario: Timer expiry |
-| AC-04-04 | Tab shows a partial hint (not the full answer) exactly once per exercise | Yes — hint content + second Tab no-ops | Scenario: Hint available once per exercise |
+### AC-001-02: Expert mode confirmed via single question
+```gherkin
+Given a new user has submitted their email address
+When the experience confirmation step renders
+Then exactly one question is shown to the user
+And two selectable options are present:
+  "Yes — Python, Java, or similar"
+  "No — I'm newer to programming"
+And the user can select using keyboard navigation (j/k) and confirm with Enter
+```
 
----
+### AC-001-03: Selecting "Yes" routes to Lesson 1 — Ruby Blocks
+```gherkin
+Given a new user selects "Yes — Python, Java, or similar"
+And the user presses Enter to confirm
+When the platform processes the selection
+Then the user is routed to Lesson 1
+And Lesson 1 is titled "Ruby Blocks" (not a beginner intro topic)
+And experience_level = "expert" is stored in the user record
+```
 
-## AC-05: SM-2 Review Engine
+### AC-001-04: Duplicate email shows login prompt
+```gherkin
+Given the email "marcus@example.com" is already registered
+When a user submits "marcus@example.com" in the registration form
+Then the user sees a message: "This email is already registered"
+And a login link is presented
+And no database error code or stack trace is visible
+```
 
-Derived from: US-05
-
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-05-01 | Correct answer: new_interval = max(1, prev_interval * ease_factor) | Yes — computed value verifiable | Scenario: Correct answer increases interval |
-| AC-05-02 | Incorrect answer: new_interval = 1, ease_factor -= 0.2 | Yes — both values verifiable | Scenario: Incorrect answer resets interval |
-| AC-05-03 | Ease factor minimum = 1.3 (never decreases below) | Yes — 3+ incorrect answers in sequence | Scenario: Ease factor minimum enforced |
-| AC-05-04 | Daily queue = exercises with next_review_date <= today, ordered most-overdue first | Yes — queue contents and order verifiable | Scenario: Daily queue contains due exercises |
-| AC-05-05 | Daily cap: max 12 exercises; excess deferred to next session (high-priority) | Yes — session exercise count + deferred list | Scenario: Daily cap defers excess |
-| AC-05-06 | SM-2 state survives browser refresh before session completes | Yes — refresh mid-session, state preserved | Scenario: SM-2 state persists |
-| AC-05-07 | Skipped exercises are re-queued for next session; ease factor unchanged | Yes — next session queue contains skipped | Scenario: Skipped re-queued |
-| AC-05-08 | "Missed" (timer expiry) is treated same as "incorrect" for SM-2 | Yes — interval reset to 1 day | Scenario: Missed = incorrect for SM-2 |
-| AC-05-09 | When storage is empty on launch (no prior sessions), platform launches in first-time onboarding mode and shows "No previous progress found. Starting fresh." | Yes — testable by clearing storage before launch | Storage cleared scenario |
-
----
-
-## AC-06: Lesson Content Standards
-
-Derived from: US-06
-
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-06-01 | Every lesson shows Python or Java code equivalent before Ruby syntax | Yes — content order in every lesson verifiable | Scenario: Comparison format |
-| AC-06-02 | Every lesson preview has a "does not cover" section with at least one item | Yes — section presence in all 25 lessons | Scenario: does-not-cover section |
-| AC-06-03 | No exercise prompt explains what a variable, loop, or basic OOP concept is | Yes — text content review across 75 exercises | Scenario: No beginner scaffolding |
-| AC-06-04 | All code examples in exercises are syntactically valid (Python/Java and Ruby) | Yes — code can be parsed/executed | Scenario: Exercise code is valid |
-| AC-06-05 | All 75 exercise code examples (Python/Java and Ruby) pass automated syntax validation (e.g., `ruby -c` for Ruby, `python3 -m py_compile` for Python) | Yes — automatable as CI check | Content authoring standard |
-
----
-
-## AC-07: Keyboard Navigation
-
-Derived from: US-07
-
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-07-01 | j/k move cursor up/down in all list and tree views | Yes — cursor position changes | Scenario: j/k navigation |
-| AC-07-02 | J/K (shift) jump between modules/sections | Yes — cursor jumps to module boundary | Scenario: J/K module jump |
-| AC-07-03 | Enter selects/submits/advances on every interactive element | Yes — action triggered on Enter | Scenario: All workflows without mouse |
-| AC-07-04 | Esc goes back/cancels from any screen | Yes — navigation regression verifiable | Scenario: All workflows without mouse |
-| AC-07-05 | ? opens keyboard shortcut overlay; Esc closes it | Yes — overlay visibility | Scenario: ? overlay shows shortcuts |
-| AC-07-06 | All interactive elements have visible focus indicators | Yes — visual inspection + WCAG audit | Scenario: Focus indicators visible |
-| AC-07-07 | p opens progress dashboard from any screen | Yes — navigation triggered from any screen | Scenario: p shortcut |
-| AC-07-08 | t opens topic selection from session dashboard | Yes — topic selection overlay opens | Scenario: t override |
-| AC-07-09 | / opens inline search in curriculum tree | Yes — search input visible | Scenario: / search |
-| AC-07-10 | Tab shows hint in exercise view (once per exercise) | Yes — hint appears on Tab | Scenario: Hint via Tab |
+### AC-001-05: Onboarding completable keyboard-only in under 60 seconds
+```gherkin
+Given a user starts at the landing page
+When the user completes the full onboarding flow using only keyboard input
+Then the user reaches Lesson 1 in 60 seconds or less
+And no mouse interaction was required at any step
+```
 
 ---
 
-## AC-08: Lesson Tree Navigation and Prerequisite Gating
+## AC-002: First Lesson Experience
 
-Derived from: US-08
+### AC-002-01: Lesson includes Python/Java side-by-side comparison
+```gherkin
+Given an expert-mode user opens any lesson (Lessons 1-25)
+When the lesson content renders
+Then a side-by-side comparison is visible showing:
+  Python equivalent syntax
+  Java equivalent syntax (or "No direct equivalent" note)
+  Ruby syntax
+```
 
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-08-01 | Curriculum tree renders all 25 lessons in 5 modules within 300ms | Yes — rendering time measurable | Performance NFR |
-| AC-08-02 | Completing last lesson in a module updates module status to [COMPLETE] | Yes — module status verifiable after last lesson | Scenario: Module status updates |
-| AC-08-03 | prerequisite_resolver runs atomically with lesson completion | Yes — no intermediate ambiguous state | Scenario: Atomic unlock |
-| AC-08-04 | Lock screen [Enter] navigates to first incomplete prerequisite (of potentially multiple) | Yes — target of navigation verifiable | Scenario: Multi-prerequisite lock screen |
-| AC-08-05 | prerequisite graph is acyclic (no cycles) | Yes — graph traversal test | @property: acyclic graph |
-| AC-08-06 | Lesson 1 is always available on first launch | Yes — initial state verifiable | Scenario: Initial state |
+### AC-002-02: Lesson does not contain beginner content
+```gherkin
+Given an expert-mode user opens Lesson 1: Ruby Blocks
+When the lesson content is rendered
+Then the content does not contain any of the following:
+  "In programming, ..."
+  "A variable is ..."
+  "A loop is ..."
+  "Let's start with the basics"
+  "Object-oriented programming means"
+```
+
+### AC-002-03: Lesson loads within 2 seconds
+```gherkin
+Given a user navigates to any lesson URL
+When the page request completes
+Then the lesson content is fully rendered within 2 seconds
+```
+
+### AC-002-04: Lesson content failure shows human-readable error
+```gherkin
+Given lesson content fails to load due to a network or server error
+When the lesson view renders
+Then the user sees "Lesson content unavailable — please try again"
+And a Retry button is visible and functional
+And no stack trace, HTTP error code, or raw error message is shown
+And the 15-minute session timer has not started
+```
 
 ---
 
-## AC-09: Progress Dashboard
+## AC-003: First SM-2 Scheduling
 
-Derived from: US-09
+### AC-003-01: Correct first answer schedules review in 3 days
+```gherkin
+Given a user answers an exercise correctly for the first time (quality score >= 4)
+When the SM-2 scheduling calculation runs
+Then a review record is created with next_review_date = today + 3 days
+And the scheduling confirmation screen shows "in 3 days" with the calendar date
+```
 
-| ID | Criterion | Testable? | Source Scenario |
-|----|-----------|-----------|-----------------|
-| AC-09-01 | Dashboard shows correct lessons_complete / 25 count | Yes — count matches completed lessons | Scenario: Accurate lesson completion |
-| AC-09-02 | Per-module breakdown matches per-lesson completion data | Yes — module totals = sum of lesson statuses | Scenario: Module breakdown |
-| AC-09-03 | Retention score = correct SM-2 reviews / total SM-2 reviews (last 10 per lesson) | Yes — computation verifiable with known data | Scenario: Retention score from SM-2 |
-| AC-09-04 | No badges, XP, levels, points, or achievement language displayed | Yes — element and text absence | Scenario: No gamification |
-| AC-09-05 | [p] from any screen opens dashboard as overlay; session state preserved | Yes — state before and after p press | Scenario: Dashboard accessible anywhere |
-| AC-09-06 | Streak shown as plain count (e.g., "14 days"), not as highlighted achievement | Yes — text content and absence of special styling | Scenario: No gamification |
+### AC-003-02: Incorrect first answer schedules review tomorrow
+```gherkin
+Given a user answers an exercise incorrectly (quality score <= 2)
+When the SM-2 scheduling calculation runs
+Then a review record is created with next_review_date = today + 1 day
+And the scheduling confirmation screen shows "tomorrow" with the calendar date
+```
+
+### AC-003-03: SM-2 technical parameters are not shown in the UI
+```gherkin
+Given a user has just completed an exercise
+When the SM-2 scheduling confirmation screen is shown
+Then the screen does not display any of:
+  ease factor value (e.g., "2.5")
+  repetition count
+  interval in raw number without date
+  "EF" or "SM-2 score" labels
+And the screen shows only: concept name, next review date, plain-language reason
+```
+
+### AC-003-04: Plain-language reason matches scheduling rationale
+```gherkin
+Given a user answered correctly on first attempt
+When the SM-2 scheduling confirmation appears
+Then the reason reads: "First exposure — short interval to confirm retention"
+Given a user answered incorrectly
+When the SM-2 scheduling confirmation appears
+Then the reason reads: "Answer was incorrect — short interval for reinforcement"
+```
+
+---
+
+## AC-004: Daily Session Start
+
+### AC-004-01: Session start screen shows full review queue before starting
+```gherkin
+Given Marcus has 4 exercises in today's review queue
+When Marcus opens the platform (via email link or direct visit)
+Then the session start screen shows all 4 exercises by concept name
+And the estimated total session time is shown
+And the remaining time budget (15:00) is shown
+And the current streak count is shown
+```
+
+### AC-004-02: Email queue and app queue are identical
+```gherkin
+Given Marcus has received a daily email listing exercises A, B, C, D
+When Marcus opens the platform from the email CTA link
+Then the session start screen shows exercises A, B, C, D in the same order
+And no exercises have been added to or removed from the queue
+```
+
+### AC-004-03: Empty queue shows rest-day message without breaking streak
+```gherkin
+Given Marcus has no exercises due and no new lessons available
+When Marcus opens the platform today
+Then Marcus sees "Nothing due today — you're on track"
+And Marcus's streak count has not decreased
+```
+
+---
+
+## AC-005: Review Queue Execution
+
+### AC-005-01: Exercise shows position indicator and timer on load
+```gherkin
+Given Marcus starts the review queue with 4 exercises
+When the first exercise loads
+Then Marcus sees a position indicator showing "Review 1 of 4"
+And a 30-second countdown timer is visible
+And the answer input field is focused without requiring Tab
+```
+
+### AC-005-02: Enter submits answer and feedback appears within 500ms
+```gherkin
+Given Marcus has typed his answer in the exercise input field
+When Marcus presses Enter
+Then answer feedback (Correct/Incorrect) appears within 500ms
+```
+
+### AC-005-03: Mark-as-hard (h) records lower SM-2 score
+```gherkin
+Given Marcus is on exercise 4 of 4
+When Marcus presses "h" to mark the exercise as hard
+And Marcus types a correct answer and presses Enter
+Then the SM-2 score recorded is 3 (not 4 or 5)
+And the resulting next_review_date is shorter than for a score-4 correct answer
+```
+
+### AC-005-04: All review exercises completable keyboard-only
+```gherkin
+Given Marcus has 4 exercises in his review queue
+When Marcus completes all 4 exercises
+Then Marcus has not been required to click any element with a mouse
+And all answer inputs were focused automatically
+And Enter submitted each answer
+```
+
+---
+
+## AC-006: Session Summary and Streak
+
+### AC-006-01: Session summary shows time vs. target
+```gherkin
+Given Marcus has completed a session in 11 minutes 24 seconds
+When the session summary screen appears
+Then the following data is displayed:
+  "Session time: 11 min 24 sec"
+  "Daily target: 15 min"
+  "Under target by: 3 min 36 sec"
+```
+
+### AC-006-02: Streak increments on first daily session
+```gherkin
+Given Marcus's streak is 6 days
+And this is Marcus's first completed session today (at least 1 exercise submitted)
+When the session summary appears
+Then "Streak: 7 days" is displayed
+And the streak value in the database has been incremented to 7
+```
+
+### AC-006-03: Streak does not double-increment on same-day second session
+```gherkin
+Given Marcus has already completed one session today (streak = 7)
+When Marcus completes a second session on the same calendar day
+Then the session summary shows "Streak: 7 days"
+And the streak value in the database remains 7
+```
+
+### AC-006-04: Minimum completion for streak credit
+```gherkin
+Given Marcus opens the app and submits exactly 1 exercise
+When Marcus closes the app without doing anything else
+Then today's session counts as completed for streak purposes
+Given Marcus opens the app but submits 0 exercises (only reads)
+Then today's session does not count as completed for streak purposes
+```
+
+---
+
+## AC-007: SM-2 Algorithm Core
+
+### AC-007-01: First correct response schedules 1-day interval
+```gherkin
+Given exercise_id=1 has zero prior reviews (repetitions=0, EF=2.5)
+When SM-2 algorithm receives quality score 4
+Then output interval = 1 day
+And output ease_factor = 2.5 (unchanged)
+And output repetitions = 1
+```
+
+### AC-007-02: Second correct response schedules 6-day interval
+```gherkin
+Given exercise_id=1 has been reviewed once (repetitions=1, interval=1, EF=2.5)
+When SM-2 algorithm receives quality score 4
+Then output interval = 6 days
+And output repetitions = 2
+```
+
+### AC-007-03: Third correct response uses EF multiplication
+```gherkin
+Given exercise_id=1 is at repetitions=2, interval=6, EF=2.5
+When SM-2 algorithm receives quality score 4
+Then output interval = round(6 * 2.5) = 15 days
+And output repetitions = 3
+```
+
+### AC-007-04: Incorrect answer resets to 1-day interval
+```gherkin
+Given exercise_id=1 is at any interval and any repetitions value
+When SM-2 algorithm receives quality score 1
+Then output interval = 1 day
+And output repetitions = 0
+```
+
+### AC-007-05: EF updates per formula and clamps at 1.3 minimum
+```gherkin
+Given exercise_id=1 has EF=1.35
+When SM-2 algorithm receives quality score 1
+And the EF formula yields 1.15 (below minimum)
+Then output ease_factor = 1.3 (clamped to minimum)
+```
+
+### AC-007-06: EF formula is correct for quality score 5
+```gherkin
+Given exercise_id=1 has EF=2.5
+When SM-2 algorithm receives quality score 5
+Then new EF = 2.5 + (0.1 - 0 * (0.08 + 0)) = 2.5 + 0.1 = 2.6
+But EF maximum is 2.5, so output ease_factor = 2.5 (clamped to maximum)
+```
+
+---
+
+## AC-008: SM-2 Interval Scheduling
+
+### AC-008-01: SM-2 output is persisted after every submission
+```gherkin
+Given a user submits any answer to any exercise
+When the SM-2 algorithm calculates the new interval
+Then a record exists in the reviews table containing:
+  exercise_id (matching the completed exercise)
+  user_id (matching the current user)
+  interval (in days, positive integer)
+  next_review_date (today + interval)
+  ease_factor (float in range [1.3, 2.5])
+  repetitions (non-negative integer)
+```
+
+### AC-008-02: Queue builder includes all exercises due today or overdue
+```gherkin
+Given exercise A has next_review_date = today
+And exercise B has next_review_date = yesterday (overdue)
+And exercise C has next_review_date = tomorrow (not yet due)
+When the queue builder runs for today
+Then the queue contains exercise A and exercise B
+And the queue does not contain exercise C
+```
+
+### AC-008-03: Queue builder is idempotent
+```gherkin
+Given the queue builder runs at 2:00 AM for a user
+When the queue builder runs again at 2:15 AM for the same user
+Then the resulting queue is identical to the first run
+And no duplicate entries are created
+```
+
+---
+
+## AC-009: Daily Email Queue Delivery
+
+### AC-009-01: Email arrives at configured delivery time
+```gherkin
+Given Marcus has set his email delivery time to 8:00 AM
+And Marcus has exercises in today's review queue
+When 8:00 AM arrives in Marcus's configured timezone
+Then Marcus receives exactly one daily digest email
+And the email was not sent before 7:55 AM
+And the email was sent no later than 8:05 AM
+```
+
+### AC-009-02: Email subject includes queue count and time estimate
+```gherkin
+Given Marcus has 4 exercises in his review queue
+And an optional lesson is available
+When the daily email is sent
+Then the email subject contains: "4 reviews" and "lesson option"
+And the subject does not exceed 100 characters
+```
+
+### AC-009-03: Email does not contain promotional content
+```gherkin
+Given Marcus receives his daily email
+When the email body is examined
+Then the body does not contain any of:
+  "newsletter"
+  "unsubscribe from marketing"
+  "promotional"
+  "special offer"
+  "upgrade"
+And the only CTA link points to the session start URL
+```
+
+### AC-009-04: No email sent when queue is empty
+```gherkin
+Given Marcus has no exercises due today
+And no new lessons are available
+When 8:00 AM arrives
+Then no email is sent to Marcus's address
+```
+
+### AC-009-05: Email delivery failure is handled gracefully
+```gherkin
+Given the email service returns a delivery error for Marcus's address
+When the platform processes the delivery failure
+Then the platform logs the error with timestamp and user_id
+Then the platform retries once after 15 minutes
+And Marcus's app session is unaffected (app works normally)
+And Marcus is not shown an error message related to email failure
+```
+
+---
+
+## AC-010: 30-Second Exercise Timer
+
+### AC-010-01: Timer displays and counts down from 30 seconds
+```gherkin
+Given an exercise has just loaded
+When Marcus views the exercise
+Then a timer displays "0:30"
+And the timer decrements by 1 second each second
+And the timer is visible within the primary viewport without scrolling
+```
+
+### AC-010-02: Timer auto-advances at 30 seconds
+```gherkin
+Given Marcus is on an exercise and has not submitted
+When the timer reaches 0:00
+Then the exercise auto-advances within 1 second
+And the result is recorded as "timeout"
+And the SM-2 score is 0
+And Marcus sees the correct answer with explanation
+```
+
+### AC-010-03: SM-2 score reflects response time
+```gherkin
+Given Marcus submits a correct answer at elapsed time t seconds
+When t < 10 seconds
+Then SM-2 score = 5
+When 10 <= t < 25 seconds
+Then SM-2 score = 4
+When 25 <= t <= 30 seconds
+Then SM-2 score = 3
+```
+
+---
+
+## AC-011: Exercise Feedback and Explanation
+
+### AC-011-01: Correct answer shows explanation with cross-language reference
+```gherkin
+Given Marcus submits a correct answer to Exercise 1.1 (Ruby Blocks)
+When the feedback panel renders
+Then the panel shows "Correct" or equivalent positive indicator
+And the panel shows a 2-3 sentence explanation
+And the explanation mentions the Python or Java equivalent
+```
+
+### AC-011-02: Incorrect answer shows correct answer and instructive explanation
+```gherkin
+Given Marcus submits an incorrect answer to Exercise 1.1
+When the feedback panel renders
+Then the panel shows the correct answer prominently
+And the panel shows an explanation of why the correct answer is correct
+And the explanation does not contain: "Wrong!", "Incorrect!" in isolation
+And the explanation connects the correct answer to Python/Java equivalent
+```
+
+### AC-011-03: Timeout feedback uses non-judgmental language
+```gherkin
+Given the exercise timer expires on Exercise 1.1
+When the feedback panel renders
+Then the panel shows "Time expired" or equivalent neutral indicator
+And the panel shows the correct answer and explanation
+And the panel does not contain any of: "Too slow", "Hurry up", "Failed", "Time's up!"
+```
+
+---
+
+## AC-012: Progress Dashboard
+
+### AC-012-01: Dashboard shows correct mastery counts from SM-2 state
+```gherkin
+Given Marcus has:
+  12 exercises with sm2_interval >= 30 days
+  8 exercises with sm2_interval 3-29 days
+  4 exercises with sm2_interval 1-2 days
+When Marcus opens the progress dashboard
+Then the dashboard shows "Mastered: 12"
+And the dashboard shows "In Review: 8"
+And the dashboard shows "New: 4"
+```
+
+### AC-012-02: Dashboard shows lessons completed with fraction
+```gherkin
+Given Marcus has completed 8 of 25 lessons
+When Marcus opens the dashboard
+Then the dashboard shows "8 of 25 lessons (32%)"
+```
+
+### AC-012-03: Retention rate unavailable before 14 days of data
+```gherkin
+Given Marcus has been using the platform for 10 days
+When Marcus views the dashboard retention rate
+Then the retention rate shows "Not enough data yet"
+And a note reads "Available after 14 days of SM-2 reviews"
+```
+
+### AC-012-04: Dashboard keyboard shortcuts work
+```gherkin
+Given Marcus is on the dashboard
+When Marcus presses "c"
+Then Marcus navigates to the curriculum view
+When Marcus presses "s"
+Then Marcus navigates to the session start screen
+```
+
+---
+
+## AC-013: Retention Rate Metric
+
+### AC-013-01: Retention rate formula and display
+```gherkin
+Given Marcus has 31 correct answers out of 43 total SM-2 reviews in the past 14 days
+When Marcus views the dashboard
+Then the retention rate displays as "72%"
+And beneath the metric Marcus sees: "Percentage of SM-2 review answers correct, last 14 days"
+```
+
+### AC-013-02: Small sample size is contextualized
+```gherkin
+Given Marcus has fewer than 20 SM-2 reviews in the past 14 days
+When Marcus views the retention rate
+Then the retention rate is calculated and displayed
+And a note reads "Based on [N] reviews — more data will improve accuracy"
+```
+
+---
+
+## AC-014: Keyboard Navigation
+
+### AC-014-01: Enter submits answer
+```gherkin
+Given Marcus is on an exercise with the input field focused
+And Marcus has typed his answer
+When Marcus presses Enter
+Then the answer is submitted
+And Marcus sees the feedback panel
+```
+
+### AC-014-02: Navigation shortcuts disabled while input field is focused
+```gherkin
+Given Marcus is typing in an exercise answer input field
+When Marcus types the letter "j"
+Then the letter "j" is inserted into the input field
+And Marcus does not navigate down to the next item
+When Marcus types the letter "h"
+Then the letter "h" is inserted into the input field
+And the exercise is not marked as hard
+```
+
+### AC-014-03: g+d sequence navigates to dashboard
+```gherkin
+Given Marcus is on any page with no input field focused
+When Marcus presses "g" then "d" in sequence
+Then Marcus navigates to the progress dashboard
+```
+
+### AC-014-04: All keyboard shortcuts work consistently
+```gherkin
+Given Marcus is on any application page
+When Marcus uses any defined keyboard shortcut
+Then the shortcut produces the same action as documented
+And no shortcut is context-dependent in an undiscoverable way
+```
+
+---
+
+## AC-015: Focus State Visibility
+
+### AC-015-01: All interactive elements have visible focus rings
+```gherkin
+Given Marcus is on any application page
+When Marcus presses Tab to cycle through all focusable elements
+Then each element shows a visible focus ring when focused
+And no element loses its focus indicator while focused
+```
+
+### AC-015-02: Focus ring meets 3:1 contrast requirement
+```gherkin
+Given the application renders on its default background color
+When any interactive element is focused
+Then the focus ring color has a contrast ratio >= 3:1 against the surrounding background
+As measured by WCAG 2.1 contrast calculation
+```
+
+### AC-015-03: Focus order follows logical reading order
+```gherkin
+Given Marcus is on the exercise page
+When Marcus presses Tab repeatedly
+Then focus moves: answer input field → submit button → skip option → hard/easy markers
+And the Tab order matches the visual reading order (top to bottom, left to right)
+```
+
+---
+
+## AC-016: Lesson Content — Expert Calibration
+
+### AC-016-01: No beginner scaffolding in any lesson
+```gherkin
+Given any lesson (Lessons 1-25) is rendered
+When the lesson content is inspected
+Then the content does not contain:
+  Definitions of variables, loops, or conditionals
+  The phrase "In programming, ..."
+  Explanations of what a function or method is in general
+```
+
+### AC-016-02: All lesson code examples are valid Ruby
+```gherkin
+Given any code example from any lesson
+When the code is evaluated by a Ruby 3.x interpreter (with test-appropriate setup)
+Then no syntax errors are raised
+```
+
+### AC-016-03: All lessons readable in 5 minutes or less
+```gherkin
+Given any lesson is opened
+When a user with developer background reads the lesson at normal pace
+Then the reading time does not exceed 5 minutes
+```
+
+---
+
+## AC-017: Lesson Detail Card
+
+### AC-017-01: Available lesson card shows all required metadata
+```gherkin
+Given Marcus selects an available lesson from the curriculum view
+When the lesson detail card opens
+Then Marcus sees: lesson number, title, module name, estimated time
+And Marcus sees: Python equivalent (concept), Java equivalent (concept)
+And Marcus sees: exercise type (fill-in-the-blank, multiple choice, etc.)
+And Marcus sees: status "Available"
+And Marcus sees two actions: "Start now" (Enter) and "Queue for next session" (q)
+```
+
+### AC-017-02: Locked lesson card shows prerequisite details
+```gherkin
+Given Marcus selects a locked lesson from the curriculum view
+When the lesson detail card opens
+Then Marcus sees the status "LOCKED"
+And Marcus sees each prerequisite lesson with its completion status
+And Marcus sees an estimated number of sessions to unlock
+And Marcus does not see a "Start now" or "Queue" action
+```
+
+---
+
+## AC-018: Curriculum Navigation
+
+### AC-018-01: Curriculum shows all 5 modules with progress fractions
+```gherkin
+Given Marcus navigates to the curriculum view
+When the view loads
+Then Marcus sees all 5 modules listed
+And each module shows: module name, "X of 5 lessons" fraction
+And modules with no completed lessons show "0 of 5"
+```
+
+### AC-018-02: Locked modules show title but not lesson details
+```gherkin
+Given a module is locked (prerequisites not met)
+When Marcus views the curriculum
+Then the module title is visible
+And the lesson count is visible ("5 lessons")
+And individual lesson titles within the locked module are NOT shown
+And a note explains what is needed to unlock the module
+```
+
+### AC-018-03: Module unlocks immediately after last prerequisite lesson
+```gherkin
+Given Marcus completes the last required lesson to unlock Module 3
+When Marcus returns to the curriculum view (or refreshes)
+Then Module 3 shows as unlocked with individual lessons now visible
+And the lessons show Available status
+```
+
+---
+
+## AC-019: Prerequisite Gate
+
+### AC-019-01: Gate shows each prerequisite's completion status
+```gherkin
+Given Lesson 15 requires Lessons 11, 12, 13, 14
+And Marcus has completed Lessons 11 and 12 but not 13 and 14
+When Marcus opens the Lesson 15 detail card
+Then Marcus sees:
+  Lesson 11: Completed
+  Lesson 12: Completed
+  Lesson 13: Not completed
+  Lesson 14: Not completed
+And Marcus sees: "2 more prerequisites needed — approximately 2 sessions"
+```
+
+### AC-019-02: Gate updates after prerequisite completion
+```gherkin
+Given Marcus completes Lesson 13 during a session
+When Marcus navigates to the Lesson 15 detail card
+Then Lesson 13 shows as "Completed" in the prerequisite list
+And the session estimate updates to reflect the new count
+```
+
+---
+
+## AC-020: Session Hard Cap
+
+### AC-020-01: Platform does not start lesson when budget is insufficient
+```gherkin
+Given Marcus has 2 minutes 10 seconds of session budget remaining
+And the next lesson is estimated at 3 minutes
+When the queue summary screen appears
+Then no "Start Lesson" button or action is available
+And Marcus sees a message indicating the session target is nearly reached
+And the session is marked complete for streak purposes
+```
+
+### AC-020-02: Review queue truncates at budget boundary
+```gherkin
+Given Marcus has 25 seconds of session budget remaining
+And 1 exercise remains in the review queue
+When the platform evaluates whether to start the next exercise
+Then the exercise is not started
+And the exercise is added to the next session's queue (not discarded)
+And Marcus sees "Session target reached — 1 exercise deferred to tomorrow"
+```
+
+### AC-020-03: Session duration tracking is accurate
+```gherkin
+Given Marcus starts a session at time T
+When Marcus reaches the session summary screen at time T + X
+Then the session_duration shown is X seconds (within a 2-second tolerance)
+```
+
+### AC-020-04: Hard cap is exactly 900 seconds
+```gherkin
+Given the platform's session cap configuration
+Then the maximum allowed session_duration is 900 seconds (15 minutes exactly)
+And any session with duration >= 900 seconds is treated as cap-reached
+```
+
+---
+
+## Cross-Cutting Acceptance Criteria
+
+### XC-001: No user-visible technical identifiers
+```gherkin
+Given any error, warning, or informational message is shown to the user
+Then the message does not contain:
+  Database error codes (e.g., "PG::UniqueViolation")
+  HTTP status codes as primary content (e.g., "Error 500")
+  Stack traces or file paths
+  Internal user IDs or UUIDs
+  SQL query fragments
+```
+
+### XC-002: Session timer does not count during lesson load failures
+```gherkin
+Given a lesson fails to load
+When the error message is displayed
+Then the session_duration timer is paused
+And the timer does not resume until the user explicitly retries
+```
+
+### XC-003: SM-2 records are never lost on page refresh
+```gherkin
+Given Marcus submits an exercise answer
+When Marcus refreshes the page immediately after submission
+Then the SM-2 review record for that exercise is preserved in the database
+And Marcus does not need to re-submit the exercise
+```
+
+### XC-004: Keyboard shortcuts are documented in UI (discoverable)
+```gherkin
+Given Marcus is on any primary application screen (session, exercise, dashboard, curriculum)
+When Marcus reads the visible UI without opening any help section
+Then Marcus can see the keyboard shortcuts available on that screen
+```
+
+### XC-005: All pages render without console errors in browser
+```gherkin
+Given any application page loads successfully
+When the browser's developer console is inspected
+Then no JavaScript errors are logged at error level
+And no uncaught exceptions are present
+```

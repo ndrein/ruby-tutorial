@@ -1,218 +1,208 @@
-# Journey: Topic Selection — Visual Map
+# Journey Map: Topic Selection / Curriculum Navigation — Ruby Learning Platform
 
-## Persona
-**Ana Folau**, 3 weeks into daily practice. Has completed Module 1 (5 lessons). Currently on Module 2 Lesson 6. She has just been assigned a PR review that uses Ruby blocks heavily, and she wants to jump to Lesson 7 (Blocks and Yield) immediately rather than waiting for sequential progression.
-
-## Goal
-Ana locates Lesson 7 in the curriculum tree, understands that Lesson 6 (Method Definition) is the only prerequisite she still needs, completes Lesson 6, and unlocks Lesson 7 — or she finds that Lesson 7 is already available and jumps directly.
-
-## Emotional Arc
-**Start**: Goal-Oriented + Impatient (I need blocks NOW, for work)
-**Middle**: Informed + In-Control (I see exactly what stands between me and my target)
-**End**: Satisfied + Capable (I got to the topic I needed on my own terms)
+**Feature ID**: ruby-learning-platform
+**Journey**: Topic Selection (exploring curriculum → understanding progress → selecting next lesson)
+**Primary Job Story**: JS-1 (Syntax Transfer) + JS-5 (Progress Visibility)
+**Emotional Arc**: Curiosity → Orientation → Agency → Anticipation
+**Date**: 2026-03-09
 
 ---
 
-## Journey Flow
+## Journey Overview
+
+Marcus Chen is two weeks into daily practice. He is curious about what comes next in
+the curriculum and wants to understand the full arc — how the 25 lessons connect, what
+he has mastered, what is still ahead. He navigates to the curriculum view, sees his
+progress through the 5 modules, understands the prerequisite structure, selects
+Lesson 9 (Method Objects), and feels oriented and motivated for the next two weeks.
+
+**Goal**: Marcus understands exactly where he is in the learning arc and feels confident
+about what comes next without being overwhelmed by the full 25-lesson scope.
+
+---
+
+## Journey Map Table
+
+| Step | Action | Touchpoint | Marcus Thinks | Marcus Feels | Pain Points | Shared Artifacts |
+|------|--------|-----------|--------------|-------------|-------------|-----------------|
+| 1. Dashboard Entry | Marcus navigates to progress dashboard from session summary | Dashboard view | "I want to see the full picture — where I actually am" | Curious, reflective | Dashboard as a dead end (no next action) | `${streak_count}`, `${mastered_count}`, `${retention_rate}` |
+| 2. Mastery Overview | Reads mastery counts | Dashboard metrics panel | "24 concepts, 12 mastered, 8 in review, 4 new. That feels real." | Oriented, grounded | Abstract numbers without context feel hollow | `${mastered_count}`, `${in_review_count}`, `${new_count}` |
+| 3. Retention Rate | Reads retention rate | Dashboard metrics panel | "73% retention rate. Solid. SM-2 is working." | Trusting system, slight pride | Unclear calculation method creates distrust | `${retention_rate}` |
+| 4. Curriculum Map | Marcus navigates to full curriculum view | Curriculum overview — 5 modules, 25 lessons with status indicators | "I can see exactly where I am: Lesson 8 done, Lesson 9 next" | Oriented, sense of position in arc | Module walls (can't see inside a module) | `${lesson_id}`, `${lesson_status}`, `${curriculum_list}` |
+| 5. Prerequisite Gate | Marcus tries to jump to Lesson 15 | Lesson 15 detail view — shows "Requires Lessons 11-14" | "Makes sense — I need the module 3 foundation first" | Accepting gate, motivated to progress | Opaque gating without rationale feels arbitrary | `${prerequisite_ids}`, `${lesson_status}` |
+| 6. Lesson Details | Marcus reads Lesson 9 details | Lesson preview card — shows topic, estimated time, exercise type, Python/Java concept mapped | "Method objects. `&method(:name)`. This is what I'm missing right now." | Recognition, relevance confirmed | Lesson card too thin = no basis for selection | `${lesson_id}`, `${lesson_content}` |
+| 7. Lesson Selection | Marcus selects Lesson 9 for tomorrow | "Add to queue" or "Study next" action | "This is exactly what I want for tomorrow. Done." | Agency, anticipation | Forced order removes agency | `${lesson_id}`, `${review_queue}` |
+| 8. Module Progress | Marcus views Module 2 progress bar | Module 2: Ruby Methods and Blocks — 3/5 complete | "3 of 5 lessons in Module 2 done. 2 to go. I'll finish this module this week." | Motivated by proximate goal | No visible module-level progress = lost in the curriculum | `${module_id}`, `${module_progress}` |
+| 9. Full Arc Anticipation | Marcus sees Module 4 (Idioms) and Module 5 (Standard Library) ahead | Curriculum map scrolled forward | "Pattern matching in Module 4. That's the modern Ruby I want. Worth the journey." | Anticipation, long-horizon motivation | Too-long curriculum feels overwhelming | `${curriculum_list}` |
+| 10. Return to Dashboard | Marcus returns to dashboard | Dashboard view | "I know where I am. I know what's next. That's all I needed." | Satisfied, grounded, motivated | — | `${streak_count}`, `${mastered_count}` |
+
+---
+
+## Emotional Arc Visualization
 
 ```
-[Trigger: Ana is in daily session Step 1 and presses [t] to override topic]
-  OR
-[Trigger: Ana opens the platform and presses [c] for curriculum view]
-    |
-    | IMPATIENT — "I need to get to blocks fast"
-    v
-+------------------------------------------------------------------+
-| STEP 1: Topic Selection Entry — Curriculum Tree                   |
-| Full curriculum visible. Completed = filled, locked = dimmed.    |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Curriculum  [/] Search  [j/k] Navigate  [Enter] Select    |  |
-|  |                                                            |  |
-|  | MODULE 1: Ruby Fundamentals                  [COMPLETE]   |  |
-|  |  [x] L1  Syntax Differences                              |  |
-|  |  [x] L2  String Interpolation                            |  |
-|  |  [x] L3  Symbols                                         |  |
-|  |  [x] L4  Ranges                                          |  |
-|  |  [x] L5  Array Methods                                   |  |
-|  |                                                            |  |
-|  | MODULE 2: Methods and Blocks                 [IN PROGRESS] |  |
-|  |  [ ] L6  Method Definition       <- NEXT (unlocked)       |  |
-|  |  [~] L7  Blocks and Yield        <- LOCKED (needs L6)    |  |
-|  |  [~] L8  Procs and Lambdas       <- LOCKED (needs L7)    |  |
-|  |  [~] L9  Method Objects          <- LOCKED (needs L7)    |  |
-|  |  [~] L10 Enumerable              <- LOCKED (needs L8,L9) |  |
-|  |                                                            |  |
-|  | MODULE 3: Ruby Object Model                  [LOCKED]      |  |
-|  | MODULE 4: Ruby Idioms                        [LOCKED]      |  |
-|  | MODULE 5: Standard Library Essentials        [LOCKED]      |  |
-|  |                                                            |  |
-|  | [Esc] Back to session                                      |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | ORIENTED — "I can see exactly where Lesson 7 is"
-    v
-+------------------------------------------------------------------+
-| STEP 2: Ana navigates to Lesson 7 (locked) and presses Enter      |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | L7: Blocks and Yield                          [LOCKED]     |  |
-|  |                                                            |  |
-|  | Why locked:                                                |  |
-|  |   Requires: L6 Method Definition (not yet complete)       |  |
-|  |                                                            |  |
-|  | What L7 covers:                                            |  |
-|  |   - Block syntax: do...end vs { }                         |  |
-|  |   - yield keyword                                         |  |
-|  |   - Implicit vs explicit blocks                            |  |
-|  |   - block_given? guard pattern                            |  |
-|  |                                                            |  |
-|  | What L6 covers (prerequisite):                             |  |
-|  |   - def/end syntax                                        |  |
-|  |   - Default argument values                               |  |
-|  |   - Keyword arguments                                     |  |
-|  |   - Return values (implicit)                              |  |
-|  |                                                            |  |
-|  | [Enter] Go to L6 first  [Esc] Back to curriculum           |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | INFORMED — "I see exactly what I need to do. One lesson standing in the way."
-    v
-+------------------------------------------------------------------+
-| STEP 3: Ana presses Enter to go to Lesson 6                       |
-| System navigates to Lesson 6 directly                             |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 6: Method Definition         Module 2/5  |  ~4 min  |  |
-|  |                                                            |  |
-|  | In Python, you define functions with def and colons.       |  |
-|  | Ruby methods use def...end (like a block, not indentation) |  |
-|  |                                                            |  |
-|  | def greet(name, greeting: "Hello")                        |  |
-|  |   "#{greeting}, #{name}!"                                 |  |
-|  | end                                                        |  |
-|  |                                                            |  |
-|  | Key differences: keyword arguments, implicit return,       |  |
-|  | no type annotations, no self-parameter in methods.         |  |
-|  |                                                            |  |
-|  | [Enter] Start exercises  [Esc] Back                        |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | FOCUSED — "Good, this is new enough to be worth learning"
-    v
-+------------------------------------------------------------------+
-| STEP 4: Lesson 6 Exercises (3 exercises, ~3 min)                  |
-| (same exercise flow as daily session journey)                     |
-|                                                                   |
-|    [Exercise 1] -> [Feedback] -> [Exercise 2] -> [Feedback]       |
-|                 -> [Exercise 3] -> [Feedback]                     |
-|                                                                   |
-+------------------------------------------------------------------+
-    |
-    | ACCOMPLISHED — "Lesson 6 done"
-    v
-+------------------------------------------------------------------+
-| STEP 5: Lesson 6 Complete — Lesson 7 Now Unlocked                 |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 6 complete.                                         |  |
-|  |                                                            |  |
-|  | Unlocked:                                                  |  |
-|  |   [*] L7  Blocks and Yield     <- NOW AVAILABLE           |  |
-|  |                                                            |  |
-|  | [Enter] Start Lesson 7 now  [Esc] Save for next session   |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | MOTIVATED — "Right, this is what I actually came for"
-    v
-+------------------------------------------------------------------+
-| STEP 6: Lesson 7 — Blocks and Yield                               |
-| Ana now completes the lesson she actually needed for work          |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 7: Blocks and Yield           Module 2/5  |  ~5 min |  |
-|  |                                                            |  |
-|  | In Python, you pass callables (lambdas, functions).        |  |
-|  | In Ruby, you pass blocks — anonymous code chunks.          |  |
-|  |                                                            |  |
-|  | def run_twice                                              |  |
-|  |   yield                                                    |  |
-|  |   yield                                                    |  |
-|  | end                                                        |  |
-|  |                                                            |  |
-|  | run_twice { puts "hello" }  #=> hello\nhello               |  |
-|  |                                                            |  |
-|  | [Enter] Start exercises  [Esc] Back                        |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | CAPABLE — "Now I can review that PR"
-    v
-[End: Ana has the blocks knowledge she needed. Session ran ~14 min.
- SM-2 records both L6 and L7 exercises.]
+Curiosity    Orientation    Agency    Anticipation
+   |              |            |           |
+   v              v            v           v
+ [1]  -->  [2][3][4][5]  --> [6][7]  --> [8][9][10]
+
+
+    CURIOUS                                         ANTICIPATING
+    +----------------------------------------------------------+
+    |                                                          |
+    |  .        ___________                        ___________.|
+    | . .      /           \        ______________/            |
+    |.   .    /  ORIENTATION \     /  AGENCY &                 |
+    |     .  /    (dashboard  \   /   SELECTION                |
+    |      \/     + curriculum)\__/                            |
+    |                                                          |
+    +--+--+--+--+--+--+--+--+--+--+--------------------------+
+       1  2  3  4  5           6  7  8  9  10
 ```
 
 ---
 
-## Emotional Arc Annotations
+## TUI Mockups
 
-| Step | Emotional State | Design Lever |
-|------|----------------|-------------|
-| Step 1 | Impatient → Oriented | Full tree visible immediately; visual lock/unlock states clear |
-| Step 2 | Oriented → Informed | Lock screen explains WHY and shows WHAT prerequisite covers |
-| Step 3 | Informed → Focused | Direct navigation to prerequisite — no extra steps |
-| Steps 4 | Focused | Fast exercise loop (same as daily session) |
-| Step 5 | Accomplished + Motivated | Unlock moment is explicit and celebrated |
-| Step 6 | Capable | Target lesson reached; goal achieved |
+### Step 1-3: Progress Dashboard
+
+```
++----------------------------------------------------------+
+|  RubyFlow — Dashboard                                    |
+|                                                          |
+|  Marcus Chen                           Streak: 14 days   |
+|                                                          |
+|  Progress Overview                                       |
+|  -----------------                                       |
+|  Mastered:    12 concepts  [############        ]  48%   |
+|  In Review:    8 concepts  [########            ]        |
+|  New:          4 concepts  [####                ]        |
+|  Remaining:    1 concept                                 |
+|                                                          |
+|  Retention Rate: 73%                                     |
+|  (Correct answers on SM-2 reviews, last 14 days)         |
+|                                                          |
+|  Lessons Complete:  8 of 25  [========            ] 32%  |
+|                                                          |
+|  [ View Curriculum ]  (c)    [ Start Today's Session ] (s)|
++----------------------------------------------------------+
+```
+
+### Step 4: Curriculum Overview
+
+```
++----------------------------------------------------------+
+|  RubyFlow — Curriculum Map                               |
+|                                                          |
+|  Module 1: Ruby Fundamentals for Polyglots   [5/5] DONE  |
+|  +-- Lesson 1: Ruby Blocks                   [x] Mastered|
+|  +-- Lesson 2: Symbols vs Strings            [x] Mastered|
+|  +-- Lesson 3: Procs vs Lambdas              [~] Review  |
+|  +-- Lesson 4: Ranges and methods            [~] Review  |
+|  +-- Lesson 5: Array methods (map/select)    [~] Review  |
+|                                                          |
+|  Module 2: Ruby Methods and Blocks           [3/5]       |
+|  +-- Lesson 6: Method definitions, kwargs    [x] Mastered|
+|  +-- Lesson 7: Blocks — do...end vs {}       [x] Mastered|
+|  +-- Lesson 8: Procs and lambdas — `->` syn. [~] Review  |
+|  +-- Lesson 9: Method objects, &method(:n)   [>] NEXT    |
+|  +-- Lesson 10: Enumerable — the key module  [ ] Locked  |
+|                                                          |
+|  Module 3: Ruby Object Model                 [0/5] Locked |
+|  ...                                                     |
+|                                                          |
+|  j/k: navigate  |  Enter: lesson detail  |  c: back     |
++----------------------------------------------------------+
+```
+
+### Step 5: Prerequisite Gate (Lesson 15)
+
+```
++----------------------------------------------------------+
+|  Lesson 15: method_missing and respond_to_missing?       |
+|                                                          |
+|  Module 3: Ruby Object Model                             |
+|  Estimated time: ~4 minutes                              |
+|                                                          |
+|  STATUS: LOCKED                                          |
+|                                                          |
+|  Requires completion of:                                 |
+|    [x] Lesson 11: Classes — Ruby vs Java                 |
+|    [ ] Lesson 12: Modules and mixins         (not done)  |
+|    [ ] Lesson 13: attr_accessor variants     (not done)  |
+|    [ ] Lesson 14: self in Ruby               (not done)  |
+|                                                          |
+|  Complete lessons 12-14 first.                           |
+|  Estimated: 3 daily sessions to unlock.                  |
+|                                                          |
+|  [ Back to Curriculum ]  (Esc)                           |
++----------------------------------------------------------+
+```
+
+### Step 6: Lesson 9 Detail Card
+
+```
++----------------------------------------------------------+
+|  Lesson 9: Method Objects and &method(:name)             |
+|                                                          |
+|  Module 2: Ruby Methods and Blocks   |  ~4 min           |
+|  Status: NEXT (available now)                            |
+|                                                          |
+|  What you will learn:                                    |
+|    Method objects in Ruby — turning methods into values  |
+|    The &method(:name) shorthand for method references    |
+|                                                          |
+|  Python equivalent: functools, partial, direct reference |
+|  Java equivalent:   Method references (::)               |
+|                                                          |
+|  Exercise type: Fill-in-the-blank (30 sec)               |
+|  Example: arr.map(&method(:double))                      |
+|                                                          |
+|  [ Study Next Session ]  (Enter)  [ Back ]  (Esc)        |
++----------------------------------------------------------+
+```
+
+### Step 8: Module Progress
+
+```
++----------------------------------------------------------+
+|  Module 2: Ruby Methods and Blocks                       |
+|                                                          |
+|  Progress: 3 of 5 lessons complete                       |
+|  [=================>              ] 60%                  |
+|                                                          |
+|  Lesson 6   Definitions & kwargs     Mastered            |
+|  Lesson 7   Blocks — do vs {}        Mastered            |
+|  Lesson 8   Procs and lambdas        In Review           |
+|  Lesson 9   Method objects           > NEXT              |
+|  Lesson 10  Enumerable               Locked              |
+|                                                          |
+|  Completing lesson 9 unlocks Enumerable.                 |
+|  Enumerable unlocks Module 3.                            |
+|                                                          |
+|  [ Back to full curriculum ]  (Esc)                      |
++----------------------------------------------------------+
+```
 
 ---
 
-## Error Paths and Edge Cases
+## Integration Checkpoints
 
-### Edge Case 1: Multiple prerequisites for a locked lesson
-- Ana selects Lesson 10 (Enumerable) which requires L8 and L9
-- Lock screen shows: "Requires: L8 Procs/Lambdas (complete), L9 Method Objects (not complete)"
-- Shows partial completion — L8 done, L9 still needed
-- [Enter] navigates to L9 (the incomplete one)
-
-### Edge Case 2: User searches for a topic by keyword
-- Ana presses [/] on Step 1 and types "block"
-- Filtered view shows only lessons matching "block": L7 (Blocks and Yield), L8 (Procs and Lambdas)
-- Filter applied inline without navigating to new screen
-- Ana can select from filtered results
-
-### Edge Case 3: User tries to force-skip a prerequisite
-- No mechanism to force-skip exists in the UI
-- Lock screen does not offer a "skip anyway" option
-- This is intentional: prerequisite gates are absolute, not advisory
-- User can view locked lesson content in preview mode (read-only, no exercises)
-
-### Edge Case 4: User selects a currently available (unlocked) lesson from curriculum
-- Ana selects L8 which is still locked, but then presses [Esc] back to curriculum
-- Ana selects L6 which IS available and presses Enter
-- System navigates directly to L6 lesson start (no intermediate lock screen)
-
-### Edge Case 5: User arrives via [t] override from daily session
-- Session screen's SM-2-recommended next lesson was L6
-- Ana overrides with [t], selects L7 (locked), sees lock screen, navigates to L6
-- Completes L6, unlocks L7, completes L7
-- Session summary shows both L6 and L7 as completed today
-- SM-2 updates for both lessons
+| Checkpoint | What Must Be True | Risk if Wrong |
+|-----------|------------------|---------------|
+| lesson_status reflects SM-2 state | A concept's status (Mastered/In Review/New) must derive from SM-2 interval data | Curriculum shows "Mastered" for a concept SM-2 has scheduled for re-review |
+| prerequisite_ids gate lesson access | Lesson availability must check prerequisite completion in real time | Locked lesson shows as available; Marcus reads content before he has the foundation |
+| module_progress rolls up from lesson_status | Module progress % must recalculate when lesson status changes | Module shows 60% but Marcus has completed 5/5 lessons |
+| queue update from lesson selection | When Marcus selects "Study next session", lesson_id is added to next session queue | Lesson does not appear in tomorrow's session |
+| retention_rate calculation visible | Dashboard shows formula or description of retention_rate calculation | Marcus sees 73% but cannot interpret or trust it |
 
 ---
 
-## Shared Artifacts (tracked)
+## Pain Point Summary
 
-| Artifact | Source | Displayed At |
-|---------|--------|--------------|
-| `${lesson_title}` | Lesson metadata DB | Steps 1, 2, 3, 5, 6 |
-| `${lesson_status}` | Progress tracker | Step 1 (complete/locked/available) |
-| `${prerequisite_lessons}` | Prerequisite graph | Step 2 |
-| `${prerequisite_status}` | Progress tracker x prerequisite graph | Step 2 |
-| `${lesson_topics}` | Lesson metadata DB | Steps 2, 3, 6 |
-| `${module_name}` | Curriculum schema | Steps 1, 3, 6 |
-| `${unlocked_lessons}` | Prerequisite resolver | Step 5 |
+| Step | Pain Point | Mitigation |
+|------|-----------|------------|
+| 2. Mastery Overview | Abstract numbers without context | Add comparative framing: "12 of 25 concepts mastered" with progress bar |
+| 3. Retention Rate | Opaque metric | Plain-language description below number: "% correct on SM-2 reviews, last 14 days" |
+| 5. Prerequisite Gate | Arbitrary-feeling lock | Show exactly which prerequisite lessons are needed + estimated sessions to unlock |
+| 9. Full Arc | 25 lessons feels daunting | Group lessons into 5 modules; show module-level progress to create achievable milestones |

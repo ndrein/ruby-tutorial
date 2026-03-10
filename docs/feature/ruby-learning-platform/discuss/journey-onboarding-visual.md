@@ -1,215 +1,212 @@
-# Journey: First-Time Onboarding — Visual Map
+# Journey Map: Onboarding — Ruby Learning Platform
 
-## Persona
-**Ana Folau**, senior Python developer, joining a Ruby-on-Rails team. Experienced with OOP, algorithms, Python idioms. Zero Ruby syntax. Needs to get productive in Ruby within 3 weeks. Values efficiency and precision; has strong negative feelings about being talked down to.
-
-## Goal
-Ana launches the learning platform for the first time, understands the curriculum structure, sees where she starts, and completes her first exercise — all within 5 minutes, without feeling like a beginner.
-
-## Emotional Arc
-**Start**: Skeptical + Impatient (another learning tool that will waste my time on basics)
-**Middle**: Relieved + Engaged (this actually starts where I am)
-**End**: Confident + Committed (I can do this in 15 minutes every morning)
+**Feature ID**: ruby-learning-platform
+**Journey**: Onboarding (first visit through first SM-2 scheduling confirmation)
+**Primary Job Story**: JS-1 (Syntax Transfer) + JS-2 (Daily Habit formation)
+**Emotional Arc**: Skepticism → Recognition → Competence → Commitment
+**Date**: 2026-03-09
 
 ---
 
-## Journey Flow
+## Journey Overview
+
+Marcus Chen visits the platform for the first time. He has tried executeprogram.com and
+been disappointed by beginner-oriented content. He is skeptical this will be different.
+By the end of onboarding he has completed his first lesson, submitted his first exercise,
+seen the SM-2 schedule his first review, and committed to returning tomorrow.
+
+**Goal**: Marcus feels that this tool was built for someone exactly like him.
+
+---
+
+## Journey Map Table
+
+| Step | Action | Touchpoint | Marcus Thinks | Marcus Feels | Pain Points | Shared Artifacts |
+|------|--------|-----------|--------------|-------------|-------------|-----------------|
+| 1. Arrival | Visits landing page | Landing page / UVP headline | "OK, 'Ruby for people who already know how to program' — I've heard this before" | Skeptical, cautiously curious | Cynicism from past tool disappointments | — |
+| 2. Curriculum Preview | Reads lesson list | Curriculum overview page | "Wait, lesson 1 is blocks and procs — not variables? This is different" | Surprised, interest rising | No pain here — this is the recognition moment | `${curriculum_list}` |
+| 3. Account Creation | Registers | Sign-up form (email only) | "Minimal — good. I don't want to fill out a 10-field profile" | Relieved, frictionless | Long forms kill momentum | `${user_email}`, `${user_id}` |
+| 4. Experience Confirmation | Confirms expert mode | Single question: "Do you know Python or Java?" | "Yes, finally — it's asking if I'm an expert, not treating me as a beginner by default" | Recognized, respected | Form-heavy onboarding would kill this moment | `${experience_level}` |
+| 5. First Lesson | Reads Lesson 1: Blocks | Lesson view with Python/Java side-by-side | "This is exactly the framing I needed — show me how it maps to what I know" | Competent, engaged, learning | Dense lesson could lose pacing if not well-structured | `${lesson_id}`, `${lesson_content}` |
+| 6. First Exercise | Types answer to fill-in-blank | Exercise input, 30-second timer visible | "Pressing Enter to submit — good. I don't need to click anything" | Focused, in flow | Timer anxiety if first exercise is too hard | `${exercise_id}`, `${timer_seconds}` |
+| 7. Answer Feedback | Sees result + explanation | Feedback panel | "I got it right — and the explanation reinforces exactly why" | Satisfied, confidence building | Feedback must be informative even on correct answer | `${answer_result}`, `${explanation}` |
+| 8. SM-2 Scheduling | Sees scheduling confirmation | "This concept will be reviewed in 3 days" | "The system is now tracking this for me — I don't have to remember to review it" | Relieved, trusting the system | Black-box anxiety if scheduling rationale is invisible | `${next_review_date}`, `${sm2_interval}` |
+| 9. Session Summary | Sees summary screen | Session end page with time + what was covered | "4 minutes. And I learned something. I can do this every day" | Committed, proud, streak-motivated | No pain — this is the commitment moment | `${session_duration}`, `${streak_count}` |
+| 10. Email Opt-in | Prompted to confirm email | Email confirmation prompt | "A daily queue email — that's exactly the habit trigger I needed" | Engaged, habit forming | Opt-in must not feel like a newsletter subscription | `${user_email}`, `${review_queue}` |
+
+---
+
+## Emotional Arc Visualization
 
 ```
-[Trigger: First launch]
-    |
-    | SKEPTICAL — "Will this waste my time?"
-    v
-+------------------------------------------------------------------+
-| STEP 1: Welcome + Calibration Signal                              |
-| Ana sees the landing view. No login. No account creation.         |
-| First screen immediately declares what is NOT here.               |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Ruby for Experienced Developers                            |  |
-|  |                                                            |  |
-|  | This tool assumes you know:                               |  |
-|  |   [x] Variables and types                                 |  |
-|  |   [x] OOP (classes, inheritance, interfaces)              |  |
-|  |   [x] Control flow (if/else, loops, exceptions)           |  |
-|  |   [x] Functions and basic data structures                 |  |
-|  |                                                            |  |
-|  | It teaches: Ruby-specific syntax, idioms, and patterns    |  |
-|  | that differ from Python and Java.                         |  |
-|  |                                                            |  |
-|  | Press [Enter] to begin your first session                 |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | RELIEVED — "This is not going to explain what a variable is"
-    v
-+------------------------------------------------------------------+
-| STEP 2: Curriculum Overview — The Lesson Tree                     |
-| Ana sees the 5-module structure at a glance.                      |
-| Module 1 is highlighted as available. Modules 2-5 are dimmed.    |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Curriculum — 25 Lessons across 5 Modules                  |  |
-|  |                                                            |  |
-|  | [Module 1: Ruby Fundamentals for Polyglots]  AVAILABLE    |  |
-|  |  1 Syntax Differences       [ ] Not started               |  |
-|  |  2 String Interpolation     [ ] Locked (needs L1)         |  |
-|  |  3 Symbols                  [ ] Locked (needs L1)         |  |
-|  |  4 Ranges                   [ ] Locked (needs L2,L3)      |  |
-|  |  5 Array Methods            [ ] Locked (needs L4)         |  |
-|  |                                                            |  |
-|  | [Module 2: Methods and Blocks]              LOCKED         |  |
-|  | [Module 3: Ruby Object Model]               LOCKED         |  |
-|  | [Module 4: Ruby Idioms]                     LOCKED         |  |
-|  | [Module 5: Standard Library Essentials]     LOCKED         |  |
-|  |                                                            |  |
-|  | [j/k] Navigate  [Enter] Start Lesson 1  [?] Help          |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | CURIOUS — "What is Lesson 1 about?"
-    v
-+------------------------------------------------------------------+
-| STEP 3: Lesson 1 Preview — Before Starting                        |
-| Ana can see what she is about to do before committing.            |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 1: Ruby Syntax Differences                          |  |
-|  | Module 1 of 5  |  ~4 min  |  3 exercises                  |  |
-|  |                                                            |  |
-|  | What this covers:                                          |  |
-|  |   - No semicolons. No type declarations.                  |  |
-|  |   - def/end instead of def: and indentation               |  |
-|  |   - puts vs print vs p                                     |  |
-|  |   - nil vs None, true/false vs True/False                  |  |
-|  |                                                            |  |
-|  | What this DOES NOT cover:                                  |  |
-|  |   - What variables are                                     |  |
-|  |   - Control flow basics                                    |  |
-|  |   - OOP fundamentals                                       |  |
-|  |                                                            |  |
-|  | [Enter] Start  [Esc] Back to curriculum                    |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | ENGAGED — "This is exactly what I need"
-    v
-+------------------------------------------------------------------+
-| STEP 4: First Exercise                                            |
-| 30-second hard cap. Immediate, active, not passive reading.       |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Exercise 1 of 3  |  Lesson 1  |  [========          ] 15s |  |
-|  |                                                            |  |
-|  | In Python you write:                                       |  |
-|  |   def greet(name):                                        |  |
-|  |       return f"Hello, {name}"                             |  |
-|  |                                                            |  |
-|  | How would you write this in Ruby?                          |  |
-|  |                                                            |  |
-|  | > _                                                        |  |
-|  |                                                            |  |
-|  | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | FOCUSED — "I know this, let me show it"
-    v
-+------------------------------------------------------------------+
-| STEP 5: Exercise Feedback                                         |
-| Immediate, precise, no fluff.                                     |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Correct.                                                   |  |
-|  |                                                            |  |
-|  | def greet(name)                                           |  |
-|  |   "Hello, #{name}"                                        |  |
-|  | end                                                        |  |
-|  |                                                            |  |
-|  | Ruby's string interpolation uses #{} not f"".             |  |
-|  | Implicit return means the last expression is returned.    |  |
-|  | No colon after method signature. End with `end`.          |  |
-|  |                                                            |  |
-|  | [Enter] Next exercise  [?] See full explanation            |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | SATISFIED — "That was precise and respectful"
-    v
-+------------------------------------------------------------------+
-| STEP 6: Session Complete — First Session Summary                  |
-| End of first lesson. SM-2 initialized. Schedule set.             |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 1 complete.                                         |  |
-|  |                                                            |  |
-|  | Today: 3 exercises  |  1 lesson  |  ~4 minutes             |  |
-|  |                                                            |  |
-|  | Review queue: SM-2 will schedule these exercises           |  |
-|  | for review based on your answers.                          |  |
-|  |                                                            |  |
-|  | Next session: Lesson 2 (String Interpolation)              |  |
-|  | Estimated review queue: 2 exercises                        |  |
-|  |                                                            |  |
-|  | [Enter] Done  [n] Start Lesson 2 now                      |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | COMMITTED — "I know exactly what tomorrow looks like"
-    v
-[End: Ana has completed her first session, SM-2 initialized,
- curriculum understood, next step is clear]
+Skepticism    Recognition    Competence    Commitment
+    |               |              |             |
+    v               v              v             v
+  [ 1 ]  -->  [ 2 ][ 3 ][ 4 ]  [ 5 ][ 6 ][ 7 ]  [ 8 ][ 9 ][ 10 ]
+   Low              Rising         Peak           Sustained
+
+
+    SKEPTICAL                                           COMMITTED
+    +---------------------------------------------------------+
+    |                                                         |
+    |    ...      /                                           |
+    |   .  .     / <- Recognition                            |
+    |  .    .   /    (Lesson 1 topic list)                   |
+    | .      . /                                             |
+    |.        X <- Competence peak                           |
+    |        / \   (first exercise correct)                  |
+    |       /   \_______-> Commitment plateau                |
+    |      /              (SM-2 schedules review)            |
+    +-----+---+---+---+---+---+---+---+---+---+-------------+
+          1   2   3   4   5   6   7   8   9  10
 ```
 
 ---
 
-## Emotional Arc Annotations
+## TUI Mockups
 
-| Step | Emotional State | Design Lever |
-|------|----------------|-------------|
-| Step 1 | Skeptical → Relieved | Explicit "what we skip" messaging; no login friction |
-| Step 2 | Relieved → Curious | Curriculum tree visible immediately; lock/unlock visual clear |
-| Step 3 | Curious → Engaged | Lesson preview shows scope before commitment |
-| Step 4 | Engaged → Focused | 30-second cap feels fast and respectful; active not passive |
-| Step 5 | Focused → Satisfied | Feedback precise and explains the Ruby-specific reason |
-| Step 6 | Satisfied → Committed | SM-2 explained; next session previewed; no ambiguity |
+### Step 1: Landing Page (Arrival)
+
+```
++----------------------------------------------------------+
+|  RubyFlow                                                |
+|                                                          |
+|  Ruby for people who don't need Ruby explained.          |
+|                                                          |
+|  25 expert lessons. SM-2 spaced repetition.              |
+|  15 minutes a day. Keyboard-native.                      |
+|                                                          |
+|  Assumes you know: Python or Java                        |
+|  Skips: variables, loops, OOP basics, conditionals       |
+|  Teaches: blocks, procs, symbols, Enumerable, idioms     |
+|                                                          |
+|  [ View Curriculum ]          [ Start Free ]             |
+|    (Tab to navigate)           (Enter to confirm)        |
++----------------------------------------------------------+
+```
+
+### Step 4: Experience Confirmation
+
+```
++----------------------------------------------------------+
+|  One question before we start                            |
+|                                                          |
+|  Do you have experience in another programming language? |
+|                                                          |
+|  > [x] Yes — Python, Java, or similar                   |
+|    [ ] No — I'm newer to programming                     |
+|                                                          |
+|  (Use j/k to select, Enter to confirm)                   |
+|                                                          |
+|  Note: If you select "Yes", we skip variables, OOP       |
+|  basics, and control flow. Lesson 1 starts with blocks.  |
++----------------------------------------------------------+
+```
+
+### Step 5: First Lesson View
+
+```
++----------------------------------------------------------+
+|  Lesson 1 of 25 — Ruby Blocks                           |
+|  [================>                  ] 4% complete        |
+|                                                          |
+|  RUBY BLOCKS                                             |
+|                                                          |
+|  In Python you use lambdas or list comprehensions.       |
+|  In Java you use anonymous functions or streams.         |
+|  In Ruby you use BLOCKS — code passed to a method.       |
+|                                                          |
+|  Python:  [x * 2 for x in lst]                          |
+|  Java:    lst.stream().map(x -> x * 2)                   |
+|  Ruby:    lst.map { |x| x * 2 }                         |
+|                                                          |
+|  Key insight: the block { |x| x * 2 } is not a value.   |
+|  It is passed to the method. Methods can yield to it.    |
+|                                                          |
+|  [ Continue to Exercise ]  (Enter)      [ l ] Lesson map |
++----------------------------------------------------------+
+```
+
+### Step 6: First Exercise (30-second timer)
+
+```
++----------------------------------------------------------+
+|  Exercise 1.1 — Fill in the blank              [0:28]    |
+|                                                          |
+|  Complete the Ruby code to select even numbers:          |
+|                                                          |
+|  [1, 2, 3, 4].______ { |n| n.even? }                    |
+|               ^^^^^^^                                    |
+|  Your answer: [select_____________]                      |
+|                                                          |
+|  Enter: submit  |  Esc: skip  |  h: mark hard           |
+|                                                          |
+|  Tip: Think of Python's list comprehension with a filter |
++----------------------------------------------------------+
+```
+
+### Step 8: SM-2 Scheduling Confirmation
+
+```
++----------------------------------------------------------+
+|  Good work.                                              |
+|                                                          |
+|  Concept: Ruby Blocks (Lesson 1)                         |
+|  Your answer: Correct                                    |
+|                                                          |
+|  SM-2 has scheduled your next review:                    |
+|                                                          |
+|    Next review: March 12 (in 3 days)                     |
+|    Reason: First exposure — short interval to confirm     |
+|                                                          |
+|  You will see this in your daily queue on March 12.      |
+|  Until then — nothing to do.                             |
+|                                                          |
+|  [ Continue ]  (Enter)                                   |
++----------------------------------------------------------+
+```
+
+### Step 9: Session Summary
+
+```
++----------------------------------------------------------+
+|  Session Complete                                        |
+|                                                          |
+|  Today's Session                                         |
+|  ---------------                                         |
+|  Lesson completed:  Ruby Blocks (Lesson 1 of 25)         |
+|  Exercises done:    1                                    |
+|  Time taken:        4 min 12 sec                         |
+|  Daily target:      15 min                               |
+|  Time remaining:    10 min 48 sec                        |
+|                                                          |
+|  Streak: 1 day  (start of something good)                |
+|                                                          |
+|  Tomorrow: Review Ruby Blocks + Lesson 2 option          |
+|                                                          |
+|  [ Go to Dashboard ]  (g d)    [ Done for today ] (Esc)  |
++----------------------------------------------------------+
+```
 
 ---
 
-## Error Paths and Edge Cases
+## Integration Checkpoints
 
-### Edge Case 1: User tries to navigate to a locked lesson
-- Ana presses Enter on a locked lesson in Step 2
-- System shows: "Lesson 4: Ranges requires Lessons 2 and 3. Complete those first."
-- Shows which specific prerequisites are needed, not just "LOCKED"
-- Ana presses Esc to return to curriculum tree
-
-### Edge Case 2: User skips an exercise
-- Ana does not know the answer and presses [Esc] to skip
-- System marks exercise as "skipped" not "failed" for SM-2
-- Skipped exercises are re-queued for the next session (not counted against retention score)
-- Feedback shown with correct answer anyway
-
-### Edge Case 3: User runs out of time mid-exercise
-- 30-second timer expires
-- System shows correct answer automatically ("Time — here is the answer")
-- SM-2 records as "missed" and schedules aggressive early review
-- Session continues to next exercise
-
-### Edge Case 4: User tries to start Lesson 2 before Lesson 1 completes
-- Lesson 2 is shown but greyed out until Step 6 completes
-- Selecting it shows: "Complete Lesson 1 first. You are on exercise 2 of 3."
+| Checkpoint | What Must Be True | Risk if Wrong |
+|-----------|------------------|---------------|
+| Experience level persists | `${experience_level}` must drive curriculum filtering throughout the app | Marcus sees beginner content after confirming expert mode = broken promise |
+| SM-2 first scheduling | After first exercise, SM-2 must create an entry with correct interval (3 days default for first exposure) | Review queue will be empty or wrong on Day 3 |
+| Email opt-in links to queue | `${user_email}` must link to `${review_queue}` and trigger email on day of first review | Marcus does not get the habit trigger that drives return |
+| Session timer accuracy | `${session_duration}` must reflect actual elapsed time | Session summary shows wrong time; trust broken |
 
 ---
 
-## Shared Artifacts (tracked)
+## Pain Point Summary
 
-| Artifact | Source | Displayed At |
-|---------|--------|--------------|
-| `${lesson_title}` | Lesson metadata DB | Steps 2, 3, 5, 6 |
-| `${lesson_duration}` | Estimated from exercise count | Steps 3, 6 |
-| `${exercise_count}` | Lesson metadata DB | Steps 3, 4, 6 |
-| `${module_number}` | Curriculum schema | Steps 2, 3, 4 |
-| `${next_lesson}` | Prerequisite graph resolver | Step 6 |
-| `${sm2_next_review_count}` | SM-2 engine | Step 6 |
-| `${timer_remaining}` | Session timer (30s cap) | Step 4 |
+| Step | Pain Point | Mitigation |
+|------|-----------|------------|
+| 1. Arrival | "Another beginner tool" cynicism | UVP explicitly names what is skipped (variables, loops, OOP) |
+| 3. Sign-up | Long forms kill momentum | Email + experience level only; no profile required |
+| 5. Lesson | Dense content losing pacing | Python/Java side-by-side creates anchor; 30-second read target |
+| 6. Exercise | Timer anxiety | Timer visible but not alarming; Esc to skip is always available |
+| 8. SM-2 | Black-box anxiety | Plain-language scheduling explanation ("in 3 days, because: first exposure") |

@@ -1,245 +1,207 @@
-# Journey: Daily Session — Visual Map
+# Journey Map: Daily Session — Ruby Learning Platform
 
-## Persona
-**Ana Folau**, 2 weeks into daily practice. Has completed Lessons 1-4. Has 6 exercises in SM-2 review queue. It is 8:45 AM, 15 minutes before standup. She opens the platform expecting it to know what she needs today.
-
-## Goal
-Ana completes her full daily session — review queue plus one new lesson — within 15 minutes, without making a single decision about what to study.
-
-## Emotional Arc
-**Start**: Trusting + Ready (the tool will tell me what to do)
-**Middle**: Focused + Flowing (quick feedback loop, no dead time)
-**End**: Accomplished + Complete (done in time, retention growing)
+**Feature ID**: ruby-learning-platform
+**Journey**: Daily Session (morning email → review queue → optional lesson → session summary)
+**Primary Job Story**: JS-2 (Daily Practice Habit) + JS-3 (Automated Review Queue)
+**Emotional Arc**: Intent → Flow → Satisfaction → Streak Pride
+**Date**: 2026-03-09
 
 ---
 
-## Journey Flow
+## Journey Overview
+
+Marcus Chen has been using the platform for one week. It is Thursday morning, 8:47 AM,
+13 minutes before standup. He opens his email, sees today's review queue, clicks the link,
+works through 4 exercises (the SM-2 queue for today), reads Lesson 3, completes its exercise,
+and sees his session summary showing 11 minutes used of his 15-minute budget. His streak
+is now 7 days.
+
+**Goal**: Marcus finishes feeling productive, on-time, and proud of an unbroken streak.
+
+---
+
+## Journey Map Table
+
+| Step | Action | Touchpoint | Marcus Thinks | Marcus Feels | Pain Points | Shared Artifacts |
+|------|--------|-----------|--------------|-------------|-------------|-----------------|
+| 1. Email Arrival | Morning email arrives at 8:00 AM | Daily digest email in inbox | "Today's queue: 4 reviews + 1 new lesson. 10 minutes. I have time." | Intent formed, confidence present | Email at wrong time kills the habit trigger | `${review_queue}`, `${queue_count}` |
+| 2. App Open | Marcus clicks link from email → app opens to session start | Session start screen showing today's queue | "I can see exactly what I'm doing today before I start" | Oriented, in control | Ambiguity about what is in the queue = friction | `${review_queue}`, `${lesson_id}` |
+| 3. Review Exercise 1 | First SM-2 review exercise appears | Exercise 1 of 4 (30-sec timer) | "Ruby symbols vs strings — I remember this from last week" | Confident, recall forming | Timer pressure if exercise too hard | `${exercise_id}`, `${timer_seconds}`, `${sm2_score}` |
+| 4. Review Exercise 2 | Second review appears after Enter | Exercise 2 of 4 | "Blocks with yield... I need a second. Oh right — `yield` calls the block" | Slight hesitation then click of recognition | "Oh right" moment = ideal SM-2 timing | `${exercise_id}`, `${sm2_score}` |
+| 5. Review Exercise 3 | Third review exercise | Exercise 3 of 4 | "attr_accessor — this is muscle memory now" | Fluent, fast | No pain — this is mastery feeling | `${exercise_id}`, `${sm2_score}` |
+| 6. Review Exercise 4 | Fourth review exercise | Exercise 4 of 4 | "Comparable... which method was it? sort? <=> ? I'll say `<=>`" | Uncertain, guessing — correct | Productive uncertainty; SM-2 timed this right | `${exercise_id}`, `${sm2_score}` |
+| 7. Review Queue Complete | "Queue complete" screen | Queue summary panel | "4 exercises, 4 minutes. Queue done." | Satisfied, small victory | No pain — clear done state for review portion | `${queue_count}`, `${review_duration}` |
+| 8. New Lesson Option | Prompted: "Start Lesson 3?" | Lesson prompt with estimated time | "3 minutes estimated. I have 11 minutes left. Yes." | Agency — it's an offer, not a demand | Mandatory lesson after review would break the choice | `${lesson_id}`, `${time_remaining}` |
+| 9. Lesson 3 Content | Reads Lesson 3: Procs vs Lambdas | Lesson view with Python comparison | "Python has lambda. Ruby has proc AND lambda. And they differ on return? Important." | Engaged, learning, slight complexity | Complexity spike: proc vs lambda is nuanced | `${lesson_content}`, `${lesson_id}` |
+| 10. Lesson Exercise | Completes exercise for Lesson 3 | Exercise with 30-second timer | "It's about how return behaves inside a lambda — got it" | Confident in new concept | — | `${exercise_id}`, `${sm2_score}`, `${timer_seconds}` |
+| 11. SM-2 Scheduling | Sees new lesson scheduled | SM-2 panel: "Procs vs Lambdas — review in 3 days" | "Automatic. I don't have to think about when to review this" | Trusting, relieved | — | `${next_review_date}`, `${sm2_interval}` |
+| 12. Session Summary | Reviews session summary | Session end screen with all metrics | "11 min 24 sec. 7-day streak. Under target. Perfect." | Proud, streak satisfaction, habit reinforced | — | `${session_duration}`, `${streak_count}`, `${lessons_completed}` |
+
+---
+
+## Emotional Arc Visualization
 
 ```
-[Trigger: Ana opens the platform. It is 8:45 AM.]
-    |
-    | TRUSTING — "I wonder what today's queue looks like"
-    v
-+------------------------------------------------------------------+
-| STEP 1: Session Dashboard — Today's Overview                      |
-| Ana immediately sees today's plan. No navigation required.        |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Good morning. Today's session:                             |  |
-|  |                                                            |  |
-|  |  Review queue:  6 exercises  (~3 min)                     |  |
-|  |  New lesson:    Lesson 5: Array Methods  (~4 min)         |  |
-|  |                                                            |  |
-|  |  Total: ~7 minutes                                         |  |
-|  |                                                            |  |
-|  | [Enter] Start session  [t] Select different topic          |  |
-|  | [p] Progress dashboard  [?] Help                          |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | READY — "7 minutes, I have time"
-    v
-+------------------------------------------------------------------+
-| STEP 2: Review Queue — Exercise 1 of 6                            |
-| SM-2 presents exercises in order of urgency (most overdue first)  |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Review  1/6  |  [========                    ] 8s          |  |
-|  |                                                            |  |
-|  | Lesson 2 — String Interpolation                           |  |
-|  |                                                            |  |
-|  | What symbol is used for string interpolation in Ruby?      |  |
-|  |                                                            |  |
-|  | > _                                                        |  |
-|  |                                                            |  |
-|  | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | FOCUSED — "I know this one"
-    v
-+------------------------------------------------------------------+
-| STEP 3: Review Feedback — Correct                                 |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Correct.  #{expression}                                    |  |
-|  |                                                            |  |
-|  | Next review in: 4 days                                     |  |
-|  |                                                            |  |
-|  | [Enter] Next                                               |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    v
-+------------------------------------------------------------------+
-| STEP 4: Review Queue — Exercise 3 of 6 (harder one)               |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Review  3/6  |  [========                    ] 12s         |  |
-|  |                                                            |  |
-|  | Lesson 3 — Symbols                                        |  |
-|  |                                                            |  |
-|  | What is the difference between :name and "name" in Ruby?   |  |
-|  |                                                            |  |
-|  | > _                                                        |  |
-|  |                                                            |  |
-|  | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | CONCENTRATING — "Symbols... immutable, unique, memory-efficient"
-    v
-+------------------------------------------------------------------+
-| STEP 5: Review Feedback — Incorrect / Partial                     |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Partially correct.                                         |  |
-|  |                                                            |  |
-|  | :name is a Symbol — immutable, interned (one object per    |  |
-|  | name in the VM), compared by identity not value.           |  |
-|  | "name" is a String — mutable, creates new object each time.|  |
-|  |                                                            |  |
-|  | Next review: tomorrow (SM-2 reset interval)               |  |
-|  |                                                            |  |
-|  | [Enter] Next                                               |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | INFORMED — "I need to practice this one more"
-    v
-+------------------------------------------------------------------+
-| STEP 6: Review Queue Complete — Transition to Lesson              |
-| Short separator between review and new content                    |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Review complete.  6 exercises done.                        |  |
-|  |                                                            |  |
-|  |  Correct:  5/6   (83%)                                    |  |
-|  |  Next review session: tomorrow (~5 exercises scheduled)    |  |
-|  |                                                            |  |
-|  | [Enter] Continue to Lesson 5                              |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | TRANSITIONING — "Good, now the new content"
-    v
-+------------------------------------------------------------------+
-| STEP 7: New Lesson — Lesson 5: Array Methods                      |
-| Teaching segment with active exercises embedded                   |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Lesson 5: Array Methods            Module 1/5  |  3 left   |  |
-|  |                                                            |  |
-|  | In Python, you iterate with list comprehensions:           |  |
-|  |   [x * 2 for x in items]                                  |  |
-|  |                                                            |  |
-|  | In Ruby, you chain Enumerable methods:                     |  |
-|  |   items.map { |x| x * 2 }                                 |  |
-|  |                                                            |  |
-|  | Ruby's approach: object-oriented, chainable, block-based.  |  |
-|  |                                                            |  |
-|  | [Enter] Try it  [Esc] Back                                 |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | LEARNING — "So map is their list comprehension"
-    v
-+------------------------------------------------------------------+
-| STEP 8: Lesson Exercise                                           |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Exercise  1/3  |  Lesson 5  |  [=======              ] 20s |  |
-|  |                                                            |  |
-|  | Translate to Ruby:                                         |  |
-|  |   doubled = [x * 2 for x in [1, 2, 3]]  # Python         |  |
-|  |                                                            |  |
-|  | > _                                                        |  |
-|  |                                                            |  |
-|  | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    v
-+------------------------------------------------------------------+
-| STEP 9: Session Complete                                          |
-|                                                                   |
-|  +------------------------------------------------------------+  |
-|  | Session complete.                                          |  |
-|  |                                                            |  |
-|  |  Today:   6 reviews + 3 new exercises  |  ~7 min          |  |
-|  |  Streak:  14 days                                          |  |
-|  |                                                            |  |
-|  |  Module 1 progress:  5/5 lessons complete                  |  |
-|  |  Next session:       Module 2, Lesson 6: Method Definition |  |
-|  |  Review queue:       ~5 exercises tomorrow                 |  |
-|  |                                                            |  |
-|  | [Enter] Done  [p] Full progress  [n] Start Lesson 6 now   |  |
-|  +------------------------------------------------------------+  |
-+------------------------------------------------------------------+
-    |
-    | ACCOMPLISHED — "Done. In time. And I know what tomorrow looks like."
-    v
-[End: Session complete. SM-2 updated. Next session pre-scheduled.]
+Intent       Flow (exercises)         Satisfaction    Streak Pride
+  |            |     |    |    |           |               |
+  v            v     v    v    v           v               v
+ [1][2]  --> [3]   [4]  [5]  [6]  -->  [7][8]  -->  [9][10][11] --> [12]
+
+
+    INTENT                                              STREAK PRIDE
+    +-----------------------------------------------------------+
+    |                                                           |
+    |  ..        ___________                         ___________|
+    | .  .      /           \           ____________/           |
+    |.    .    /  FLOW zone  \         /  new lesson            |
+    |     .   /    reviews    \       /                         |
+    |      . /                 \_____/                          |
+    |                           queue                           |
+    |                           done                            |
+    +--+--+--+--+--+--+--+--+--+--+--+--+-------------------+--+
+       1  2  3  4  5  6        7  8  9  10 11                12
 ```
 
 ---
 
-## Emotional Arc Annotations
+## TUI Mockups
 
-| Step | Emotional State | Design Lever |
-|------|----------------|-------------|
-| Step 1 | Trusting → Ready | Session overview pre-computed; no decisions required |
-| Steps 2-5 | Focused → Flowing | Fast feedback loop; 30-second cap prevents stalling |
-| Step 5 | Informed (partial credit) | Feedback precise; no shame, just information |
-| Step 6 | Transitioning | Explicit separator marks review-to-lesson boundary |
-| Steps 7-8 | Learning → Active | Content immediately turns into exercise |
-| Step 9 | Accomplished | Session totals visible; next session already defined |
+### Step 1: Daily Email
+
+```
+From: RubyFlow <queue@rubyflow.app>
+To: marcus@example.com
+Subject: Today's Queue — 4 reviews + 1 lesson option (est. 10 min)
+
+Good morning, Marcus.
+
+Today's review queue (SM-2 scheduled):
+  1. Ruby Symbols vs Strings (Lesson 2)
+  2. Blocks with yield (Lesson 1)
+  3. attr_accessor (Lesson 11)
+  4. Comparable module (Lesson 22)
+
+New lesson available:
+  Lesson 3: Procs vs Lambdas (~3 min)
+
+Total estimated time: 8-10 minutes
+
+[ Open Today's Session ]  →  https://rubyflow.app/session/today
+
+Streak: 6 days  |  Mastered: 12  |  In Review: 8
+```
+
+### Step 2: Session Start Screen
+
+```
++----------------------------------------------------------+
+|  RubyFlow — Today's Session                              |
+|                                                          |
+|  Thursday, March 12                                      |
+|                                                          |
+|  Review Queue (SM-2)           New Lesson (optional)     |
+|  ----------------------        -------------------------  |
+|  4 exercises                   Lesson 3: Procs vs        |
+|  Estimated: 2-4 min            Lambdas (~3 min)          |
+|                                                          |
+|  1. Ruby Symbols vs Strings    [Available after queue]   |
+|  2. Blocks with yield                                    |
+|  3. attr_accessor                                        |
+|  4. Comparable module                                    |
+|                                                          |
+|  [ Start Review Queue ]  (Enter)                         |
+|                                                          |
+|  Streak: 6 days  |  Budget remaining: 15:00              |
++----------------------------------------------------------+
+```
+
+### Step 3-6: Review Exercise (in progress)
+
+```
++----------------------------------------------------------+
+|  Review 2 of 4 — Ruby Blocks with yield        [0:22]    |
+|                                                          |
+|  What does yield do in this method?                      |
+|                                                          |
+|  def transform(arr)                                      |
+|    arr.map do |x|                                        |
+|      ________(x)   # <-- fill in                        |
+|    end                                                   |
+|  end                                                     |
+|                                                          |
+|  Your answer: [yield_____________]                       |
+|                                                          |
+|  Enter: submit  |  Esc: skip  |  h: hard  |  e: easy    |
+|                                                          |
+|  [===>                                ] Review 2/4       |
++----------------------------------------------------------+
+```
+
+### Step 7: Review Queue Complete
+
+```
++----------------------------------------------------------+
+|  Review Queue Complete                                   |
+|                                                          |
+|  4 exercises  |  3 min 47 sec                            |
+|                                                          |
+|  Results:                                                |
+|  Ruby Symbols vs Strings    Correct   next: 7 days       |
+|  Blocks with yield          Correct   next: 14 days      |
+|  attr_accessor              Correct   next: 30 days      |
+|  Comparable module          Correct   next: 7 days       |
+|                                                          |
+|  Budget remaining: 11 min 13 sec                         |
+|                                                          |
+|  New lesson available:                                   |
+|  Lesson 3: Procs vs Lambdas (~3 min)                     |
+|                                                          |
+|  [ Start Lesson 3 ]  (Enter)    [ Done for today ] (Esc) |
++----------------------------------------------------------+
+```
+
+### Step 12: Session Summary
+
+```
++----------------------------------------------------------+
+|  Session Complete — Thursday, March 12                   |
+|                                                          |
+|  Reviews:         4 of 4 completed                       |
+|  New lesson:      Lesson 3 — Procs vs Lambdas            |
+|  Session time:    11 min 24 sec                          |
+|  Daily target:    15 min                                 |
+|  Under budget by: 3 min 36 sec                           |
+|                                                          |
+|  Streak:  7 days  ######### (keep it going)              |
+|                                                          |
+|  SM-2 updates:                                           |
+|    Procs vs Lambdas  next review: March 15               |
+|    Comparable module next review: March 19               |
+|                                                          |
+|  [ Dashboard ]  (g d)    [ Done ]  (Esc)                 |
++----------------------------------------------------------+
+```
 
 ---
 
-## Error Paths and Edge Cases
+## Integration Checkpoints
 
-### Edge Case 1: Review queue has 0 exercises
-- Ana is ahead of schedule; SM-2 has nothing due today
-- Step 1 shows: "Review queue: 0 exercises (all caught up)"
-- Session goes directly to new lesson
-- Step 9 shows clean completion without review stats
-
-### Edge Case 2: Review queue has >15 exercises
-- Ana missed 3 days; SM-2 has 18 exercises due
-- Step 1 shows: "Review queue: 18 exercises (~9 min). Today's session will cover 12; 6 will carry to tomorrow."
-- System caps daily review at a reasonable load (12 exercises or 6 minutes, whichever comes first)
-- Deferred exercises are still high-priority for next session
-
-### Edge Case 3: No new lesson available (all lessons complete)
-- Ana has finished all 25 lessons
-- Step 1 shows: "Review queue: 8 exercises. No new lessons remaining — curriculum complete."
-- Session is review-only; session complete screen shows curriculum completion message
-
-### Edge Case 4: User selects [t] to override topic on the session screen
-- Pressing [t] on Step 1 opens topic selection overlay
-- SM-2 queue is preserved; the selected topic replaces the system-recommended new lesson
-- Session proceeds normally with the manually selected lesson
-
-### Edge Case 5: Session timer reaches 15 minutes
-- Ana was slow on some exercises; 15 minutes has elapsed
-- If mid-exercise: complete the current exercise, then show session summary
-- System never cuts off mid-answer
-- Summary notes: "Session ended at time limit. 2 remaining review exercises carried to tomorrow."
+| Checkpoint | What Must Be True | Risk if Wrong |
+|-----------|------------------|---------------|
+| Email queue matches app queue | `${review_queue}` in email must be identical to app queue on open | Marcus opens app and sees different exercises than email listed; disorienting |
+| SM-2 timer → score | `${timer_seconds}` elapsed when submitted must inform `${sm2_score}` (fast = easy signal) | SM-2 interval incorrectly calibrated; reviews appear too soon or too late |
+| Review duration tracked | `${review_duration}` must accumulate per exercise and roll up to session | Session summary shows wrong time |
+| Streak increments once per day | `${streak_count}` increments on first completed session of the day only | Multiple sessions in a day inflate streak |
+| Budget remaining updates live | `${time_remaining}` must update after each exercise | Marcus cannot gauge whether to start lesson |
 
 ---
 
-## Shared Artifacts (tracked)
+## Pain Point Summary
 
-| Artifact | Source | Displayed At |
-|---------|--------|--------------|
-| `${review_queue_count}` | SM-2 engine | Steps 1, 6, 9 |
-| `${review_queue_time_estimate}` | SM-2 engine (count x 30s) | Steps 1, 6 |
-| `${next_lesson_title}` | Prerequisite graph resolver | Steps 1, 7, 9 |
-| `${next_lesson_module}` | Lesson metadata DB | Steps 7, 9 |
-| `${lesson_duration}` | Exercise count x 60s + reading | Steps 1, 9 |
-| `${session_correct_count}` | Session runtime | Steps 6, 9 |
-| `${session_total_count}` | Session runtime | Steps 6, 9 |
-| `${streak_days}` | Progress tracker | Step 9 |
-| `${sm2_next_interval}` | SM-2 engine | Steps 3, 5 |
-| `${module_progress}` | Progress tracker | Step 9 |
+| Step | Pain Point | Mitigation |
+|------|-----------|------------|
+| 1. Email | Wrong delivery time | User sets preferred email time during onboarding |
+| 2. App open | Ambiguous queue content | Session start screen shows full queue list before starting |
+| 4. Hard exercise | Timer anxiety on difficult recall | "h: mark hard" key available to invoke slower timer extension |
+| 7. Queue done | Uncertainty about lesson choice | Remaining budget displayed next to lesson option |
+| 12. Summary | Streak broken by travel/illness | Grace day policy (one missed day per 7 does not break streak) — post-MVP |

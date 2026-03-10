@@ -1,204 +1,216 @@
 # JTBD Four Forces Analysis — Ruby Learning Platform
 
-## Overview
-
-The Four Forces of Progress framework (Moesta) explains when and why a user switches from their current approach to a new solution. For a switch to happen, Push + Pull must exceed Anxiety + Habit. This analysis covers the primary job and four key features.
-
-```
-        PROGRESS (switch happens)
-             ^
-Push of      |      Pull of
-Current  ----+---- New Solution
-Situation    |
-             |
-        NO PROGRESS (staying put)
-             ^
-Anxiety  ----+---- Habit of
-of New        |    Present
-Solution      |
-```
+**Feature ID**: ruby-learning-platform
+**Phase**: DISCUSS — Phase 1
+**Date**: 2026-03-09
+**Source**: Derived from interview-log.md signals + problem-validation.md pain points
 
 ---
 
-## Analysis 1: Primary Job — Daily Ruby Fluency Practice
+## Framework
 
-### Demand-Generating Forces
+The Four Forces model explains what drives a user toward a new solution (Push, Pull)
+and what holds them back from switching (Anxiety, Habit). For each job story, understanding
+these forces reveals where the product must be strong enough to overcome resistance.
 
-**Push: Frustration with current approach**
-- Every tutorial, course, and documentation site assumes zero programming background
-- Experienced developer wastes 70%+ of session time on concepts (variables, OOP, loops) already mastered in Python/Java
-- Ad-hoc learning (docs on demand, Stack Overflow searches) produces no durable retention
-- Writing Ruby code feels like "Python with Ruby syntax" — the idioms never become instinctive
-- Embarrassing in code reviews when Ruby-specific patterns are not used
-
-**Pull: Attractiveness of the new solution**
-- Tool skips all known-knowledge concepts; content starts exactly where Python/Java expertise ends
-- SM-2 scheduling eliminates the meta-cognitive work of "what should I study today?"
-- 15-minute hard-capped sessions fit any schedule; daily consistency is achievable
-- Progress reflects genuine retention, not artificial gamification
-- Keyboard-native navigation matches professional developer workflow
-
-### Demand-Reducing Forces
-
-**Anxiety: Fears about the new approach**
-- "What if the tool incorrectly judges what I already know and leaves gaps?"
-- "Will SM-2 scheduling feel arbitrary — too much on some days, nothing on others?"
-- "What if 15 minutes is not enough to make real progress?"
-- "What if the lesson tree prerequisites feel like artificial gatekeeping rather than logical sequencing?"
-- "Will I be able to find the topics I care about (e.g. Enumerable) without going through everything first?"
-
-**Habit: Inertia of the current approach**
-- Documentation on demand "works well enough" for immediate tasks even if retention is poor
-- No existing daily learning habit to attach this to; building a new ritual is friction
-- Current approach (search, read, apply) is familiar and requires no tool onboarding
-- Developers are skeptical of "productivity tools" that add process overhead
-
-### Assessment
-
-| Force | Strength | Evidence |
-|-------|----------|---------|
-| Push | HIGH | Explicit pain: time waste on known content, poor retention, non-idiomatic output |
-| Pull | HIGH | Clear solution-fit: SM-2 + expert calibration directly addresses the pain |
-| Anxiety | MEDIUM | Real but addressable: good prerequisite design and onboarding resolves most fears |
-| Habit | MEDIUM | Existing ad-hoc approach is weak (no retention); habit formation cost is manageable |
-
-**Switch likelihood**: HIGH
-**Key blocker**: Anxiety about gaps from skipping beginner content
-**Key enabler**: Expert calibration that visibly skips known material (user sees this happening)
-**Design implication**: Onboarding must explicitly signal "we are skipping what you already know." First session must feel calibrated to the user's level within the first 2 minutes.
+**Persona**: Marcus Chen — senior Python/Java developer, learning Ruby for a new team role.
 
 ---
 
-## Analysis 2: SM-2 Automated Review Queue (OPP-2, Score 16)
+## Job Story 1 — Syntax Transfer
 
-### Demand-Generating Forces
+**When** Marcus wants to become productive writing idiomatic Ruby in a new codebase,
+**the current situation** is that he relies on a mix of executeprogram.com,
+Ruby documentation, and ad-hoc searching whenever he gets stuck.
 
-**Push**
-- Manual selection of what to review requires meta-cognitive effort that depletes willpower
-- Humans chronically over-weight recent memories and under-review older material that is fading
-- Without scheduled review, concepts learned in session decay within a week
-- "Should I re-do lesson 3 or move forward?" is a real daily friction point
+### Push Forces (driving away from current behavior)
+- executeprogram.com content assumes an earlier-stage learner; Marcus spends the first
+  sections of each module skipping material he already knows from Python
+- Ruby documentation is comprehensive but not structured for syntax transfer — it does
+  not say "if you know Python list comprehensions, here is the Ruby equivalent"
+- Ad-hoc searching is unreliable for forming durable memories; Marcus answers the same
+  question multiple times before it sticks
+- Each lookup interrupts his flow while writing actual code
 
-**Pull**
-- Opening the app and having the queue ready is effortless — the decision is already made
-- SM-2 is a proven algorithm; trust in the system replaces manual judgment
-- Retention metrics become visible and accurate because the algorithm actually tracks recall
+### Pull Forces (attracting toward new solution)
+- A curriculum that starts at the point where Marcus actually is (knows OOP, blocks
+  are the new concept, not conditionals) would save him 30-60 minutes per module
+- Side-by-side Python/Java → Ruby comparisons would leverage his existing mental models
+  rather than force him to build from scratch
+- Content scoped to Ruby-specific idioms (symbols, blocks, procs, `Enumerable`) covers
+  exactly what he lacks and nothing he already has
 
-### Demand-Reducing Forces
+### Anxiety Forces (concerns about switching)
+- "Will this tool assume I'm a beginner anyway?" — high anxiety based on every prior
+  tool disappointing him on this dimension
+- "Will the content be accurate and idiomatic?" — Marcus values correctness; wrong Ruby
+  idioms taught at the syntax level would be worse than no tool
+- "Will I end up with 30 tabs open during a session?" — fear that the platform creates
+  more research overhead, not less
 
-**Anxiety**
-- "What if I have 20 reviews due one day and none the next?"
-- "What if a concept I want to skip keeps appearing in the queue?"
-
-**Habit**
-- Re-reading notes or lesson content is the current review habit; it feels productive even without retention evidence
-
-### Assessment
-
-**Switch likelihood**: HIGH (strongest opportunity score in discovery)
-**Key blocker**: Unpredictable review volume
-**Design implication**: Show review count at session start with time estimate. Cap daily review load or provide overflow handling.
-
----
-
-## Analysis 3: Topic Selection / Lesson Tree (OPP-1, Score 15)
-
-### Demand-Generating Forces
-
-**Push**
-- Linear forced progression through a 25-lesson curriculum is slow for someone who wants to reach Enumerable (Module 2) quickly
-- Not knowing what is locked/unlocked creates frustration when trying to plan a learning path
-- No visibility into prerequisite graph means attempting lessons without context
-
-**Pull**
-- Seeing the full curriculum tree and being able to select a target topic (even while gated) gives a sense of agency
-- Prerequisite gates that explain WHY a lesson is locked feel educational rather than arbitrary
-- Being able to jump to a specific topic when work demands it (e.g., "I need to understand blocks for this PR") is a high-value escape hatch
-
-### Demand-Reducing Forces
-
-**Anxiety**
-- "What if I bypass prerequisites and get confused?"
-- "Will the prerequisite logic be too conservative and gate things I already know?"
-
-**Habit**
-- Linear documentation reading is the current habit; a tree structure requires a different mental model
-
-### Assessment
-
-**Switch likelihood**: HIGH
-**Key blocker**: Anxiety that prerequisite gates are too conservative
-**Design implication**: Show the prerequisite graph explicitly. Explain WHAT is needed before what, not just THAT something is needed. Allow user to view locked lesson content in preview mode (read-only) so they can judge whether the gate is appropriate.
+### Habit Forces (behaviors that must change)
+- Current habit: look it up when stuck, forget it, look it up again
+- Must change to: do a 5-minute lesson proactively in the morning, before the concept
+  comes up in code
+- Resistance: Marcus is not accustomed to proactive learning before a use case arises
 
 ---
 
-## Analysis 4: Session Length Discipline (OPP-3, Score 15)
+## Job Story 2 — Daily Practice Habit
 
-### Demand-Generating Forces
+**When** Marcus wants to build a sustainable Ruby learning habit,
+**the current situation** is that he tries to "find time" for learning but sessions
+are unpredictably long and he often stops mid-module when time runs out.
 
-**Push**
-- Open-ended learning sessions are unpredictable; a 15-minute session can turn into 45 minutes
-- Long sessions are unsustainable; they compete with work and life
-- Inconsistent session lengths produce inconsistent learning; daily 15-minute sessions beat weekly 2-hour sessions
+### Push Forces
+- Sessions on existing tools regularly run 20-40 minutes once Marcus gets into them;
+  this makes him reluctant to start when he has less than an hour free
+- No clear end state on existing tools ("keep learning" prompts, infinite scroll of content)
+  means Marcus never knows when he is "done" for the day
+- Missing a session derails him because there is no queue catching what he missed;
+  he has to reconstruct where he was
 
-**Pull**
-- Hard time cap makes the practice feel like a professional commitment (like a daily standup) rather than open-ended studying
-- Knowing the session ends at a fixed time reduces procrastination around starting
+### Pull Forces
+- A 15-minute hard cap means Marcus can commit to starting the session even with tight time
+- A pre-built daily queue removes the "what do I do today?" paralysis that causes him to
+  skip sessions
+- A session summary showing "you finished in 12 minutes" gives Marcus positive feedback
+  and a clear done state
+- A streak counter creates a loss-aversion signal that sustains habit ("I don't want to
+  break a 7-day streak")
 
-### Demand-Reducing Forces
+### Anxiety Forces
+- "What if the queue takes longer than 15 minutes?" — Marcus needs the tool to enforce
+  the cap, not rely on his willpower
+- "What if I miss a day? Does the queue pile up?" — fear of a backlog that becomes
+  unmanageable
+- "What if the streak mechanic makes me feel bad rather than good?" — streak anxiety is
+  real; gamification can backfire
 
-**Anxiety**
-- "What if I am mid-exercise when 15 minutes is up? Will I lose progress?"
-- "Will 30 seconds per review exercise be enough time?"
-
-**Habit**
-- Current ad-hoc learning has no time structure; imposing a cap requires behavior change
-
-### Assessment
-
-**Switch likelihood**: HIGH
-**Key blocker**: Fear of losing mid-session progress
-**Design implication**: Sessions always complete cleanly. Timer shows time remaining, not elapsed. If review queue overruns, defer excess reviews to next session (never truncate mid-exercise).
-
----
-
-## Analysis 5: Keyboard-Native Navigation (OPP-4, Score 12)
-
-### Demand-Generating Forces
-
-**Push**
-- Mouse-dependent learning tools break keyboard flow that developers maintain throughout the workday
-- Context-switching to mouse for a learning tool creates micro-friction that accumulates into discouragement
-
-**Pull**
-- Keyboard-native tool matches the professional identity of a developer who uses vim/tmux/terminal
-- Visible focus states and shortcut hints make the tool feel like a professional instrument
-
-### Demand-Reducing Forces
-
-**Anxiety**
-- "Will I have to learn a new set of shortcuts just for this tool?"
-- "What if I forget a keybinding mid-session?"
-
-**Habit**
-- Web applications typically require mouse; developers who use keyboard-heavy editors adapt to mouse for web apps
-
-### Assessment
-
-**Switch likelihood**: MEDIUM-HIGH
-**Key blocker**: Discoverability of shortcuts
-**Design implication**: Shortcuts should follow vim conventions where applicable (j/k navigation, Enter to select, Esc to back out). Display shortcut hints in the UI. Persistent shortcut reference accessible via `?` key.
+### Habit Forces
+- Current habit: open learning tool "when I have time" — no fixed slot, no commitment
+- Must change to: 15-minute morning session before standup, daily, with a fixed queue
+- Resistance: the existing "learn when inspired" pattern is deeply set; the tool must
+  make starting so frictionless that the habit forms by default
 
 ---
 
-## Cross-Force Summary
+## Job Story 3 — Automated Review Queue
 
-| Opportunity | Push | Pull | Anxiety | Habit | Net Score | Priority |
-|-------------|------|------|---------|-------|-----------|---------|
-| SM-2 review queue | HIGH | HIGH | LOW | MEDIUM | STRONG | Must Have |
-| Expert calibration | HIGH | HIGH | MEDIUM | LOW | STRONG | Must Have |
-| Session discipline | HIGH | HIGH | LOW | MEDIUM | STRONG | Must Have |
-| Keyboard navigation | MEDIUM | HIGH | LOW | LOW | STRONG | Must Have |
-| Progress visibility | MEDIUM | HIGH | LOW | LOW | STRONG | Must Have |
-| Topic selection | MEDIUM | HIGH | MEDIUM | LOW | STRONG | Should Have |
-| Rails extensibility | LOW | MEDIUM | LOW | LOW | WEAK | Won't Have (MVP) |
+**When** Marcus has finished learning a Ruby concept and knows he needs to retain it,
+**the current situation** is that he has no system driving when to review; he either
+reviews too soon (wasting time) or too late (has forgotten it already).
+
+### Push Forces
+- Anki would be the ideal SRS tool but requires Marcus to create all cards manually —
+  the content production overhead is a blocker
+- executeprogram.com has some SRS-like structure but does not implement SM-2 specifically
+  and the content calibration problem (too beginner) makes it less useful
+- Without a queue, Marcus has reviewed some concepts 5+ times (over-reviewing strong
+  memories) while other concepts have gone unreviewed until they appear in code
+
+### Pull Forces
+- SM-2 automatically schedules each concept at the interval that maximizes retention
+  per unit of review time — Marcus gets more retention value for the same 5-10 minutes
+  of daily review
+- Daily email showing today's queue removes all "what should I do today?" decision-making
+- Automated queue means a missed day does not require manual reconstruction — Marcus
+  just opens tomorrow's email and works the queue
+
+### Anxiety Forces
+- "Is SM-2 tuned for syntax learning, or is it calibrated for language vocabulary cards?"
+  — appropriate tuning anxiety; SM-2 defaults need to work for the Ruby syntax domain
+- "Will the queue grow unmanageable if I miss several days?" — concern about exponential
+  queue growth if life interrupts
+- "How does the system know if I actually understood a concept or just guessed right?" —
+  concern about quality of the review signal
+
+### Habit Forces
+- Current habit: review by re-reading notes or re-watching videos when something comes up
+- Must change to: trust the queue and work it daily, even when nothing specific has come up
+- Resistance: it feels unnatural to review something that "feels fine" — SM-2 may schedule
+  reviews before Marcus consciously thinks he needs them
+
+---
+
+## Job Story 4 — Keyboard-Native Navigation
+
+**When** Marcus is in a review session and needs to submit answers or navigate exercises,
+**the current situation** is that every learning tool forces him to reach for the mouse
+to click "Submit" or "Next" — breaking his typing flow.
+
+### Push Forces
+- Clicking "Submit" with a mouse after typing an answer adds friction to every single
+  exercise interaction — multiplied across 5-10 exercises per session, this is significant
+- Mouse-dependent interfaces signal that the tool was not built with developers in mind —
+  this reduces Marcus's trust in the product's judgment
+- Focus state visibility is often absent on learning tools; Marcus cannot tell which
+  element is focused without a mouse hover
+
+### Pull Forces
+- `Enter` to submit is the natural termination of "I typed my answer" — this is how
+  Marcus's terminal and editor work
+- `j`/`k` navigation is muscle memory from vim; he does not need to learn new shortcuts
+- Visible focus ring (high contrast) means Marcus can always see exactly where he is
+  without guessing
+
+### Anxiety Forces
+- "Are the shortcuts consistent everywhere in the app?" — keyboard nav that works in
+  one section but not another is worse than no keyboard nav
+- "Will I accidentally trigger a shortcut while typing an answer?" — risk of modal
+  confusion (vim's insert mode problem translated to a learning app)
+- "Will I need to read documentation to find the shortcuts?" — shortcuts must be
+  discoverable, ideally from the UI itself
+
+### Habit Forces
+- Current habit: reach for mouse to click interactive elements on web tools
+- Must change to: type answer, press Enter, use j/k to navigate
+- Resistance: low — this is the behavior Marcus prefers; he is resisting the habit of
+  using the mouse, not the habit of using the keyboard
+
+---
+
+## Job Story 5 — Progress Visibility
+
+**When** Marcus wants to gauge how his Ruby learning is progressing after several weeks,
+**the current situation** is that he has no consolidated view of what he knows, what is
+fading, and what he has not yet covered.
+
+### Push Forces
+- With no dashboard, Marcus cannot answer "how far am I?" without mentally reconstructing
+  his session history
+- He cannot tell if his retention is improving or stagnating — the tool gives no feedback
+  at the outcome level, only at the exercise level
+- No streak visibility means the habit has no external reinforcer
+
+### Pull Forces
+- A mastery count ("24 concepts mastered, 3 in review, 5 new") gives Marcus a concrete
+  sense of progress he can hold in his head
+- A retention rate metric transforms SM-2 from a black box into a visible system Marcus
+  can trust
+- Streak count gives Marcus a loss-aversion anchor that sustains the daily habit
+
+### Anxiety Forces
+- "Will the dashboard make me feel bad about my progress?" — gamification backlash risk;
+  if metrics are punitive, they damage motivation
+- "Is the retention rate calculated correctly?" — Marcus wants to understand the metric,
+  not just see a number
+- "Does this create pressure to do lessons I am not ready for?" — progress visibility
+  should not push Marcus toward content before the SM-2 queue is ready
+
+### Habit Forces
+- Current habit: operate without visibility into learning progress; rely on "feel"
+- Must change to: check dashboard weekly to assess trajectory, not just daily to complete sessions
+- Resistance: low — Marcus already values metrics and instrumentation; he will adopt this
+  easily once the dashboard exists
+
+---
+
+## Four Forces Summary Matrix
+
+| Force | JS-1 Syntax | JS-2 Habit | JS-3 Queue | JS-4 Keyboard | JS-5 Progress |
+|-------|-------------|-----------|-----------|--------------|--------------|
+| Push (strongest) | Tools assume beginners | Sessions have no end state | No automated queue | Mouse required for every action | No consolidated progress view |
+| Pull (strongest) | Expert-calibrated content | 15-min cap + done state | SM-2 + daily email | Enter/j/k muscle memory | Mastery count + retention rate |
+| Anxiety (highest) | "Will it assume beginner anyway?" | "What if queue exceeds 15 min?" | "Is SM-2 tuned correctly?" | "Are shortcuts consistent everywhere?" | "Will metrics feel punitive?" |
+| Habit (hardest) | Switching from reactive to proactive learning | Fixed morning session vs. "when inspired" | Trusting queue before need is felt | Low resistance — natural preference | Low resistance — values metrics |

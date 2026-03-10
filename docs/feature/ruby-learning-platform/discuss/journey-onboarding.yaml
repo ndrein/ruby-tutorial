@@ -1,362 +1,222 @@
 journey:
-  name: "First-Time Onboarding"
-  goal: "Ana launches the platform for the first time, understands the curriculum, and completes her first exercise within 5 minutes without feeling like a beginner"
-  persona: "Ana Folau — senior Python developer, zero Ruby experience, learning for Ruby-on-Rails team transition"
-  job_story_ref: "JS-01"
-
+  id: onboarding
+  name: "Onboarding — First Visit to First SM-2 Scheduling"
+  feature_id: ruby-learning-platform
+  date: "2026-03-09"
+  persona: marcus-chen
+  primary_jobs:
+    - js-1-syntax-transfer
+    - js-2-daily-habit
+  opportunities:
+    - opp-1-expert-content
+    - opp-2-automated-queue
+    - opp-3-session-discipline
   emotional_arc:
-    start: "Skeptical and impatient — expects another beginner tool"
-    middle: "Relieved and engaged — tool treats her as an expert"
-    end: "Confident and committed — knows exactly what tomorrow looks like"
+    start: skepticism
+    midpoints:
+      - recognition
+      - competence
+    end: commitment
+
+persona:
+  id: marcus-chen
+  name: "Marcus Chen"
+  role: "Senior software engineer"
+  background: "8 years Python + Java; joining a Ruby on Rails team"
+  constraints:
+    daily_time_budget: "15 minutes (pre-standup window)"
+    keyboard_preference: "vim/terminal native; mouse is a context switch"
+    learning_style: "information-dense; skips basics; values analogies to known languages"
+  prior_tools:
+    - name: executeprogram.com
+      verdict: "Too beginner-calibrated for Ruby"
+  commitment_signal: "builder = user; highest possible commitment"
 
 steps:
-  - id: 1
-    name: "Welcome and Calibration Signal"
-    action: "User opens platform for first time"
+  - id: step-1
+    name: "Arrival"
+    action: "Marcus visits landing page"
+    touchpoint: "Landing page — UVP headline + curriculum preview link"
+    marcus_thought: "I've seen this before. Let me check if it actually skips the basics."
+    emotion: skeptical
+    emotional_intensity: 3
+    pain_points:
+      - "Cynicism from past tool disappointments"
+    shared_artifacts_read: []
+    shared_artifacts_written: []
 
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Ruby for Experienced Developers                            |
-      |                                                            |
-      | This tool assumes you know:                               |
-      |   [x] Variables and types                                 |
-      |   [x] OOP (classes, inheritance, interfaces)              |
-      |   [x] Control flow (if/else, loops, exceptions)           |
-      |   [x] Functions and basic data structures                 |
-      |                                                            |
-      | It teaches: Ruby-specific syntax, idioms, and patterns    |
-      | that differ from Python and Java.                         |
-      |                                                            |
-      | Press [Enter] to begin your first session                 |
-      +------------------------------------------------------------+
+  - id: step-2
+    name: "Curriculum Preview"
+    action: "Marcus reads lesson topic list"
+    touchpoint: "Curriculum overview page — 25 lessons listed with module groupings"
+    marcus_thought: "Lesson 1 is blocks and procs — not variables. This is actually different."
+    emotion: surprised-interest
+    emotional_intensity: 6
+    pain_points: []
+    shared_artifacts_read:
+      - curriculum_list
+    shared_artifacts_written: []
 
-    shared_artifacts:
-      - name: "assumed_knowledge_list"
-        source: "app/config/onboarding.yml"
-        displayed_as: "bulleted list of assumed concepts"
-        consumers: ["step 1 welcome screen"]
+  - id: step-3
+    name: "Account Creation"
+    action: "Marcus registers with email"
+    touchpoint: "Sign-up form — email field only + experience confirmation"
+    marcus_thought: "Minimal form. Good. I'm not filling out a profile for a learning tool."
+    emotion: relieved
+    emotional_intensity: 6
+    pain_points:
+      - "Long forms kill onboarding momentum"
+    shared_artifacts_read: []
+    shared_artifacts_written:
+      - user_email
+      - user_id
 
-    emotional_state:
-      entry: "Skeptical — expects beginner content"
-      exit: "Relieved — explicitly told what will be skipped"
+  - id: step-4
+    name: "Experience Confirmation"
+    action: "Marcus selects 'Yes — Python, Java, or similar'"
+    touchpoint: "Single-question experience modal"
+    marcus_thought: "Finally. It's asking if I'm an expert instead of assuming I'm a beginner."
+    emotion: recognized
+    emotional_intensity: 8
+    pain_points: []
+    shared_artifacts_read: []
+    shared_artifacts_written:
+      - experience_level
 
-    integration_checkpoint: |
-      Platform has not initialized SM-2 state yet. No user data exists.
-      This screen requires no database reads. Pure static content.
+  - id: step-5
+    name: "First Lesson"
+    action: "Marcus reads Lesson 1: Ruby Blocks"
+    touchpoint: "Lesson view with Python/Java side-by-side comparison panel"
+    marcus_thought: "This maps directly to what I know from Python. I understand blocks in 90 seconds."
+    emotion: competent-engaged
+    emotional_intensity: 8
+    pain_points:
+      - "Dense content could lose pacing if not well structured"
+    shared_artifacts_read:
+      - lesson_id
+      - lesson_content
+      - experience_level
+    shared_artifacts_written: []
 
-    gherkin: |
-      Scenario: First launch shows expert-calibration messaging
-        Given Ana opens the platform for the first time
-        When the landing screen loads
-        Then she sees a list of assumed programming concepts
-        And she sees a statement that the tool teaches Ruby-specific differences
-        And no login or account creation is required
-
-  - id: 2
-    name: "Curriculum Overview — Lesson Tree"
-    action: "User presses Enter; curriculum tree loads"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Curriculum — 25 Lessons across 5 Modules                  |
-      |                                                            |
-      | [Module 1: Ruby Fundamentals for Polyglots]  AVAILABLE    |
-      |  1 Syntax Differences       [ ] Not started               |
-      |  2 String Interpolation     [ ] Locked (needs L1)         |
-      |  3 Symbols                  [ ] Locked (needs L1)         |
-      |  4 Ranges                   [ ] Locked (needs L2,L3)      |
-      |  5 Array Methods            [ ] Locked (needs L4)         |
-      |                                                            |
-      | [Module 2: Methods and Blocks]              LOCKED         |
-      | [Module 3: Ruby Object Model]               LOCKED         |
-      | [Module 4: Ruby Idioms]                     LOCKED         |
-      | [Module 5: Standard Library Essentials]     LOCKED         |
-      |                                                            |
-      | [j/k] Navigate  [Enter] Start Lesson 1  [?] Help          |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "curriculum_structure"
-        source: "db/curriculum/lessons.yml"
-        displayed_as: "module/lesson hierarchy with status icons"
-        consumers: ["step 2 curriculum view", "step 5 lesson prerequisites", "topic selection journey"]
-      - name: "lesson_status"
-        source: "db/progress/user_progress"
-        displayed_as: "[ ] not started, [x] complete, [~] locked"
-        consumers: ["step 2 curriculum view", "topic selection journey", "progress dashboard"]
-      - name: "prerequisite_graph"
-        source: "db/curriculum/prerequisites.yml"
-        displayed_as: "(needs L1), (needs L2,L3)"
-        consumers: ["step 2 curriculum view", "step 3 lesson lock screen", "topic selection journey"]
-
-    emotional_state:
-      entry: "Relieved after calibration signal"
-      exit: "Curious — can see the full curriculum structure"
-
-    integration_checkpoint: |
-      Prerequisite graph must be initialized for new user.
-      Lesson 1 must be in 'available' state with all others 'locked'.
-      Module expansion (j/k) must work for first lesson without SM-2 state.
-
-    keyboard_navigation:
-      - key: "j"
-        action: "Move cursor down one lesson"
-      - key: "k"
-        action: "Move cursor up one lesson"
-      - key: "Enter"
-        action: "Select highlighted lesson (start if available, show lock screen if locked)"
-      - key: "?"
-        action: "Show keyboard shortcut reference overlay"
-      - key: "Esc"
-        action: "No-op on first launch (no previous screen)"
-
-    gherkin: |
-      Scenario: Curriculum tree shows correct lock states on first launch
-        Given Ana has completed the welcome screen
-        When the curriculum tree loads
-        Then Lesson 1 is shown as available (not locked)
-        And Lessons 2-25 are shown as locked with prerequisites listed
-        And Module 1 is expanded showing individual lessons
-        And Modules 2-5 are collapsed showing only module names
-
-  - id: 3
-    name: "Lesson Preview"
-    action: "User presses Enter on Lesson 1; lesson preview loads"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Lesson 1: Ruby Syntax Differences                          |
-      | Module 1 of 5  |  ~4 min  |  3 exercises                  |
-      |                                                            |
-      | What this covers:                                          |
-      |   - No semicolons. No type declarations.                  |
-      |   - def/end instead of def: and indentation               |
-      |   - puts vs print vs p                                     |
-      |   - nil vs None, true/false vs True/False                  |
-      |                                                            |
-      | What this DOES NOT cover:                                  |
-      |   - What variables are                                     |
-      |   - Control flow basics                                    |
-      |   - OOP fundamentals                                       |
-      |                                                            |
-      | [Enter] Start  [Esc] Back to curriculum                    |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "lesson_title"
-        source: "db/curriculum/lessons.yml"
-        displayed_as: "${lesson_title}"
-        consumers: ["step 3 preview", "step 4 exercise header", "step 5 feedback header", "step 6 summary"]
-      - name: "lesson_duration"
-        source: "db/curriculum/lessons.yml (derived: exercise_count * 60s + reading_time)"
-        displayed_as: "~${lesson_duration} min"
-        consumers: ["step 3 preview", "step 6 summary"]
-      - name: "exercise_count"
-        source: "db/curriculum/exercises.yml (count per lesson)"
-        displayed_as: "${exercise_count} exercises"
-        consumers: ["step 3 preview", "step 4 progress indicator", "step 6 summary"]
-
-    emotional_state:
-      entry: "Curious about the lesson"
-      exit: "Engaged — scope confirmed, starting"
-
-    integration_checkpoint: |
-      Lesson metadata must be loadable before exercises begin.
-      'What this DOES NOT cover' section must be sourced from lesson metadata,
-      not hardcoded — ensures it stays accurate as lesson content evolves.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Start Lesson 1 exercises"
-      - key: "Esc"
-        action: "Return to curriculum tree"
-
-    gherkin: |
-      Scenario: Lesson preview shows scope before starting
-        Given Ana has selected Lesson 1 from the curriculum tree
-        When the lesson preview loads
-        Then she sees a list of what the lesson covers
-        And she sees a list of what the lesson explicitly does NOT cover
-        And she sees the estimated duration and exercise count
-        And she can start or return to curriculum without commitment
-
-  - id: 4
+  - id: step-6
     name: "First Exercise"
-    action: "User presses Enter to start; first exercise loads with 30-second timer"
+    action: "Marcus types answer to fill-in-blank exercise; presses Enter to submit"
+    touchpoint: "Exercise input panel with 30-second countdown timer"
+    marcus_thought: "Enter to submit — exactly right. No mouse needed."
+    emotion: focused-flow
+    emotional_intensity: 7
+    pain_points:
+      - "Timer anxiety if exercise is harder than expected"
+    shared_artifacts_read:
+      - exercise_id
+      - lesson_id
+    shared_artifacts_written:
+      - timer_seconds
+      - answer_result
 
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Exercise 1 of 3  |  Lesson 1  |  [========          ] 15s |
-      |                                                            |
-      | In Python you write:                                       |
-      |   def greet(name):                                        |
-      |       return f"Hello, {name}"                             |
-      |                                                            |
-      | How would you write this in Ruby?                          |
-      |                                                            |
-      | > _                                                        |
-      |                                                            |
-      | [Enter] Submit  [Tab] Hint  [Esc] Skip                    |
-      +------------------------------------------------------------+
+  - id: step-7
+    name: "Answer Feedback"
+    action: "Marcus sees correct-answer feedback with explanation"
+    touchpoint: "Feedback panel below exercise input"
+    marcus_thought: "I was right. The explanation reinforces exactly why select works here."
+    emotion: satisfied-confident
+    emotional_intensity: 8
+    pain_points:
+      - "Feedback must be useful even on correct answers; not just 'Correct!'"
+    shared_artifacts_read:
+      - answer_result
+      - explanation
+    shared_artifacts_written: []
 
-    shared_artifacts:
-      - name: "timer_remaining"
-        source: "session/exercise_timer (30s countdown)"
-        displayed_as: "progress bar + seconds remaining"
-        consumers: ["step 4 exercise view"]
-      - name: "exercise_progress"
-        source: "session/runtime"
-        displayed_as: "Exercise N of M"
-        consumers: ["step 4 exercise view", "step 5 feedback view"]
+  - id: step-8
+    name: "SM-2 Scheduling Confirmation"
+    action: "Marcus reads scheduling confirmation: 'Review in 3 days'"
+    touchpoint: "SM-2 scheduling panel — shows next_review_date and plain-language reason"
+    marcus_thought: "The system knows when to ask me again. I don't have to remember."
+    emotion: relieved-trusting
+    emotional_intensity: 9
+    pain_points:
+      - "Black-box anxiety if scheduling rationale is not shown"
+    shared_artifacts_read:
+      - exercise_id
+      - answer_result
+    shared_artifacts_written:
+      - next_review_date
+      - sm2_interval
+      - sm2_ease_factor
+      - review_queue
 
-    emotional_state:
-      entry: "Engaged — ready to test knowledge"
-      exit: "Focused — actively recalling"
+  - id: step-9
+    name: "Session Summary"
+    action: "Marcus reads session summary: time taken, lesson completed, streak"
+    touchpoint: "Session end page with metrics"
+    marcus_thought: "4 minutes. I learned something real. I can do this every morning."
+    emotion: committed-proud
+    emotional_intensity: 9
+    pain_points: []
+    shared_artifacts_read:
+      - session_duration
+      - streak_count
+      - review_queue
+    shared_artifacts_written:
+      - session_duration
+      - streak_count
 
-    integration_checkpoint: |
-      Timer must start when exercise renders, not when user first types.
-      SM-2 state does not exist yet; this is the initialization exercise.
-      Answer is evaluated for SM-2 initial interval setting.
+  - id: step-10
+    name: "Email Opt-in"
+    action: "Marcus confirms email for daily review queue notifications"
+    touchpoint: "Email confirmation prompt in session summary footer"
+    marcus_thought: "A daily queue email — that's exactly the habit trigger I want."
+    emotion: engaged-forming-habit
+    emotional_intensity: 8
+    pain_points:
+      - "Opt-in must not feel like subscribing to a newsletter"
+    shared_artifacts_read:
+      - user_email
+    shared_artifacts_written:
+      - email_preferences
 
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Submit answer"
-      - key: "Tab"
-        action: "Show hint (one hint per exercise, consumes hint slot)"
-      - key: "Esc"
-        action: "Skip exercise (marks as skipped in SM-2, not failed)"
+integration_checkpoints:
+  - id: ic-1
+    step: step-4
+    check: "experience_level must persist to curriculum_list filtering"
+    failure_risk: "Marcus sees beginner content after confirming expert mode"
 
-    gherkin: |
-      Scenario: Exercise timer starts automatically
-        Given Ana has started Lesson 1
-        When the first exercise loads
-        Then a 30-second countdown timer is visible
-        And the timer starts without requiring any user action
-        And the answer input field has keyboard focus
+  - id: ic-2
+    step: step-8
+    check: "SM-2 creates review entry with correct interval (3 days default for first exposure)"
+    failure_risk: "review_queue empty or wrong date on Day 3"
 
-      Scenario: Timer expiry shows answer automatically
-        Given Ana is on Exercise 1 and has not submitted an answer
-        When the 30-second timer expires
-        Then the correct answer is shown automatically
-        And Ana's attempt is marked as missed
-        And the exercise advances after a 3-second pause
+  - id: ic-3
+    step: step-10
+    check: "user_email links to review_queue and triggers email on next_review_date"
+    failure_risk: "Marcus receives no email; habit trigger never fires"
 
-  - id: 5
-    name: "Exercise Feedback"
-    action: "User submits answer; feedback rendered immediately"
+  - id: ic-4
+    step: step-9
+    check: "session_duration reflects actual elapsed time accurately"
+    failure_risk: "Session summary shows wrong time; trust broken on first use"
 
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Correct.                                                   |
-      |                                                            |
-      | def greet(name)                                           |
-      |   "Hello, #{name}"                                        |
-      | end                                                        |
-      |                                                            |
-      | Ruby's string interpolation uses #{} not f"".             |
-      | Implicit return means the last expression is returned.    |
-      | No colon after method signature. End with `end`.          |
-      |                                                            |
-      | [Enter] Next exercise  [?] See full explanation            |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "correct_answer"
-        source: "db/curriculum/exercises.yml"
-        displayed_as: "code block with syntax highlighting"
-        consumers: ["step 5 feedback", "step 5 timer expiry fallback"]
-      - name: "explanation_text"
-        source: "db/curriculum/exercises.yml"
-        displayed_as: "plain text explanation after answer"
-        consumers: ["step 5 feedback"]
-
-    emotional_state:
-      entry: "Focused — waiting for verdict"
-      exit: "Satisfied — precise, respectful feedback"
-
-    integration_checkpoint: |
-      SM-2 initial ease factor must be set based on answer correctness.
-      'Correct' / 'Incorrect' / 'Partial' states must be explicitly stored.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Advance to next exercise (or session complete if last)"
-      - key: "?"
-        action: "Expand full explanation (if more detail available)"
-
-    gherkin: |
-      Scenario: Correct answer shows explanation immediately
-        Given Ana has submitted a correct answer to Exercise 1
-        When the feedback screen loads
-        Then she sees "Correct." as the first word
-        And she sees the canonical Ruby answer with syntax
-        And she sees an explanation of the Ruby-specific difference
-        And no score, points, or badges are shown
-
-  - id: 6
-    name: "Session Complete — First Session Summary"
-    action: "All exercises complete; session summary renders"
-
-    tui_mockup: |
-      +------------------------------------------------------------+
-      | Lesson 1 complete.                                         |
-      |                                                            |
-      | Today: 3 exercises  |  1 lesson  |  ~4 minutes             |
-      |                                                            |
-      | Review queue: SM-2 will schedule these exercises           |
-      | for review based on your answers.                          |
-      |                                                            |
-      | Next session: Lesson 2 (String Interpolation)              |
-      | Estimated review queue: 2 exercises                        |
-      |                                                            |
-      | [Enter] Done  [n] Start Lesson 2 now                      |
-      +------------------------------------------------------------+
-
-    shared_artifacts:
-      - name: "next_lesson_title"
-        source: "db/curriculum/prerequisites.yml (resolver: next available after current)"
-        displayed_as: "Lesson 2 (${next_lesson_title})"
-        consumers: ["step 6 summary", "daily session step 1"]
-      - name: "sm2_next_review_count"
-        source: "sm2_engine (computed after session ends)"
-        displayed_as: "Estimated review queue: N exercises"
-        consumers: ["step 6 summary", "daily session step 1"]
-
-    emotional_state:
-      entry: "Satisfied — lesson done"
-      exit: "Committed — clear picture of next session"
-
-    integration_checkpoint: |
-      SM-2 engine must compute next-review intervals before this screen renders.
-      next_lesson_title must be resolved from prerequisite graph, not hardcoded.
-      'Done' action must persist SM-2 state to storage before exiting.
-
-    keyboard_navigation:
-      - key: "Enter"
-        action: "Exit to dashboard / home"
-      - key: "n"
-        action: "Start Lesson 2 immediately (skip saving for next session)"
-
-    gherkin: |
-      Scenario: First session summary initializes SM-2
-        Given Ana has completed all exercises in Lesson 1
-        When the session complete screen renders
-        Then she sees a count of exercises completed
-        And she sees the SM-2 review schedule explanation
-        And she sees the next lesson title derived from the prerequisite graph
-        And she sees an estimated review count for tomorrow's session
-
-integration_validation:
-  shared_artifact_consistency:
-    - artifact: "lesson_title"
-      must_match_across: [2, 3, 4, 5, 6]
-      failure_message: "Lesson title shown inconsistently across onboarding steps"
-    - artifact: "exercise_count"
-      must_match_across: [3, 4]
-      failure_message: "Exercise count in preview differs from actual exercise count"
-    - artifact: "next_lesson_title"
-      must_match_across: [6, "daily_session_step_1"]
-      failure_message: "Next lesson shown on summary differs from session start screen"
-    - artifact: "prerequisite_graph"
-      must_match_across: [2, "topic_selection_step_1"]
-      failure_message: "Lock states in curriculum tree must be consistent across views"
+shared_artifacts:
+  read:
+    - curriculum_list
+    - lesson_id
+    - lesson_content
+    - exercise_id
+    - answer_result
+    - explanation
+    - sm2_interval
+    - next_review_date
+  written:
+    - user_email
+    - user_id
+    - experience_level
+    - timer_seconds
+    - answer_result
+    - sm2_interval
+    - sm2_ease_factor
+    - next_review_date
+    - review_queue
+    - session_duration
+    - streak_count
+    - email_preferences

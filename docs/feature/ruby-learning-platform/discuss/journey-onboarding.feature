@@ -1,138 +1,198 @@
-Feature: First-Time Onboarding
-  As an experienced developer learning Ruby
-  I want a first-run experience that immediately signals expert calibration
-  So that I commit to daily practice rather than abandoning the tool as "too beginner"
+# Journey: Onboarding — Ruby Learning Platform
+# Persona: Marcus Chen (senior Python/Java developer, first visit)
+# Emotional Arc: Skepticism → Recognition → Competence → Commitment
+# Job Stories: JS-1 (Syntax Transfer), JS-2 (Daily Habit)
+
+Feature: Onboarding — Expert Developer First Visit
+
+  As Marcus Chen, an experienced Python/Java developer,
+  I want to arrive at the platform, recognize it is calibrated for me,
+  complete my first lesson and exercise, and see SM-2 schedule my first review,
+  So that I feel committed to returning tomorrow and trust the tool with my daily practice.
 
   Background:
-    Given Ana Folau opens the Ruby Learning Platform for the first time
-    And no user progress data exists in the system
+    Given Marcus is an experienced developer with Python and Java background
+    And Marcus has not previously registered on the platform
+    And the platform has a 25-lesson expert-calibrated Ruby curriculum available
 
-  # ---- Step 1: Welcome and Calibration ----
+  # -----------------------------------------------------------------------
+  # Step 1-2: Arrival and Curriculum Recognition
+  # -----------------------------------------------------------------------
 
-  Scenario: Landing screen shows expert calibration messaging immediately
-    Given Ana has no prior sessions
-    When the platform launches
-    Then she sees a heading "Ruby for Experienced Developers"
-    And she sees a checklist of assumed knowledge including "OOP (classes, inheritance)"
-    And she sees "Control flow (if/else, loops, exceptions)" in the assumed knowledge list
-    And she sees an explanation that the tool teaches Ruby-specific differences
-    And no login form or account creation is required
+  Scenario: Expert developer recognizes calibrated content from curriculum preview
+    Given Marcus arrives at the landing page for the first time
+    When Marcus reads the headline and navigates to the curriculum overview
+    Then Marcus sees Lesson 1 is "Ruby Blocks" — not "Variables" or "Data Types"
+    And Marcus sees the curriculum explicitly states: "Assumes you know Python or Java"
+    And Marcus sees the topics list includes: Blocks, Procs, Symbols, Enumerable, Pattern Matching
+    And Marcus does not see any lesson titled "Introduction to Programming" or "What is a Variable"
 
-  Scenario: No navigation is needed to reach first exercise
-    Given Ana is on the welcome screen
-    When she presses Enter
-    Then the curriculum tree loads immediately
-    And no intermediate screens or wizards are shown
+  Scenario: Landing page communicates UVP within 10 seconds
+    Given Marcus arrives at the landing page
+    Then Marcus sees a headline that communicates the expert-calibrated positioning
+    And Marcus sees a list of what the platform skips (variables, loops, OOP basics)
+    And Marcus sees a list of what the platform teaches (blocks, procs, symbols, Enumerable)
+    And Marcus can navigate to the curriculum overview using the keyboard without clicking
 
-  # ---- Step 2: Curriculum Tree ----
+  # -----------------------------------------------------------------------
+  # Step 3-4: Account Creation and Experience Confirmation
+  # -----------------------------------------------------------------------
 
-  Scenario: Curriculum tree shows Lesson 1 as the only available lesson
-    Given Ana has pressed Enter on the welcome screen
-    When the curriculum tree loads
-    Then Lesson 1 "Syntax Differences" is shown as available (not locked)
-    And Lessons 2 through 25 are shown as locked
-    And each locked lesson shows its prerequisite lesson reference
-    And Module 1 is expanded showing all 5 lesson titles
-    And Modules 2-5 are collapsed showing only module names
+  Scenario: Account creation requires only email address
+    Given Marcus decides to register
+    When Marcus navigates to the sign-up flow
+    Then Marcus sees a form with only one required field: email address
+    And Marcus does not see fields for: name, phone number, job title, or company
+    And Marcus can submit the form by pressing Enter without clicking a button
 
-  Scenario: User can navigate curriculum tree with keyboard
-    Given the curriculum tree is visible
-    When Ana presses "j" three times
-    Then the cursor moves to Lesson 4
-    When Ana presses "k" once
-    Then the cursor moves back to Lesson 3
+  Scenario: Expert mode is confirmed with a single question
+    Given Marcus has submitted his email address
+    When Marcus is shown the experience confirmation question
+    Then Marcus sees exactly one question: "Do you have experience with another programming language?"
+    And Marcus sees selectable options including "Yes — Python, Java, or similar"
+    And Marcus can select "Yes" using the keyboard (j/k keys)
+    And Marcus can confirm with Enter
+    And Marcus sees a note explaining that selecting "Yes" skips variables, OOP, and control flow basics
 
-  Scenario: Selecting a locked lesson shows a lock screen (not an error)
-    Given the curriculum tree is visible
-    And Lesson 2 is locked (requires Lesson 1)
-    When Ana navigates to Lesson 2 and presses Enter
-    Then a lock screen loads showing "Requires: Lesson 1 (not yet complete)"
-    And the screen shows what topics Lesson 2 covers
-    And the screen shows what topics Lesson 1 covers as prerequisite
-    And pressing Esc returns to the curriculum tree
+  Scenario: Expert mode selection persists to curriculum
+    Given Marcus has confirmed "Yes — Python, Java, or similar" experience
+    When Marcus navigates to the curriculum overview
+    Then Marcus sees lessons starting at Lesson 1: Ruby Blocks
+    And Marcus does not see any gating or "complete intro module first" messages
+    And the platform routes Marcus directly to Module 1 of the expert track
 
-  # ---- Step 3: Lesson Preview ----
+  # -----------------------------------------------------------------------
+  # Step 5: First Lesson
+  # -----------------------------------------------------------------------
 
-  Scenario: Selecting Lesson 1 shows a preview before starting
-    Given Ana is on the curriculum tree
-    When she navigates to Lesson 1 and presses Enter
-    Then a lesson preview screen loads
-    And she sees a list of topics covered in Lesson 1
-    And she sees a list of topics explicitly NOT covered (variables, OOP, control flow)
-    And she sees an estimated duration and exercise count
-    And no exercises have started yet
+  Scenario: First lesson provides Python/Java side-by-side comparison
+    Given Marcus has confirmed expert mode
+    And Marcus opens Lesson 1: Ruby Blocks
+    Then Marcus sees the lesson content within 2 seconds
+    And the lesson includes a side-by-side comparison showing:
+      | Language | Syntax                           |
+      | Python   | [x * 2 for x in lst]             |
+      | Java     | lst.stream().map(x -> x * 2)     |
+      | Ruby     | lst.map { |x| x * 2 }            |
+    And the lesson does not contain any section explaining what a loop or variable is
+    And Marcus can advance to the exercise by pressing Enter
 
-  # ---- Step 4: Exercise Timer ----
+  Scenario: Lesson content reads in under 5 minutes
+    Given Marcus opens Lesson 1: Ruby Blocks
+    When Marcus reads the full lesson content at normal reading speed
+    Then Marcus completes the lesson in 5 minutes or less
+    And Marcus can answer the follow-up exercise without returning to the lesson text
 
-  Scenario: Exercise timer starts automatically on render
-    Given Ana has started Lesson 1 from the preview screen
-    When the first exercise loads
-    Then a 30-second countdown timer is visible
-    And the timer begins without any user interaction required
-    And the answer input field has keyboard focus
+  # -----------------------------------------------------------------------
+  # Step 6-7: First Exercise
+  # -----------------------------------------------------------------------
 
-  Scenario: Timer expiry shows correct answer automatically
-    Given Ana is on Exercise 1 of Lesson 1
-    And she has not submitted any answer
-    When the 30-second timer expires
-    Then the correct answer is displayed automatically
-    And her attempt is recorded as "missed" for SM-2 purposes
-    And the next exercise loads after a 3-second pause
+  Scenario: First exercise accepts keyboard-only interaction
+    Given Marcus has completed reading Lesson 1: Ruby Blocks
+    When Marcus is presented with Exercise 1.1 (fill-in-the-blank)
+    Then Marcus sees the exercise prompt with a blank to fill in
+    And Marcus sees a 30-second countdown timer
+    And Marcus can type his answer directly into the input field
+    And Marcus can submit by pressing Enter without clicking a Submit button
+    And Marcus can skip by pressing Esc if he does not know the answer
 
-  Scenario: User can skip an exercise without penalty
-    Given Ana is on Exercise 1 of Lesson 1
-    When she presses Esc to skip
-    Then the correct answer is shown
-    And her attempt is recorded as "skipped" (not "failed") for SM-2
-    And the exercise is re-queued for the next session
+  Scenario: Exercise timer counts down from 30 seconds
+    Given Marcus is on Exercise 1.1
+    When 30 seconds elapse without Marcus submitting
+    Then the exercise auto-advances and marks the answer as incomplete
+    And Marcus sees feedback indicating the time expired and showing the correct answer
 
-  # ---- Step 5: Exercise Feedback ----
+  Scenario: Correct answer produces informative feedback
+    Given Marcus types "select" as the answer to Exercise 1.1
+    And Marcus presses Enter to submit
+    When the platform evaluates the answer
+    Then Marcus sees "Correct" confirmation
+    And Marcus sees an explanation of why "select" is correct in this context
+    And the explanation references the Python/Java equivalent (filter function, stream filter)
+    And Marcus can press Enter to advance to the SM-2 scheduling confirmation
 
-  Scenario: Correct answer shows precise Ruby-specific explanation
-    Given Ana has submitted a correct answer to Exercise 1
-    When the feedback screen loads
-    Then the first word displayed is "Correct."
-    And the canonical Ruby answer is shown with code formatting
-    And an explanation of the Ruby-specific difference from Python/Java is shown
-    And no score, points, XP, or badges are displayed
+  Scenario: Incorrect answer produces helpful feedback without humiliating Marcus
+    Given Marcus types an incorrect answer to Exercise 1.1
+    And Marcus presses Enter to submit
+    When the platform evaluates the answer
+    Then Marcus sees the correct answer displayed
+    And Marcus sees an explanation connecting the correct answer to Python/Java equivalents
+    And the feedback does not contain phrases like "Wrong!" or "Try again"
+    And Marcus can press Enter to advance to the SM-2 scheduling confirmation
 
-  Scenario: Incorrect answer shows explanation without shame language
-    Given Ana has submitted an incorrect answer to Exercise 1
-    When the feedback screen loads
-    Then the correct answer is shown
-    And the explanation focuses on what is different in Ruby
-    And the wording is factual, not apologetic or critical
-    And SM-2 records the answer as incorrect for interval calculation
+  # -----------------------------------------------------------------------
+  # Step 8: SM-2 Scheduling
+  # -----------------------------------------------------------------------
 
-  # ---- Step 6: First Session Summary ----
+  Scenario: SM-2 schedules first review in plain language
+    Given Marcus has submitted his answer to Exercise 1.1
+    When Marcus reaches the SM-2 scheduling confirmation screen
+    Then Marcus sees a message: "Ruby Blocks will be reviewed on [date 3 days from now]"
+    And Marcus sees a plain-language explanation: "First exposure — short interval to confirm retention"
+    And Marcus sees the date is exactly 3 days from today
+    And Marcus does not see any numerical SM-2 parameters (ease factor, repetition count)
 
-  Scenario: First session summary initializes SM-2 review schedule
-    Given Ana has completed all exercises in Lesson 1
-    When the session complete screen renders
-    Then she sees the number of exercises completed (3)
-    And she sees a brief explanation that SM-2 will schedule reviews
-    And she sees the next lesson title (Lesson 2: String Interpolation)
-    And she sees an estimated review count for the next session
-    And SM-2 state has been persisted to storage
+  Scenario: SM-2 scheduling creates entry in review queue
+    Given Marcus has completed Exercise 1.1 with any answer (correct or incorrect)
+    When the SM-2 scheduling confirmation is shown
+    Then the platform has created a review queue entry for Exercise 1.1
+    And the entry is scheduled for 3 days from today (correct answer) or 1 day (incorrect answer)
+    And the entry will appear in Marcus's daily email queue on the scheduled date
 
-  Scenario: User can continue to Lesson 2 without exiting
-    Given Ana has completed Lesson 1 and is on the session summary screen
-    When she presses "n"
-    Then Lesson 2 starts immediately
-    And SM-2 state from Lesson 1 is already saved (not deferred)
+  # -----------------------------------------------------------------------
+  # Step 9: Session Summary
+  # -----------------------------------------------------------------------
 
-  # ---- Property Scenarios ----
+  Scenario: Session summary shows time taken vs 15-minute target
+    Given Marcus has completed his first lesson and first exercise
+    When Marcus reaches the session summary screen
+    Then Marcus sees the total session duration in minutes and seconds
+    And Marcus sees the 15-minute daily target displayed
+    And Marcus sees how much time he has remaining within the target
+    And Marcus sees his current streak: "1 day"
+    And Marcus sees what is scheduled for tomorrow (Ruby Blocks review + Lesson 2 option)
 
-  @property
-  Scenario: Every interactive element is reachable by keyboard only
-    Given any onboarding screen is visible
-    Then all interactive elements are reachable via Tab, j/k, or Enter
-    And no action requires a mouse click
-    And focus indicators are visible on all focused elements
+  Scenario: Session summary navigation is keyboard-accessible
+    Given Marcus is on the session summary screen
+    When Marcus presses "g d"
+    Then Marcus navigates to the progress dashboard
+    When Marcus presses Esc
+    Then Marcus is returned to the main menu or home screen
 
-  @property
-  Scenario: No session or exercise data is lost on navigation
-    Given Ana is mid-lesson and presses Esc to return to curriculum
-    Then her progress in the current lesson is saved
-    And returning to the lesson resumes from the last completed exercise
-    And no SM-2 data from completed exercises is lost
+  # -----------------------------------------------------------------------
+  # Step 10: Email Opt-in
+  # -----------------------------------------------------------------------
+
+  Scenario: Email opt-in is presented as habit trigger, not newsletter subscription
+    Given Marcus is on the session summary screen
+    When Marcus reads the email opt-in prompt
+    Then Marcus sees the prompt framed as: "Get your daily review queue by email"
+    And Marcus sees the description: "A short list of what to practice tomorrow, sent each morning"
+    And Marcus does not see the words "newsletter", "updates", "promotional", or "marketing"
+    And Marcus can confirm by pressing Enter or decline by pressing Esc
+
+  Scenario: Email opt-in confirmation links to future review queue delivery
+    Given Marcus confirms the email opt-in
+    When March 12 (3 days from onboarding) arrives
+    Then Marcus receives an email with a link to his review queue
+    And the email contains: "Today's queue: 1 exercise (Ruby Blocks) — estimated 30 seconds"
+    And the email does not contain promotional content
+
+  # -----------------------------------------------------------------------
+  # Full Onboarding Flow (Happy Path)
+  # -----------------------------------------------------------------------
+
+  Scenario: Marcus completes full onboarding without touching mouse
+    Given Marcus visits the platform for the first time
+    When Marcus completes the full onboarding flow
+    Then Marcus arrives at the landing page (keyboard navigation available)
+    And Marcus views the curriculum overview (Tab to link, Enter to navigate)
+    And Marcus registers with email (Tab to field, types email, Enter to submit)
+    And Marcus confirms expert mode (j to select "Yes", Enter to confirm)
+    And Marcus reads Lesson 1 (Enter to advance to exercise)
+    And Marcus completes Exercise 1.1 (types answer, Enter to submit)
+    And Marcus sees SM-2 scheduling confirmation (Enter to advance)
+    And Marcus reaches session summary (g d or Esc to navigate)
+    And Marcus confirms email opt-in (Enter to confirm)
+    And Marcus has not touched the mouse at any point during this flow
+    And the total session duration is 15 minutes or less
