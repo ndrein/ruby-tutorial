@@ -10,4 +10,10 @@ class Exercise < ApplicationRecord
   validates :correct_answer, presence: true, length: { maximum: 500 }
   validates :explanation, presence: true
   validates :position, numericality: { greater_than_or_equal_to: 1 }
+
+  def evaluate_answer(submitted)
+    return :correct if submitted == correct_answer
+    return :correct if accepted_synonyms.include?(submitted)
+    :incorrect
+  end
 end

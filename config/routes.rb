@@ -4,5 +4,7 @@ Rails.application.routes.draw do
 
   root "home#index"
   resources :lessons, only: [:show]
-  resources :exercises, only: [:show]
+  resources :exercises, only: [:show] do
+    post :submit, on: :member
+  end
 end

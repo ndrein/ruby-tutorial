@@ -1,0 +1,14 @@
+<turbo-frame id="feedback">
+  <% if answer_result == :correct %>
+    <p class="feedback-correct">Correct!</p>
+  <% else %>
+    <p class="feedback-incorrect">Incorrect</p>
+    <p class="correct-answer">The correct answer is: <strong><%= exercise.correct_answer %></strong></p>
+  <% end %>
+
+  <p class="explanation"><%= exercise.explanation %></p>
+
+  <p class="next-review">
+    This concept will be reviewed in <%= review.sm2_interval %> <%= review.sm2_interval == 1 ? "day" : "days" %> &mdash; <%= review.next_review_date.strftime("%B %-d, %Y") %>
+  </p>
+</turbo-frame>

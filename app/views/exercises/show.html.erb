@@ -1,7 +1,16 @@
 <h1>Exercise</h1>
 <p><%= @exercise.prompt %></p>
-<form action="#" method="post">
+
+<%= form_with url: submit_exercise_path(@exercise), method: :post, data: { turbo_frame: "feedback" } do |f| %>
   <label for="answer">Your answer:</label>
   <input type="text" id="answer" name="answer" />
+  <label>
+    <%= f.check_box :hard_flag, { id: "hard_flag" }, "true", "false" %>
+    Hard (I wasn't confident)
+  </label>
+  <input type="hidden" name="elapsed_seconds" id="elapsed_seconds" value="0" />
   <button type="submit">Submit</button>
-</form>
+<% end %>
+
+<turbo-frame id="feedback">
+</turbo-frame>
