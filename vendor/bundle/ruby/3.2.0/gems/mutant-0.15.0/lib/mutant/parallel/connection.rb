@@ -1,0 +1,167 @@
+# frozen_string_literal: true
+
+module Mutant
+  module Parallel
+    class Connection
+      include Anima.new(:marshal, :reader, :writer)
+
+      class Error < RuntimeError
+      end
+
+      HEADER_FORMAT = 'N'
+      HEADER_SIZE   = 4
+      MAX_BYTES     = (2**32).pred
+      MAX_LOG_CHUNK = 4096
+
+      class Reader
+        include Anima.new(:deadline, :io, :marshal, :response_reader, :log_reader)
+
+        private(*anima.attribute_names)
+
+        private_class_method :new
+
+        attr_reader :log
+
+        def error = Util.max_one(@errors)
+
+        def result = Util.max_one(@results)
+
+        def initialize(*)
+          super
+
+          @buffer  = +''
+          @log     = +''
+
+          # Array of size max 1 as surrogate for
+          # terrible default nil ivars.
+          @errors  = []
+          @lengths = []
+          @results = []
+        end
+
+        def self.read_response(job:, **attributes)
+          reader = new(**attributes).read_till_final
+
+          Response.new(
+            error:  reader.error,
+            job:,
+            log:    reader.log,
+            result: reader.result
+          )
+        end
+
+        # rubocop:disable Metrics/MethodLength
+        def read_till_final
+          readers = [response_reader, log_reader]
+
+          until !@results.empty? || error
+            status = deadline.status
+
+            break timeout unless status.ok?
+
+            reads, _others = io.select(readers, nil, nil, status.time_left)
+
+            break timeout unless reads
+
+            reads.each do |ready|
+              if ready.equal?(response_reader)
+                advance_result
+              else
+                advance_log
+              end
+            end
+          end
+
+          self
+        end
+      # rubocop:enable Metrics/MethodLength
+
+      private
+
+        def timeout = @errors << Timeout::Error
+
+        def advance_result
+          if length
+            if read_result_buffer(length)
+              @results << marshal.load(@buffer)
+            end
+          elsif read_result_buffer(HEADER_SIZE)
+            @lengths << Util.one(@buffer.unpack(HEADER_FORMAT))
+            @buffer = +''
+          end
+        end
+
+        def length = Util.max_one(@lengths)
+
+        def advance_log
+          while with_nonblock_read(io: log_reader, max_bytes: MAX_LOG_CHUNK, &@log.public_method(:<<))
+          end
+        end
+
+        def read_result_buffer(max_bytes)
+          with_nonblock_read(
+            io:        response_reader,
+            max_bytes: max_bytes - @buffer.bytesize,
+            &@buffer.public_method(:<<)
+          )
+        end
+
+        # rubocop:disable Metrics/MethodLength
+        def with_nonblock_read(io:, max_bytes:)
+          io.binmode
+
+          chunk = io.read_nonblock(max_bytes, exception: false)
+
+          case chunk
+          when nil
+            @errors << EOFError
+            false
+          when :wait_readable
+            false
+          when String
+            yield chunk
+            chunk.bytesize.equal?(max_bytes)
+          else
+            fail "Unexpected nonblocking read return: #{chunk.inspect}"
+          end
+        end
+        # rubocop:enable Metrics/MethodLength
+      end
+
+      class Frame
+        include Anima.new(:io)
+
+        def receive_value = read(Util.one(read(HEADER_SIZE).unpack(HEADER_FORMAT)))
+
+        def send_value(body)
+          bytesize = body.bytesize
+
+          fail Error, 'message to big' if bytesize > MAX_BYTES
+
+          io.binmode
+          io.write([bytesize].pack(HEADER_FORMAT))
+          io.write(body)
+        end
+
+      private
+
+        def read(bytes)
+          io.binmode
+          io.read(bytes) or fail Error, 'Unexpected EOF'
+        end
+      end
+
+      def receive_value = marshal.load(reader.receive_value)
+
+      def send_value(value) = tap { writer.send_value(marshal.dump(value)) }
+
+      def self.from_pipes(marshal:, reader:, writer:)
+        new(
+          marshal:,
+          reader:  Frame.new(io: reader.to_reader),
+          writer:  Frame.new(io: writer.to_writer)
+        )
+      end
+    end # Connection
+  end # Parallel
+end # Mutant

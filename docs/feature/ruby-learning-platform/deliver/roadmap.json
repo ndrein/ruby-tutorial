@@ -1,0 +1,414 @@
+{
+  "roadmap": {
+    "project_id": "ruby-learning-platform",
+    "created_at": "2026-03-10T15:44:05Z",
+    "total_steps": 16,
+    "phases": 5
+  },
+  "phases": [
+    {
+      "id": "01",
+      "name": "Walking Skeleton",
+      "steps": [
+        {
+          "id": "01-01",
+          "name": "Rails app bootstrap and database schema",
+          "description": "Initialise Rails 8.1 app with PostgreSQL, Hotwire, and RSpec. Create all 7 migrations with DB CHECK constraints matching data-models.md. Schema must be loadable clean from scratch.",
+          "criteria": [
+            "Given `bin/rails db:create db:schema:load` runs on a clean database, then all 7 tables exist with correct columns and CHECK constraints and no migration errors are raised.",
+            "Given the schema is loaded, then reviews(user_id, exercise_id) has a UNIQUE constraint and daily_queues(user_id, queue_date) has a UNIQUE constraint.",
+            "Given `bin/rails db:schema:load`, then sm2_ease_factor CHECK [1.30, 2.50] and sm2_interval CHECK >= 1 are present on the reviews table.",
+            "Given `bundle exec rspec`, then the test suite boots with no load errors.",
+            "Given `bin/rails server`, then the app starts without errors and responds to a health check request."
+          ],
+          "estimated_hours": 4,
+          "dependencies": [],
+          "files_to_modify": [
+            "Gemfile",
+            "config/database.yml",
+            "db/migrate/001_create_users.rb",
+            "db/migrate/002_create_modules.rb",
+            "db/migrate/003_create_lessons.rb",
+            "db/migrate/004_create_exercises.rb",
+            "db/migrate/005_create_reviews.rb",
+            "db/migrate/006_create_sessions.rb",
+            "db/migrate/007_create_daily_queues.rb",
+            "db/schema.rb"
+          ]
+        },
+        {
+          "id": "01-02",
+          "name": "Seed data and walking skeleton routes",
+          "description": "Seed the minimum walking-skeleton dataset (1 user, 1 module, 1 lesson, 1 exercise). Wire root, /lessons/:id, and /exercises/:id/submit routes. Render a landing page.",
+          "criteria": [
+            "Given `bin/rails db:seed`, then the database contains exactly 1 user (email=test@example.com, experience_level=expert), 1 module, 1 lesson titled 'Ruby Blocks', and 1 fill_in_blank exercise with correct_answer='select'.",
+            "Given a GET request to the root URL, then the response is HTTP 200 and the landing page renders within 2 seconds with no server error (AC-000-01).",
+            "Given a GET request to /lessons/1, then the response is HTTP 200 and lesson title 'Ruby Blocks' is present in the response body (AC-000-02).",
+            "Given a GET request to /exercises/1, then the response is HTTP 200 and the answer input field is present in the response body.",
+            "Given `bin/rails routes`, then routes for root, lessons#show, and exercises#submit are all listed."
+          ],
+          "estimated_hours": 3,
+          "dependencies": ["01-01"],
+          "files_to_modify": [
+            "db/seeds.rb",
+            "config/routes.rb",
+            "app/controllers/home_controller.rb",
+            "app/views/home/index.html.erb"
+          ]
+        },
+        {
+          "id": "01-03",
+          "name": "SM2Engine and ScoreCalculator — pure domain services",
+          "description": "Implement SM2Engine as a pure function accepting SM2Input and returning SM2Result. Implement ScoreCalculator mapping (answer_result, elapsed_seconds, hard_flag) to quality 0-5. Full RSpec coverage for all SM-2 scheduling rules.",
+          "criteria": [
+            "Given SM2Engine receives quality=4 with repetitions=0, EF=2.5, then it returns interval=1, repetitions=1, ease_factor=2.5 (AC-007-01).",
+            "Given SM2Engine receives quality=4 with repetitions=1, interval=1, EF=2.5, then it returns interval=6, repetitions=2 (AC-007-02).",
+            "Given SM2Engine receives quality=4 with repetitions=2, interval=6, EF=2.5, then it returns interval=15, repetitions=3 (AC-007-03).",
+            "Given SM2Engine receives quality=1 at any interval/repetitions, then it returns interval=1 and repetitions=0 (AC-007-04).",
+            "Given SM2Engine yields a computed EF below 1.3, then output ease_factor is clamped to 1.3; given computed EF above 2.5, then output ease_factor is clamped to 2.5 (AC-007-05, AC-007-06).",
+            "Given SM2Engine and ScoreCalculator are instantiated, then neither class references ActiveRecord, ApplicationRecord, or any Rails constant."
+          ],
+          "estimated_hours": 5,
+          "dependencies": ["01-01"],
+          "files_to_modify": [
+            "app/services/sm2_engine.rb",
+            "app/services/score_calculator.rb",
+            "app/value_objects/sm2_input.rb",
+            "app/value_objects/sm2_result.rb",
+            "spec/services/sm2_engine_spec.rb",
+            "spec/services/score_calculator_spec.rb"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Exercise Submission and SM-2 Recording",
+      "steps": [
+        {
+          "id": "02-01",
+          "name": "Exercise model, controller, and submission endpoint",
+          "description": "Implement ExercisesController#submit: evaluate answer (exact + accepted_synonyms), call ScoreCalculator then SM2Engine, persist review in a transaction, render Turbo Frame feedback with plain-language next_review_date.",
+          "criteria": [
+            "Given a POST to /exercises/1/submit with answer='select' and elapsed_seconds=8, then a reviews row is created with next_review_date=today+1, sm2_interval=1, repetitions=1, and the Turbo Frame response contains 'Correct' (AC-000-04).",
+            "Given a POST to /exercises/1/submit with an incorrect answer, then the reviews row has sm2_interval=1 and next_review_date=today+1, and the response shows the correct answer and explanation (AC-000-05).",
+            "Given an exercise with accepted_synonyms=['Array#select'], when answer='Array#select' is submitted, then the answer is treated as correct (FR-5.8).",
+            "Given any exercise submission, then the SM-2 state persisted in reviews matches the output of SM2Engine for the given input, and the transaction is atomic (AC-008-01).",
+            "Given a correct answer submitted in under 10 seconds with hard_flag=false, then quality_score=5; given the same answer with hard_flag=true, then quality_score=3 (AC-005-03)."
+          ],
+          "estimated_hours": 5,
+          "dependencies": ["01-02", "01-03"],
+          "files_to_modify": [
+            "app/controllers/exercises_controller.rb",
+            "app/models/exercise.rb",
+            "app/models/review.rb",
+            "app/views/exercises/show.html.erb",
+            "app/views/exercises/_feedback.html.erb",
+            "spec/requests/exercises_spec.rb"
+          ]
+        },
+        {
+          "id": "02-02",
+          "name": "Stimulus timer controller (30-second countdown)",
+          "description": "Implement timer_controller.js counting down from 30 seconds. On expiry, auto-POST submit with result=timeout and elapsed=30. Timer visible in primary viewport. Timeout records SM-2 score=0 and shows correct answer.",
+          "criteria": [
+            "Given an exercise page loads, then a timer displaying '0:30' is visible within the primary viewport without scrolling, and it decrements by 1 second each second (AC-010-01).",
+            "Given the timer reaches 0:00 without user submission, then within 1 second the exercise auto-advances, a review record is created with answer_result='timeout' and sm2_interval=1, and the correct answer with explanation is displayed (AC-000-06, AC-010-02).",
+            "Given a timeout is recorded, then quality_score=0 in the reviews table (AC-010-02).",
+            "Given the exercise page is rendered, then the answer input field is focused automatically without Tab interaction (AC-000-03, AC-005-01)."
+          ],
+          "estimated_hours": 4,
+          "dependencies": ["02-01"],
+          "files_to_modify": [
+            "app/javascript/controllers/timer_controller.js",
+            "app/views/exercises/show.html.erb",
+            "spec/system/exercise_timer_spec.rb"
+          ]
+        },
+        {
+          "id": "02-03",
+          "name": "Keyboard controller and exercise input (Stimulus)",
+          "description": "Implement keyboard_controller.js handling Enter=submit, Esc=skip, h=mark hard, e=mark easy. Guard: j/k/h/e are literal characters when input is focused. Implement g+d sequence to navigate to dashboard. Visible shortcut reference.",
+          "criteria": [
+            "Given the answer input field is focused and the user types 'h', then 'h' is inserted into the field and the exercise is not marked as hard (AC-014-02).",
+            "Given no input field is focused, when the user presses 'h', then the exercise is marked hard and the SM-2 score is reduced by 1 from the base correct score (AC-005-03).",
+            "Given no input field is focused, when the user presses 'g' then 'd' in sequence, then the browser navigates to the progress dashboard (AC-014-03).",
+            "Given any primary application screen, then keyboard shortcuts available on that screen are visible in the UI without opening a help section (XC-004).",
+            "Given a user completes all exercises in the review queue using only keyboard input, then no mouse interaction was required at any step (AC-005-04)."
+          ],
+          "estimated_hours": 5,
+          "dependencies": ["02-02"],
+          "files_to_modify": [
+            "app/javascript/controllers/keyboard_controller.js",
+            "app/javascript/controllers/exercise_controller.js",
+            "app/views/exercises/show.html.erb",
+            "spec/system/keyboard_navigation_spec.rb"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Session Management and Queue Builder",
+      "steps": [
+        {
+          "id": "03-01",
+          "name": "SessionTracker service and session lifecycle",
+          "description": "Implement SessionTracker with start, record_exercise, and complete operations. Enforce 900-second server-side cap: warning at 850s, hard redirect at 900s. Increment streak once per calendar day using last_session_date dedup.",
+          "criteria": [
+            "Given a session is started, then a sessions row is created with started_at=NOW() and exercises_completed=0.",
+            "Given an exercise is submitted when elapsed >= 850 seconds, then a cap-warning Turbo Frame is returned and no new exercise is started.",
+            "Given an exercise is submitted when elapsed >= 900 seconds, then the answer is still persisted and the response redirects to the session summary (AC-020-04).",
+            "Given a user completes their first session today (exercises_completed >= 1), then streak_count is incremented by 1 and last_session_date is set to today (AC-006-02).",
+            "Given a user completes a second session on the same calendar day, then streak_count is not incremented again and remains at its value from the first session (AC-006-03)."
+          ],
+          "estimated_hours": 6,
+          "dependencies": ["02-01"],
+          "files_to_modify": [
+            "app/services/session_tracker.rb",
+            "app/models/session.rb",
+            "app/controllers/sessions_controller.rb",
+            "app/views/sessions/new.html.erb",
+            "app/views/sessions/summary.html.erb",
+            "spec/services/session_tracker_spec.rb"
+          ]
+        },
+        {
+          "id": "03-02",
+          "name": "QueueBuilder service",
+          "description": "Implement QueueBuilder.build(user_id:, date:) querying reviews with next_review_date <= date, ordering oldest-due first, truncating at 20 exercises (floor(900/45)), and upserting daily_queues idempotently via ON CONFLICT.",
+          "criteria": [
+            "Given exercises A (due today) and B (due yesterday) and C (due tomorrow), when QueueBuilder runs for today, then the returned queue contains A and B and does not contain C, in ascending next_review_date order (AC-008-02).",
+            "Given 25 exercises are due today, when QueueBuilder runs, then daily_queues.exercise_ids contains at most 20 exercise IDs.",
+            "Given QueueBuilder runs twice for the same user and date, then daily_queues contains exactly one row for that user+date pair and the second run does not raise an error (AC-008-03, NFR-2.4).",
+            "Given QueueBuilder has run, then the daily_queues row for the user and date has exercise_ids ordered from oldest next_review_date to newest."
+          ],
+          "estimated_hours": 4,
+          "dependencies": ["03-01"],
+          "files_to_modify": [
+            "app/services/queue_builder.rb",
+            "app/models/daily_queue.rb",
+            "spec/services/queue_builder_spec.rb"
+          ]
+        },
+        {
+          "id": "03-03",
+          "name": "Session start screen with queue preview",
+          "description": "Implement SessionsController#new loading today's daily_queue. Display exercise list by concept name, estimated time, 15:00 budget, and streak count. Empty queue shows rest-day message. Session start creates sessions record.",
+          "criteria": [
+            "Given a user has 4 exercises in today's daily_queue, when the session start screen loads, then all 4 exercises are listed by concept name and estimated total session time and the remaining budget '15:00' and the current streak count are visible (AC-004-01).",
+            "Given email and app read from the same daily_queues row, when the user opens the platform from the email CTA link, then the session start screen shows the same exercises in the same order as listed in the email (AC-004-02).",
+            "Given a user has no exercises in today's queue, when the session start screen loads, then the message 'Nothing due today' (or equivalent) is displayed and the streak count has not decreased (AC-004-03).",
+            "Given the user presses Enter or 's' on the session start screen, then a sessions row is created via SessionTracker and the first exercise loads.",
+            "Given the session start screen renders, then keyboard shortcuts for starting a session are visible without opening a help section (XC-004)."
+          ],
+          "estimated_hours": 4,
+          "dependencies": ["03-02"],
+          "files_to_modify": [
+            "app/controllers/sessions_controller.rb",
+            "app/views/sessions/new.html.erb",
+            "app/views/sessions/_queue_preview.html.erb",
+            "spec/system/session_start_spec.rb"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "name": "Onboarding, Curriculum, and Dashboard",
+      "steps": [
+        {
+          "id": "04-01",
+          "name": "User registration and onboarding flow",
+          "description": "Implement UsersController#new/create with email-only registration and has_secure_password. Implement OnboardingController single-question experience step. 'Yes' stores experience_level=expert and routes to Lesson 1. Duplicate email shows human-readable prompt.",
+          "criteria": [
+            "Given the registration form renders, then exactly one required field is visible (email) and no name, phone, or password fields are present (AC-001-01).",
+            "Given a user submits a new email, when the experience step renders, then exactly one question with two keyboard-selectable options is shown (AC-001-02).",
+            "Given the user selects 'Yes — Python, Java, or similar' and confirms, then the user is routed to Lesson 1 titled 'Ruby Blocks' and experience_level='expert' is stored in the users table (AC-001-03).",
+            "Given an email that is already registered is submitted, then the response shows 'This email is already registered' and a login link, and no stack trace or database error code is shown (AC-001-04, XC-001).",
+            "Given a user completes the full onboarding flow using only keyboard input, then Lesson 1 is reached in 60 seconds or less (AC-001-05)."
+          ],
+          "estimated_hours": 6,
+          "dependencies": ["01-02"],
+          "files_to_modify": [
+            "app/controllers/users_controller.rb",
+            "app/controllers/onboarding_controller.rb",
+            "app/models/user.rb",
+            "app/views/users/new.html.erb",
+            "app/views/onboarding/experience.html.erb",
+            "spec/system/onboarding_spec.rb",
+            "spec/requests/users_spec.rb"
+          ]
+        },
+        {
+          "id": "04-02",
+          "name": "Curriculum view and PrerequisiteChecker",
+          "description": "Implement PrerequisiteChecker returning gate status for a lesson+user pair. Implement LessonStatusProjector deriving :mastered/:in_review/:new/:available/:locked from SM-2 data (never stored). Render CurriculumController with all 5 modules and per-lesson status cards.",
+          "criteria": [
+            "Given Marcus navigates to the curriculum view, then all 5 modules are listed, each showing its name and 'X of 5 lessons' fraction (AC-018-01).",
+            "Given a lesson whose prerequisite_ids are not all represented in the user's review records, when LessonStatusProjector derives status, then the status is :locked and no 'Start now' action is shown (AC-017-02).",
+            "Given a lesson with sm2_interval >= 30 for all its exercises, then LessonStatusProjector returns :mastered; given sm2_interval 3-29, then :in_review; given sm2_interval 1-2 or no reviews with prerequisites met, then :available or :new.",
+            "Given Marcus selects an available lesson card, then the card shows lesson number, title, module name, estimated time, exercise type, and two actions: 'Start now' (Enter) and 'Queue for next session' (q) (AC-017-01).",
+            "Given Marcus selects a locked lesson card, then the card shows each prerequisite lesson with its individual completion status and an estimated session count to unlock (AC-019-01, AC-017-02)."
+          ],
+          "estimated_hours": 7,
+          "dependencies": ["03-03"],
+          "files_to_modify": [
+            "app/services/prerequisite_checker.rb",
+            "app/services/lesson_status_projector.rb",
+            "app/controllers/curriculum_controller.rb",
+            "app/views/curriculum/index.html.erb",
+            "app/views/curriculum/_lesson_card.html.erb",
+            "spec/services/prerequisite_checker_spec.rb",
+            "spec/system/curriculum_spec.rb"
+          ]
+        },
+        {
+          "id": "04-03",
+          "name": "Progress dashboard",
+          "description": "Implement DashboardController computing mastery counts, lessons completed fraction, streak, and rolling 14-day retention rate from SM-2 state. Show 'Not enough data yet' before 14 days. Dashboard keyboard shortcuts c→curriculum, s→session.",
+          "criteria": [
+            "Given Marcus has 12 reviews with sm2_interval>=30, 8 with interval 3-29, and 4 with interval 1-2, when the dashboard loads, then it shows 'Mastered: 12', 'In Review: 8', 'New: 4' (AC-012-01).",
+            "Given Marcus has completed 8 of 25 lessons, when the dashboard loads, then it shows '8 of 25 lessons (32%)' (AC-012-02).",
+            "Given Marcus has been using the platform for fewer than 14 days, when the retention rate section renders, then it shows 'Not enough data yet' and a note explaining the 14-day requirement (AC-012-03).",
+            "Given Marcus is on the dashboard and presses 'c', then the browser navigates to the curriculum view; given 's', then to the session start screen (AC-012-04).",
+            "Given all dashboard metrics are rendered, then no metric reads from a stored lesson_status column — all values are derived from reviews.sm2_interval and session records at read time."
+          ],
+          "estimated_hours": 5,
+          "dependencies": ["04-02"],
+          "files_to_modify": [
+            "app/controllers/dashboard_controller.rb",
+            "app/views/dashboard/index.html.erb",
+            "spec/system/dashboard_spec.rb",
+            "spec/requests/dashboard_spec.rb"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "name": "Email Delivery and Content Seeding",
+      "steps": [
+        {
+          "id": "05-01",
+          "name": "Daily email queue job and Postmark integration",
+          "description": "Implement QueueBuilderJob (Solid Queue) calling QueueBuilder for all opted-in users at 2:00 AM via Whenever. Implement EmailDispatchJob calling DailyQueueMailer per user with non-empty queue. Retry once after 15 minutes on failure. email_sent_at prevents duplicate sends.",
+          "criteria": [
+            "Given QueueBuilderJob runs, then daily_queues rows are upserted for all users with email_opted_in=true and the job completes without error.",
+            "Given a user has a non-empty daily_queue and email_sent_at IS NULL, when EmailDispatchJob runs, then DailyQueueMailer dispatches one email via Postmark with a subject containing the review count and time estimate (AC-009-02).",
+            "Given EmailDispatchJob has dispatched an email, then daily_queues.email_sent_at is set to the dispatch timestamp, and a second run of EmailDispatchJob does not send a duplicate email (NFR-2.4).",
+            "Given a user has an empty daily_queue, when EmailDispatchJob runs, then no email is sent to that user (AC-009-04).",
+            "Given Postmark returns a delivery error, then the error is logged with timestamp and user_id, the job retries once after 15 minutes, and the application session for the user is unaffected (AC-009-05).",
+            "Given any email body is inspected, then it contains no promotional content and the only CTA link points to the session start URL (AC-009-03)."
+          ],
+          "estimated_hours": 6,
+          "dependencies": ["03-02"],
+          "files_to_modify": [
+            "app/jobs/queue_builder_job.rb",
+            "app/jobs/email_dispatch_job.rb",
+            "app/mailers/daily_queue_mailer.rb",
+            "app/views/daily_queue_mailer/daily_digest.html.erb",
+            "config/schedule.rb",
+            "spec/mailers/daily_queue_mailer_spec.rb",
+            "spec/jobs/queue_builder_job_spec.rb"
+          ]
+        },
+        {
+          "id": "05-02",
+          "name": "Full curriculum seed data (25 lessons, 5 modules)",
+          "description": "Seed all 5 modules and 25 lessons with title, content_body (Markdown), python_equivalent, java_equivalent, estimated_minutes=5, prerequisite_ids DAG, and position_in_module. At least 1 exercise per lesson across all 4 exercise types. CurriculumValidator enforces DAG integrity at seed time. All Ruby code examples syntactically valid. No beginner scaffolding.",
+          "criteria": [
+            "Given `bin/rails db:seed`, then 5 module rows and 25 lesson rows exist, each lesson belonging to the correct module with a unique position_in_module within its module.",
+            "Given any lesson row, then content_body, python_equivalent, and java_equivalent are all non-empty and do not contain any of: 'In programming, ...', 'A variable is ...', 'Let's start with the basics' (AC-016-01, NFR-6.3).",
+            "Given all lessons are seeded, then every lesson has at least 1 exercise row, exercise types across the full curriculum include fill_in_blank, multiple_choice, spot_the_bug, and translation, and multiple_choice exercises have exactly 4 options (NFR-6.1).",
+            "Given all code examples in seed data, when evaluated by a Ruby interpreter, then no syntax errors are raised (AC-016-02, NFR-6.4).",
+            "Given the prerequisite_ids arrays across all 25 lessons, when CurriculumValidator.validate! runs, then it raises an error if any circular dependency exists and passes if all referenced prerequisite IDs correspond to existing lesson IDs (DAG invariant)."
+          ],
+          "estimated_hours": 8,
+          "dependencies": ["04-02"],
+          "files_to_modify": [
+            "db/seeds.rb",
+            "db/seeds/module_definitions.rb",
+            "db/seeds/lesson_definitions.rb",
+            "db/seeds/exercise_definitions.rb",
+            "app/services/curriculum_validator.rb",
+            "spec/seeds/curriculum_integrity_spec.rb",
+            "spec/services/curriculum_validator_spec.rb"
+          ]
+        },
+        {
+          "id": "05-03",
+          "name": "Focus states, accessibility, and keyboard shortcut UI",
+          "description": "Add 2px solid focus rings with >=3:1 contrast to all interactive elements. Add keyboard shortcut reference partial rendered on all primary screens (session, exercise, dashboard, curriculum) without requiring a help modal.",
+          "criteria": [
+            "Given any interactive element is focused via Tab key, then a visible focus ring is displayed and its color has a contrast ratio >= 3:1 against the surrounding background (AC-015-01, AC-015-02).",
+            "Given Tab is pressed repeatedly on any primary screen, then focus moves in logical reading order and no element loses its focus indicator while focused (AC-015-03).",
+            "Given any primary screen (session, exercise, dashboard, curriculum) is open, then keyboard shortcuts for that screen are visible in the UI without opening a help section (XC-004, FR-6.5).",
+            "Given any application page loads successfully in a browser, then the browser developer console contains no JavaScript errors at error level (XC-005)."
+          ],
+          "estimated_hours": 3,
+          "dependencies": ["05-02", "04-03"],
+          "files_to_modify": [
+            "app/assets/stylesheets/application.css",
+            "app/views/layouts/application.html.erb",
+            "app/views/shared/_keyboard_shortcuts.html.erb",
+            "spec/system/accessibility_spec.rb"
+          ]
+        },
+        {
+          "id": "05-04",
+          "name": "CI/CD pipeline and Fly.io deployment configuration",
+          "description": "Configure GitHub Actions CI with Ruby setup, PostgreSQL 16 service, db:create + schema:load + seed, and full RSpec run. Add deploy job on main merge. Add fly.toml and Dockerfile for Fly.io container deployment.",
+          "criteria": [
+            "Given a push to any branch, when the GitHub Actions CI workflow runs, then it sets up Ruby, starts a PostgreSQL 16 service, runs db:create + db:schema:load + db:seed, and executes the full RSpec suite; the workflow fails if any spec fails.",
+            "Given a merge to the main branch and all CI checks pass, then the GitHub Actions deploy job runs `flyctl deploy` and the application is deployed to Fly.io.",
+            "Given `flyctl deploy` completes, then the deployed application responds to GET / with HTTP 200 and no server error."
+          ],
+          "estimated_hours": 3,
+          "dependencies": ["05-03"],
+          "files_to_modify": [
+            ".github/workflows/ci.yml",
+            "fly.toml",
+            "Dockerfile"
+          ]
+        }
+      ]
+    }
+  ],
+  "implementation_scope": {
+    "source_directories": [
+      "app/controllers",
+      "app/models",
+      "app/services",
+      "app/value_objects",
+      "app/jobs",
+      "app/mailers",
+      "app/views",
+      "app/javascript/controllers",
+      "app/assets/stylesheets",
+      "config",
+      "db"
+    ],
+    "test_directories": [
+      "spec/services",
+      "spec/requests",
+      "spec/system",
+      "spec/mailers",
+      "spec/jobs",
+      "spec/seeds"
+    ],
+    "excluded_patterns": [
+      "log/**",
+      "tmp/**",
+      "vendor/**",
+      "node_modules/**",
+      "public/assets/**"
+    ]
+  },
+  "validation": {
+    "status": "approved",
+    "reviewer": "solution-architect-reviewer",
+    "approved_at": "2026-03-10T00:00:00Z",
+    "notes": "CONDITIONALLY_APPROVED: H-001 resolved (interval=1 day correct in roadmap), H-002 resolved (curriculum_validator added, seed files expanded), M-001 resolved (05-03 split into accessibility and 05-04 CI/CD), M-002 resolved (CurriculumValidator service in files_to_modify)"
+  }
+}
