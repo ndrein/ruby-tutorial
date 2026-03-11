@@ -1,8 +1,7 @@
 class SessionTracker
-  CAP_WARNING_SECONDS = 850
+  CAP_WARNING_SECONDS  = 850
   CAP_REDIRECT_SECONDS = 900
 
-  # Creates a new learning session row for the user
   def self.start(user)
     LearningSession.create!(
       user_id: user.id,
@@ -12,18 +11,13 @@ class SessionTracker
     )
   end
 
-  # Records an exercise completion, enforcing the 900s server-side cap.
-  # Returns:
-  #   :cap_warning  - elapsed >= 850s, exercise NOT persisted (show warning)
-  #   :cap_redirect - elapsed >= 900s, exercise persisted, redirect to summary
-  #   :ok           - normal case, exercise persisted
   def self.record_exercise(learning_session)
-    elapsed = Time.current - learning_session.started_at
+    elapsed_seconds = elapsed_since_start(learning_session)
 
-    if elapsed >= CAP_REDIRECT_SECONDS
+    if elapsed_seconds >= CAP_REDIRECT_SECONDS
       learning_session.increment!(:exercises_completed)
       :cap_redirect
-    elsif elapsed >= CAP_WARNING_SECONDS
+    elsif elapsed_seconds >= CAP_WARNING_SECONDS
       :cap_warning
     else
       learning_session.increment!(:exercises_completed)
@@ -31,17 +25,30 @@ class SessionTracker
     end
   end
 
-  # Completes the session. Increments streak once per calendar day if exercises_completed >= 1.
   def self.complete(learning_session)
-    user = learning_session.user
-    return if learning_session.exercises_completed < 1
+    return unless session_qualifies_for_streak?(learning_session)
 
-    today = Date.current
-    return if user.last_session_date == today
+    user = learning_session.user
+    return if already_credited_today?(user)
 
     user.update!(
       streak_count: user.streak_count + 1,
-      last_session_date: today
+      last_session_date: Date.current
     )
   end
+
+  def self.elapsed_since_start(learning_session)
+    Time.current - learning_session.started_at
+  end
+  private_class_method :elapsed_since_start
+
+  def self.session_qualifies_for_streak?(learning_session)
+    learning_session.exercises_completed >= 1
+  end
+  private_class_method :session_qualifies_for_streak?
+
+  def self.already_credited_today?(user)
+    user.last_session_date == Date.current
+  end
+  private_class_method :already_credited_today?
 end

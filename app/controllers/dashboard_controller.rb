@@ -1,6 +1,4 @@
 class DashboardController < ApplicationController
-  MASTERED_THRESHOLD = 30
-  IN_REVIEW_MIN = 3
   RETENTION_WINDOW_DAYS = 14
 
   def index
@@ -20,9 +18,9 @@ class DashboardController < ApplicationController
   def compute_mastery_counts(user)
     intervals = Review.where(user_id: user.id).pluck(:sm2_interval)
 
-    mastered = intervals.count { |i| i >= MASTERED_THRESHOLD }
-    in_review = intervals.count { |i| i >= IN_REVIEW_MIN && i < MASTERED_THRESHOLD }
-    new_count = intervals.count { |i| i < IN_REVIEW_MIN }
+    mastered  = intervals.count { |i| i >= LessonStatusProjector::MASTERED_THRESHOLD }
+    in_review = intervals.count { |i| i >= LessonStatusProjector::IN_REVIEW_THRESHOLD && i < LessonStatusProjector::MASTERED_THRESHOLD }
+    new_count = intervals.count { |i| i < LessonStatusProjector::IN_REVIEW_THRESHOLD }
 
     { mastered: mastered, in_review: in_review, new: new_count }
   end
@@ -31,21 +29,17 @@ class DashboardController < ApplicationController
     total = Lesson.count
     return { completed: 0, total: total, percent: 0 } if total.zero?
 
-    # A lesson is completed when ALL its exercises have a review with sm2_interval >= MASTERED_THRESHOLD
-    reviewed_exercise_ids = Review
+    mastered_exercise_ids = Review
       .where(user_id: user.id)
-      .where("sm2_interval >= ?", MASTERED_THRESHOLD)
+      .where("sm2_interval >= ?", LessonStatusProjector::MASTERED_THRESHOLD)
       .pluck(:exercise_id)
 
-    lesson_ids_with_all_mastered = Exercise
-      .where(id: reviewed_exercise_ids)
+    completed = Exercise
+      .where(id: mastered_exercise_ids)
       .group(:lesson_id)
       .having("COUNT(*) = (SELECT COUNT(*) FROM exercises e2 WHERE e2.lesson_id = exercises.lesson_id)")
       .pluck(:lesson_id)
       .count
-
-    # Also check that lessons with no exercises are not counted as completed
-    completed = lesson_ids_with_all_mastered
 
     percent = ((completed.to_f / total) * 100).round
     { completed: completed, total: total, percent: percent }

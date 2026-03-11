@@ -11,10 +11,14 @@ class UsersController < ApplicationController
       session[:user_id] = @user.id
       redirect_to onboarding_experience_path
     else
-      if @user.errors[:email].any? { |e| e.include?("taken") || e.include?("already") }
-        @duplicate_email = true
-      end
+      @duplicate_email = duplicate_email_error?(@user)
       render :new, status: :unprocessable_entity
     end
+  end
+
+  private
+
+  def duplicate_email_error?(user)
+    user.errors[:email].any? { |msg| msg.include?("taken") || msg.include?("already") }
   end
 end

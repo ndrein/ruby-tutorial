@@ -41,20 +41,28 @@ class ExercisesController < ApplicationController
 
   def build_sm2_input(existing_review, quality)
     if existing_review
-      SM2Input.new(
-        repetitions: existing_review.repetitions,
-        interval: existing_review.sm2_interval,
-        ease_factor: existing_review.sm2_ease_factor.to_f,
-        quality: quality
-      )
+      sm2_input_from_review(existing_review, quality)
     else
-      SM2Input.new(
-        repetitions: 0,
-        interval: 1,
-        ease_factor: 2.5,
-        quality: quality
-      )
+      sm2_input_for_new_card(quality)
     end
+  end
+
+  def sm2_input_from_review(review, quality)
+    SM2Input.new(
+      repetitions: review.repetitions,
+      interval: review.sm2_interval,
+      ease_factor: review.sm2_ease_factor.to_f,
+      quality: quality
+    )
+  end
+
+  def sm2_input_for_new_card(quality)
+    SM2Input.new(
+      repetitions: SM2Engine::INITIAL_REPETITIONS,
+      interval: SM2Engine::INITIAL_INTERVAL,
+      ease_factor: SM2Engine::EF_MAX,
+      quality: quality
+    )
   end
 
   def persist_review(exercise, sm2_result, answer_result, quality)

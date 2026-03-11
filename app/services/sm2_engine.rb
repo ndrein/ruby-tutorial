@@ -6,27 +6,45 @@ class SM2Engine
   EF_MIN = 1.3
   EF_MAX = 2.5
 
-  def self.call(input)
-    if input.quality < 3
-      new_interval = 1
-      new_repetitions = 0
-    else
-      new_interval = case input.repetitions
-                     when 0 then 1
-                     when 1 then 6
-                     else (input.interval * input.ease_factor).round
-                     end
-      new_repetitions = input.repetitions + 1
-    end
+  INITIAL_INTERVAL    = 1
+  INITIAL_REPETITIONS = 0
 
-    raw_ef = input.ease_factor + (0.1 - (5 - input.quality) * (0.08 + (5 - input.quality) * 0.02))
-    new_ef = [[raw_ef, EF_MAX].min, EF_MIN].max
+  PASSING_QUALITY_THRESHOLD = 3
+
+  def self.call(input)
+    interval, repetitions = next_schedule(input)
+    new_ef = clamped_ease_factor(input)
 
     SM2Result.new(
-      interval: new_interval,
+      interval: interval,
       ease_factor: new_ef,
-      repetitions: new_repetitions,
-      next_review_date: Date.today + new_interval
+      repetitions: repetitions,
+      next_review_date: Date.today + interval
     )
   end
+
+  def self.next_schedule(input)
+    if input.quality < PASSING_QUALITY_THRESHOLD
+      [1, 0]
+    else
+      [next_interval(input), input.repetitions + 1]
+    end
+  end
+  private_class_method :next_schedule
+
+  def self.next_interval(input)
+    case input.repetitions
+    when 0 then 1
+    when 1 then 6
+    else (input.interval * input.ease_factor).round
+    end
+  end
+  private_class_method :next_interval
+
+  def self.clamped_ease_factor(input)
+    delta = 0.1 - (5 - input.quality) * (0.08 + (5 - input.quality) * 0.02)
+    raw_ef = input.ease_factor + delta
+    raw_ef.clamp(EF_MIN, EF_MAX)
+  end
+  private_class_method :clamped_ease_factor
 end
