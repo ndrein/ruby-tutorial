@@ -1,0 +1,21 @@
+<h1>Curriculum</h1>
+
+<div class="curriculum-modules">
+  <% @modules.each do |mod| %>
+    <section class="module-section" data-module-id="<%= mod.id %>">
+      <h2 class="module-title"><%= mod.title %></h2>
+      <p class="module-lesson-count"><%= mod.lessons.count %> of 5 lessons</p>
+
+      <div class="module-lessons">
+        <% mod.lessons.order(:position_in_module).each do |lesson| %>
+          <%=
+            render "lesson_card",
+              lesson: lesson,
+              status: @lesson_statuses[lesson.id],
+              prerequisite_titles: @prerequisite_titles[lesson.id] || []
+          %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

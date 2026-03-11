@@ -1,0 +1,39 @@
+<div class="lesson-card" data-lesson-id="<%= lesson.id %>" data-status="<%= status %>">
+  <div class="lesson-card-header">
+    <span class="lesson-number">Lesson <%= lesson.position_in_module %></span>
+    <h3 class="lesson-title"><%= lesson.title %></h3>
+    <span class="module-name"><%= lesson.course_module.title %></span>
+  </div>
+
+  <div class="lesson-card-meta">
+    <span class="estimated-time"><%= lesson.estimated_minutes %> min</span>
+    <% first_exercise = lesson.exercises.first %>
+    <% if first_exercise %>
+      <span class="exercise-type"><%= first_exercise.exercise_type %></span>
+    <% end %>
+  </div>
+
+  <% if status == :locked %>
+    <div class="lesson-card-locked">
+      <p class="locked-label">Locked</p>
+      <% if prerequisite_titles.present? %>
+        <div class="prerequisites">
+          <p>Prerequisites:</p>
+          <ul>
+            <% prerequisite_titles.each do |title| %>
+              <li><%= title %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+      <p class="unlock-estimate">~3 sessions to unlock</p>
+    </div>
+  <% else %>
+    <div class="lesson-card-actions">
+      <a href="<%= lesson_path(lesson) %>" class="action-start">Start now</a>
+      <span class="action-key">(Enter)</span>
+      <button class="action-queue" data-queue-lesson-id="<%= lesson.id %>">Queue for next session</button>
+      <span class="action-key">(q)</span>
+    </div>
+  <% end %>
+</div>
