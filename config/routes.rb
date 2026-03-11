@@ -14,4 +14,5 @@ Rails.application.routes.draw do
     get :summary, on: :member
   end
   resources :curriculum, only: [:index]
+  get "/dashboard", to: "dashboard#index", as: :dashboard
 end

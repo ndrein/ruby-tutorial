@@ -1,0 +1,47 @@
+<h1>Progress Dashboard</h1>
+
+<section class="dashboard-mastery">
+  <h2>Mastery</h2>
+  <p>Mastered: <%= @mastery_counts[:mastered] %></p>
+  <p>In Review: <%= @mastery_counts[:in_review] %></p>
+  <p>New: <%= @mastery_counts[:new] %></p>
+</section>
+
+<section class="dashboard-lessons">
+  <h2>Lessons</h2>
+  <p><%= @lessons_fraction[:completed] %> of <%= @lessons_fraction[:total] %> lessons (<%= @lessons_fraction[:percent] %>%)</p>
+</section>
+
+<section class="dashboard-streak">
+  <h2>Streak</h2>
+  <p>Current streak: <%= @streak %> days</p>
+</section>
+
+<section class="dashboard-retention">
+  <h2>Retention Rate (14-day rolling)</h2>
+  <% if @retention_available %>
+    <p>Data available</p>
+  <% else %>
+    <p>Not enough data yet</p>
+    <p class="retention-note">Retention rate requires a 14-day history of reviews to calculate accurately.</p>
+  <% end %>
+</section>
+
+<div class="keyboard-shortcuts">
+  <h3>Keyboard Shortcuts</h3>
+  <ul>
+    <li><kbd>c</kbd> — Curriculum</li>
+    <li><kbd>s</kbd> — Start session</li>
+  </ul>
+</div>
+
+<script>
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'c') {
+      window.location.href = '<%= curriculum_index_path %>';
+    } else if (e.key === 's') {
+      window.location.href = '<%= new_session_path %>';
+    }
+  });
+</script>
