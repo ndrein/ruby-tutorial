@@ -1,7 +1,21 @@
 <h1>Start a New Session</h1>
 
-<p>Sessions are capped at 15 minutes (900 seconds) to keep study focused.</p>
+<div class="session-meta">
+  <span class="budget-remaining">Budget: <strong>15:00</strong></span>
+  <span class="streak-count">Streak: <strong><%= @streak_count %></strong></span>
+</div>
 
-<%= form_with url: sessions_path, method: :post do |f| %>
-  <%= f.submit "Start Session" %>
+<%= render "queue_preview", queue_exercises: @queue_exercises %>
+
+<% unless @queue_exercises.empty? %>
+  <%= form_with url: sessions_path, method: :post do |f| %>
+    <%= f.submit "Start Session" %>
+  <% end %>
 <% end %>
+
+<div class="keyboard-shortcuts">
+  <p>Keyboard shortcuts:</p>
+  <ul>
+    <li><kbd>Enter</kbd> or <kbd>s</kbd> &mdash; Start session</li>
+  </ul>
+</div>

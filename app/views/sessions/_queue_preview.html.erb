@@ -1,0 +1,9 @@
+<% if queue_exercises.empty? %>
+  <p class="rest-day-message">Nothing due today - enjoy your rest day!</p>
+<% else %>
+  <ul class="queue-preview-list">
+    <% queue_exercises.each do |exercise| %>
+      <li class="queue-preview-item"><%= exercise.lesson.title %></li>
+    <% end %>
+  </ul>
+<% end %>
