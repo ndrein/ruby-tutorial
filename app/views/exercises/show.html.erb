@@ -1,16 +1,26 @@
-<h1>Exercise</h1>
-<p><%= @exercise.prompt %></p>
+<div data-controller="timer"
+     data-timer-submit-url-value="<%= submit_exercise_path(@exercise) %>"
+     data-timer-csrf-token-value="<%= form_authenticity_token %>">
 
-<%= form_with url: submit_exercise_path(@exercise), method: :post, data: { turbo_frame: "feedback" } do |f| %>
-  <label for="answer">Your answer:</label>
-  <input type="text" id="answer" name="answer" />
-  <label>
-    <%= f.check_box :hard_flag, { id: "hard_flag" }, "true", "false" %>
-    Hard (I wasn't confident)
-  </label>
-  <input type="hidden" name="elapsed_seconds" id="elapsed_seconds" value="0" />
-  <button type="submit">Submit</button>
-<% end %>
+  <div class="timer" aria-label="Time remaining">
+    <span data-timer-target="display">0:30</span>
+  </div>
+
+  <h1>Exercise</h1>
+  <p><%= @exercise.prompt %></p>
+
+  <%= form_with url: submit_exercise_path(@exercise), method: :post, data: { turbo_frame: "feedback" } do |f| %>
+    <label for="answer">Your answer:</label>
+    <input type="text" id="answer" name="answer" autofocus />
+    <label>
+      <%= f.check_box :hard_flag, { id: "hard_flag" }, "true", "false" %>
+      Hard (I wasn't confident)
+    </label>
+    <input type="hidden" name="elapsed_seconds" id="elapsed_seconds" value="0" />
+    <button type="submit">Submit</button>
+  <% end %>
+
+</div>
 
 <turbo-frame id="feedback">
 </turbo-frame>

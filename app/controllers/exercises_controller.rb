@@ -9,7 +9,7 @@ class ExercisesController < ApplicationController
     elapsed_seconds = params[:elapsed_seconds].to_i
     hard_flag = params[:hard_flag] == "true"
 
-    answer_result = exercise.evaluate_answer(answer)
+    answer_result = resolve_answer_result(exercise, answer)
     quality = ScoreCalculator.call(answer_result, elapsed_seconds, hard_flag)
 
     sm2_input = build_sm2_input(current_user_review(exercise), quality)
@@ -25,6 +25,11 @@ class ExercisesController < ApplicationController
   end
 
   private
+
+  def resolve_answer_result(exercise, answer)
+    return :timeout if params[:answer_result] == "timeout"
+    exercise.evaluate_answer(answer)
+  end
 
   def current_user
     @current_user ||= User.first

@@ -1,0 +1,22 @@
+<h1>Create your account</h1>
+
+<% if @duplicate_email %>
+  <p role="alert">This email is already registered. <a href="/" class="login">login here</a></p>
+<% end %>
+
+<%= form_with model: @user, url: users_path do |f| %>
+  <% if @user.errors.any? && !@duplicate_email %>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= f.label :email, "Email address" %>
+    <%= f.email_field :email, autofocus: true, required: true %>
+  </div>
+
+  <%= f.submit "Continue" %>
+<% end %>

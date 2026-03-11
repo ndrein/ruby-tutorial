@@ -1,6 +1,9 @@
 <turbo-frame id="feedback">
   <% if answer_result == :correct %>
     <p class="feedback-correct">Correct!</p>
+  <% elsif answer_result == :timeout %>
+    <p class="feedback-timeout">Time's up!</p>
+    <p class="correct-answer">The correct answer is: <strong><%= exercise.correct_answer %></strong></p>
   <% else %>
     <p class="feedback-incorrect">Incorrect</p>
     <p class="correct-answer">The correct answer is: <strong><%= exercise.correct_answer %></strong></p>

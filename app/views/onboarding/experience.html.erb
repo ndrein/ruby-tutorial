@@ -1,0 +1,18 @@
+<h1>One quick question</h1>
+
+<div data-question>
+  <p>Have you programmed before in Python, Java, or a similar language?</p>
+
+  <%= form_with url: onboarding_experience_path, method: :post do |f| %>
+    <div>
+      <%= f.radio_button :experience_level, "expert", id: "experience_yes", tabindex: "1" %>
+      <%= f.label :experience_level, "Yes — Python, Java, or similar", value: "expert", for: "experience_yes" %>
+    </div>
+    <div>
+      <%= f.radio_button :experience_level, "beginner", id: "experience_no", tabindex: "2" %>
+      <%= f.label :experience_level, "No — this is my first programming language", value: "beginner", for: "experience_no" %>
+    </div>
+
+    <%= f.submit "Continue", tabindex: "3" %>
+  <% end %>
+</div>
