@@ -1,9 +1,11 @@
 {
   "feature_id": "ruby-learning-platform",
-  "started_at": "2026-03-10T00:00:00Z",
-  "phase": "roadmap",
-  "crafter": "nw-software-crafter",
+  "started_at": "2026-03-11T00:00:00Z",
+  "orchestrator": "main-instance",
+  "rigor_profile": "exhaustive",
   "paradigm": "object-oriented",
+  "crafter": "nw-software-crafter",
   "mutation_strategy": "per-feature",
-  "rigor": "exhaustive"
+  "completed_steps": ["01-01", "01-02", "01-03", "02-01"],
+  "remaining_steps": ["02-02", "02-03", "03-01", "03-02", "03-03", "04-01", "04-02", "04-03", "05-01", "05-02", "05-03", "05-04"]
 }

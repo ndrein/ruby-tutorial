@@ -1,0 +1,7 @@
+<h1>Start a New Session</h1>
+
+<p>Sessions are capped at 15 minutes (900 seconds) to keep study focused.</p>
+
+<%= form_with url: sessions_path, method: :post do |f| %>
+  <%= f.submit "Start Session" %>
+<% end %>

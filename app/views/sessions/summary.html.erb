@@ -1,0 +1,9 @@
+<h1>Session Summary</h1>
+
+<p>Exercises completed: <%= @learning_session.exercises_completed %></p>
+<% if @learning_session.duration_seconds %>
+  <p>Duration: <%= @learning_session.duration_seconds %> seconds</p>
+<% end %>
+<p>Session date: <%= @learning_session.session_date %></p>
+
+<%= link_to "Start another session", new_session_path %>
