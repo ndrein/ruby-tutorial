@@ -1,9 +1,14 @@
-<div data-controller="timer"
+<div data-controller="exercise keyboard"
      data-timer-submit-url-value="<%= submit_exercise_path(@exercise) %>"
-     data-timer-csrf-token-value="<%= form_authenticity_token %>">
+     data-timer-csrf-token-value="<%= form_authenticity_token %>"
+     data-keyboard-dashboard-url-value="/progress">
 
-  <div class="timer" aria-label="Time remaining">
-    <span data-timer-target="display">0:30</span>
+  <div data-controller="timer"
+       data-timer-submit-url-value="<%= submit_exercise_path(@exercise) %>"
+       data-timer-csrf-token-value="<%= form_authenticity_token %>">
+    <div class="timer" aria-label="Time remaining">
+      <span data-timer-target="display">0:30</span>
+    </div>
   </div>
 
   <h1>Exercise</h1>
@@ -16,9 +21,20 @@
       <%= f.check_box :hard_flag, { id: "hard_flag" }, "true", "false" %>
       Hard (I wasn't confident)
     </label>
-    <input type="hidden" name="elapsed_seconds" id="elapsed_seconds" value="0" />
+    <input type="hidden" name="elapsed_seconds" id="elapsed_seconds" value="0" data-exercise-target="elapsedSeconds" />
     <button type="submit">Submit</button>
   <% end %>
+
+  <div class="keyboard-shortcuts" aria-label="Keyboard shortcuts">
+    <strong>Keyboard shortcuts</strong>
+    <ul>
+      <li><kbd>Enter</kbd> — submit answer</li>
+      <li><kbd>Esc</kbd> — skip exercise</li>
+      <li><kbd>h</kbd> — mark hard &amp; submit</li>
+      <li><kbd>e</kbd> — mark easy &amp; submit</li>
+      <li><kbd>g</kbd> <kbd>d</kbd> — go to dashboard</li>
+    </ul>
+  </div>
 
 </div>
 
