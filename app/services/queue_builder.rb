@@ -35,6 +35,7 @@ class QueueBuilder
   private_class_method :due_exercise_ids
 
   def self.to_postgres_array(ruby_array)
+    raise ArgumentError, "exercise_ids must be integers" unless ruby_array.all? { |id| id.is_a?(Integer) }
     "{#{ruby_array.join(',')}}"
   end
   private_class_method :to_postgres_array
