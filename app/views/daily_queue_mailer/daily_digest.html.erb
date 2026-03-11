@@ -1,0 +1,5 @@
+<h1>Your daily review is ready</h1>
+
+<p>You have <%= @review_count %> exercise<%= "s" if @review_count != 1 %> queued for today, estimated <%= @time_estimate_minutes %> minutes.</p>
+
+<p><%= link_to "Start your session now", @session_url %></p>
