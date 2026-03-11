@@ -8,3 +8,9 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Global focus ring — 2px solid #0066cc on white gives >3:1 contrast ratio (AC-015-01, AC-015-02) */
+*:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
